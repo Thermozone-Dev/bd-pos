@@ -14,5 +14,7 @@ class Discount extends Model
     protected $fillable = [
         'name',
         'value',
+        'is_percentage',
+        'is_flat_value',
     ];
 }
