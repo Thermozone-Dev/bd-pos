@@ -28,5 +28,15 @@ class Transaction extends Model
         'vat_exempt_sales',
         'vat_exempt',
         'zero_rated_sales',
+        'is_valid',
+        'is_pwd',
+        'is_sc',
+        'is_nac',
+        'is_soloparent',
     ];
+
+    public function processedBy()
+    {
+        return $this->belongsTo(User::class, 'processed_by');
+    }
 }
