@@ -6,10 +6,13 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use Filament\Forms;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,6 +35,9 @@ class ProductResource extends Resource
                     ->label('Price')
                     ->numeric()
                     ->required(),
+                SpatieMediaLibraryFileUpload::make('image')
+                    ->label('Product Image')
+                    ->downloadable(),
             ]);
     }
 
@@ -44,6 +50,7 @@ class ProductResource extends Resource
                     ->sortable(),
                 TextColumn::make('price')
                     ->sortable(),
+                SpatieMediaLibraryImageColumn::make('image'),
             ])
             ->filters([
                 //
