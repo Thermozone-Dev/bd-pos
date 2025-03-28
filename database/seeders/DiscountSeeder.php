@@ -35,7 +35,7 @@ class DiscountSeeder extends Seeder
         ]);
 
         DB::table('discounts')->insert([
-            'name' => 'soloparent',
+            'name' => 'solo-parent',
             'value' => '10',
             'is_percentage' => 1,
             'is_flat_value' => 0,
