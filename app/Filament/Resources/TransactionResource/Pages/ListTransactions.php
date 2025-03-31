@@ -15,9 +15,9 @@ class ListTransactions extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
             Action::make('downloadPdf')
-                ->label('BIR Summary Report')
+                ->label('Download BIR Summary Report PDF')
+                ->icon('heroicon-o-arrow-down-tray')
                 ->action(function () {
 
                     $pdf = SnappyPdf::loadView('reports.bir-summary')
