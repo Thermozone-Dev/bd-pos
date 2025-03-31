@@ -22,6 +22,8 @@ class ShiftResource extends Resource
 {
     protected static ?string $model = Shift::class;
 
+    protected static ?string $navigationGroup = 'User Management';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
