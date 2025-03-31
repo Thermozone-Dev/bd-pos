@@ -43,14 +43,14 @@ class ShiftResource extends Resource
                     ->label('Date & Time In')
                     ->timezone('Asia/Manila')
                     ->seconds(false)
-                    ->displayFormat('M d, Y - H:i A'),
+                    ->displayFormat('M d, Y - h:i A'),
                 DateTimePicker::make('time_out')
                     ->native(false)
                     ->required()
                     ->label('Date & Time Out')
                     ->timezone('Asia/Manila')
                     ->seconds(false)
-                    ->displayFormat('M d, Y - H:i A'),
+                    ->displayFormat('M d, Y - h:i A'),
             ]);
     }
 
@@ -62,11 +62,11 @@ class ShiftResource extends Resource
                 TextColumn::make('time_in')
                     ->label('Time In')
                     ->timezone('Asia/Manila')
-                    ->dateTime('M d, Y - H:i A'),
+                    ->dateTime('M d, Y - h:i A'),
                 TextColumn::make('time_out')
                     ->label('Time Out')
                     ->timezone('Asia/Manila')
-                    ->dateTime('M d, Y - H:i A'),
+                    ->dateTime('M d, Y - h:i A'),
             ])
             ->filters([
                 //
