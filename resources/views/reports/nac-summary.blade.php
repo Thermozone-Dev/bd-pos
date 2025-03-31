@@ -11,7 +11,7 @@
         <p>POS Terminal Number: <b>XXX</b></p>
 
         <p>Date & Time Generated: <b>XXXXXXXXX</b></p>
-        <p>Issued by: <b>XXXXXXXXX</b></p>
+        <p>Issued by: <b>{{ Auth::user()->name }}</b></p>
     </div><br>
     <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
         <caption style="border: 1px solid black; width: 100%; padding: 1em 0; background-color: white; color: black;"><b>National Athletes & Coaches Sales Book / Report</b></caption>
