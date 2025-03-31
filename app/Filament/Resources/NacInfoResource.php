@@ -25,7 +25,7 @@ class NacInfoResource extends Resource
 
     protected static ?string $pluralModelLabel = 'NAC Transactions';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationLabel = 'National Athletes & Coaches';
 

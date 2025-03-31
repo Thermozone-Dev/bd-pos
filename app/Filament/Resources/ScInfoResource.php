@@ -25,7 +25,7 @@ class ScInfoResource extends Resource
 
     protected static ?string $pluralModelLabel = 'SC Transactions';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationLabel = 'Senior Citizens';
 

@@ -25,7 +25,7 @@ class PwdInfoResource extends Resource
 
     protected static ?string $pluralModelLabel = 'PWD Transactions';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationLabel = 'Persons with Disabilities';
 

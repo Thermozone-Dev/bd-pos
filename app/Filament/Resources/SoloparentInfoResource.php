@@ -27,7 +27,7 @@ class SoloparentInfoResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Solo Parent Transactions';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationLabel = 'Solo Parents';
 
