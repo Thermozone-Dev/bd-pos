@@ -47,8 +47,15 @@ class User extends Authenticatable
         ];
     }
 
+    public function shifts(): HasMany
+    {
+        return $this->hasMany(Shift::class);
+    }
+
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
+
+
 }

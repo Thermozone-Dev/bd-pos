@@ -11,4 +11,9 @@ class Shift extends Model
         'time_in',
         'time_out',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
