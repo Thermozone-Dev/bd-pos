@@ -25,7 +25,9 @@ class PackageResource extends Resource
 {
     protected static ?string $model = Package::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-archive-box';
+
+    protected static ?string $navigationGroup = 'Items & Discounts';
 
     public static function form(Form $form): Form
     {
@@ -66,7 +68,7 @@ class PackageResource extends Resource
                 SpatieMediaLibraryImageColumn::make('image')->label('Image'),
                 TextColumn::make('name')->label('Package Name'),
                 TextColumn::make('price')->label('Price'),
-                TextColumn::make('products.name')->label('Products'),
+                TextColumn::make('products.name')->label('Products')->badge(),
             ])
             ->filters([
                 //

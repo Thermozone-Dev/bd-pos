@@ -29,7 +29,7 @@ class ScInfoResource extends Resource
 
     protected static ?string $navigationLabel = 'Senior Citizens';
 
-    protected static ?string $navigationGroup = 'Discount Reports';
+    protected static ?string $navigationGroup = 'Reports';
 
     public static function form(Form $form): Form
     {

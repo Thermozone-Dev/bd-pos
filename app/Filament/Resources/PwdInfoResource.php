@@ -29,7 +29,7 @@ class PwdInfoResource extends Resource
 
     protected static ?string $navigationLabel = 'Persons with Disabilities';
 
-    protected static ?string $navigationGroup = 'Discount Reports';
+    protected static ?string $navigationGroup = 'Reports';
 
 
     public static function form(Form $form): Form

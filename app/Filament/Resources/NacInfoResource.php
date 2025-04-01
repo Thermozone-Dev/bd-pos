@@ -29,7 +29,7 @@ class NacInfoResource extends Resource
 
     protected static ?string $navigationLabel = 'National Athletes & Coaches';
 
-    protected static ?string $navigationGroup = 'Discount Reports';
+    protected static ?string $navigationGroup = 'Reports';
 
     public static function form(Form $form): Form
     {
