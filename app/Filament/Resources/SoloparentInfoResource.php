@@ -31,7 +31,7 @@ class SoloparentInfoResource extends Resource
 
     protected static ?string $navigationLabel = 'Solo Parents';
 
-    protected static ?string $navigationGroup = 'Discount Reports';
+    protected static ?string $navigationGroup = 'Reports';
 
     public static function form(Form $form): Form
     {

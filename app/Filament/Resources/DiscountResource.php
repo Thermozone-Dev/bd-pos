@@ -23,6 +23,8 @@ class DiscountResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-down';
 
+    protected static ?string $navigationGroup = 'Items & Discounts';
+
     public static function form(Form $form): Form
     {
         return $form
