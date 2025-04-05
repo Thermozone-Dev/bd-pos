@@ -25,6 +25,8 @@ class DiscountResource extends Resource
 
     protected static ?string $navigationGroup = 'Items & Discounts';
 
+    protected static ?int $navigationSort = 8;
+
     public static function form(Form $form): Form
     {
         return $form
