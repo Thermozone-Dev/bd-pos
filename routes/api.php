@@ -9,5 +9,5 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 // Journal Routes
-Route::get('/journal/create', JournalController::class, 'newTransaction')->name('journal-log-transaction');
-Route::get('/journal/update', JournalController::class, 'updateTransaction')->name('journal-update-transaction');
+Route::get('/journal', [JournalController::class, 'newTransaction'])->name('journal-log-transaction');
+Route::get('/journal/{id}', [JournalController::class, 'updateTransaction'])->name('journal-update-transaction');
