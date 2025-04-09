@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PackageResource\Pages;
 
 use App\Filament\Resources\PackageResource;
+use App\Models\Item;
 use App\Models\Package;
 use App\Models\PackageHasProduct;
 use Filament\Actions;
@@ -16,6 +17,21 @@ class CreatePackage extends CreateRecord
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
+    }
+
+    protected function handleRecordCreation(array $data): Model
+    {
+        $package = Package::create([
+            'name' => $data['name'],
+            'price' => $data['price'],
+        ]);
+
+        $item = Item::create([
+            'package_id' => $package->id,
+            'type' => 'package',
+        ]);
+
+        return $package;
     }
 
 }

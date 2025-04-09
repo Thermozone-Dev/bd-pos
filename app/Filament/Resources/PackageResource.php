@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PackageResource\Pages;
 use App\Filament\Resources\PackageResource\RelationManagers;
+use App\Models\Item;
 use App\Models\Package;
 use App\Models\Product;
 use Filament\Forms;
@@ -14,10 +15,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -78,37 +82,29 @@ class PackageResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Action::make('delete')
+                    ->action(function (Model $record) {
+                        foreach ($record->productsJunction()->get() as $row) {
+                            $row->delete();
+                        }
+                        $record->item()->get()->first()->delete();
+                        $record->delete();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('delete')
+                        ->action(function (Collection $records) {
+                            $records->each(function ($record){
+                                foreach ($record->productsJunction()->get() as $row) {
+                                    $row->delete();
+                                }
+                                $record->item()->get()->first()->delete();
+                                $record->delete();
+                            });
+                        }),
                 ]),
             ]);
-    }
-
-    protected function handleRecordCreation(array $data): Model
-    {
-        $package = Package::create([
-            'name' => $data['name'],
-            'price' => $data['price'],
-        ]);
-
-        $package->products()->sync($data['products']);
-
-        return $package;
-    }
-
-    protected function handleRecordUpdate(Model $package, array $data): Model
-    {
-        $package->update([
-            'name' => $data['name'],
-            'price' => $data['price'],
-        ]);
-
-        // Sync updated products
-        $package->products()->sync($data['products']);
-
-        return $package;
     }
 
     public static function query(EloquentBuilder $query): EloquentBuilder
