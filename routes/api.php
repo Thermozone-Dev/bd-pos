@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\v1\AuthController;
 use App\Http\Controllers\Api\v1\ItemController;
 use App\Http\Controllers\Api\v1\JournalController;
 use App\Http\Controllers\Api\v1\PackageController;
@@ -7,36 +8,45 @@ use App\Http\Controllers\Api\v1\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
-// Journal Routes
-Route::get('/v1/journal', [JournalController::class, 'newTransaction']);
-Route::get('/v1/journal/{id}', [JournalController::class, 'updateTransaction']);
+Route::group(['prefix' => 'auth'], function () {
+    Route::get('/login', [AuthController::class, 'login']);
 
-// Item Routes
-Route::get('/v1/items', [ItemController::class, 'index']);
-Route::get('/v1/items/{id}', [ItemController::class, 'show']);
-Route::post('/v1/items', [ItemController::class, 'store']);
-Route::put('/v1/items/{id}', [ItemController::class, 'update']);
-Route::delete('/v1/items/{id}', [ItemController::class, 'destroy']);
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::get('/logout', [AuthController::class, 'logout']);
+        Route::get('/user', [AuthController::class, 'show']);
+    });
+});
 
-Route::get('/v1/itemProducts', [ItemController::class, 'products']);
-Route::get('/v1/itemProducts/{id}', [ItemController::class, 'product']);
-Route::get('/v1/itemPackages', [ItemController::class, 'packages']);
-Route::get('/v1/itemPackages/{id}', [ItemController::class, 'package']);
 
-// Product Routes
-Route::get('/v1/products', [ProductController::class, 'index']);
-Route::get('/v1/products/{id}', [ProductController::class, 'show']);
-Route::post('/v1/products', [ProductController::class, 'store']);
-Route::put('/v1/products/{id}', [ProductController::class, 'update']);
-Route::delete('/v1/products/{id}', [ProductController::class, 'destroy']);
+Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
+    // Journal Routes
+    Route::get('/journal', [JournalController::class, 'newTransaction']);
+    Route::get('/journal/{id}', [JournalController::class, 'updateTransaction']);
 
-// Package Routes
-Route::get('/v1/packages', [PackageController::class, 'index']);
-Route::get('/v1/packages/{id}', [PackageController::class, 'show']);
-Route::post('/v1/packages', [PackageController::class, 'store']);
-Route::put('/v1/packages/{id}', [PackageController::class, 'update']);
-Route::delete('/v1/packages/{id}', [PackageController::class, 'destroy']);
+    // Item Routes
+    Route::get('/items', [ItemController::class, 'index']);
+    Route::get('/items/{id}', [ItemController::class, 'show']);
+    Route::post('/items', [ItemController::class, 'store']);
+    Route::put('/items/{id}', [ItemController::class, 'update']);
+    Route::delete('/items/{id}', [ItemController::class, 'destroy']);
+
+    Route::get('/itemProducts', [ItemController::class, 'products']);
+    Route::get('/itemProducts/{id}', [ItemController::class, 'product']);
+    Route::get('/itemPackages', [ItemController::class, 'packages']);
+    Route::get('/itemPackages/{id}', [ItemController::class, 'package']);
+
+    // Product Routes
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/{id}', [ProductController::class, 'show']);
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+    // Package Routes
+    Route::get('/packages', [PackageController::class, 'index']);
+    Route::get('/packages/{id}', [PackageController::class, 'show']);
+    Route::post('/packages', [PackageController::class, 'store']);
+    Route::put('/packages/{id}', [PackageController::class, 'update']);
+    Route::delete('/packages/{id}', [PackageController::class, 'destroy']);
+});
