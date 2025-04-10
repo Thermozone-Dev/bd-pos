@@ -1,6 +1,9 @@
 <?php
 
-use App\Http\Controllers\JournalController;
+use App\Http\Controllers\Api\v1\ItemController;
+use App\Http\Controllers\Api\v1\JournalController;
+use App\Http\Controllers\Api\v1\PackageController;
+use App\Http\Controllers\Api\v1\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -9,5 +12,31 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 // Journal Routes
-Route::get('/journal', [JournalController::class, 'newTransaction'])->name('journal-log-transaction');
-Route::get('/journal/{id}', [JournalController::class, 'updateTransaction'])->name('journal-update-transaction');
+Route::get('/v1/journal', [JournalController::class, 'newTransaction']);
+Route::get('/v1/journal/{id}', [JournalController::class, 'updateTransaction']);
+
+// Item Routes
+Route::get('/v1/items', [ItemController::class, 'index']);
+Route::get('/v1/items/{id}', [ItemController::class, 'show']);
+Route::post('/v1/items', [ItemController::class, 'store']);
+Route::put('/v1/items/{id}', [ItemController::class, 'update']);
+Route::delete('/v1/items/{id}', [ItemController::class, 'destroy']);
+
+Route::get('/v1/itemProducts', [ItemController::class, 'products']);
+Route::get('/v1/itemProducts/{id}', [ItemController::class, 'product']);
+Route::get('/v1/itemPackages', [ItemController::class, 'packages']);
+Route::get('/v1/itemPackages/{id}', [ItemController::class, 'package']);
+
+// Product Routes
+Route::get('/v1/products', [ProductController::class, 'index']);
+Route::get('/v1/products/{id}', [ProductController::class, 'show']);
+Route::post('/v1/products', [ProductController::class, 'store']);
+Route::put('/v1/products/{id}', [ProductController::class, 'update']);
+Route::delete('/v1/products/{id}', [ProductController::class, 'destroy']);
+
+// Package Routes
+Route::get('/v1/packages', [PackageController::class, 'index']);
+Route::get('/v1/packages/{id}', [PackageController::class, 'show']);
+Route::post('/v1/packages', [PackageController::class, 'store']);
+Route::put('/v1/packages/{id}', [PackageController::class, 'update']);
+Route::delete('/v1/packages/{id}', [PackageController::class, 'destroy']);
