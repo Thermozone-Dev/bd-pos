@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\Item;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
 {
@@ -17,13 +18,22 @@ class ItemController extends Controller
         return response()->json($_items);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function products()
     {
-        $_item = Item::create($request->all());
-        return response()->json($_item, 201);
+        $_products = DB::table('items')
+                        ->join('products', 'items.product_id', '=', 'products.id')
+                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price'])
+                        ->get();
+        return response()->json($_products);
+    }
+
+    public function packages()
+    {
+        $_packages = DB::table('items')
+                        ->join('packages', 'items.package_id', '=', 'packages.id')
+                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price'])
+                        ->get();
+        return response()->json($_packages);
     }
 
     /**
@@ -34,6 +44,36 @@ class ItemController extends Controller
         $_item = Item::findFirst($id);
         return response()->json($_item);
     }
+
+    public function product(string $id)
+    {
+        $_product = DB::table('items')
+                        ->join('products', 'items.product_id', '=', 'products.id')
+                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price'])
+                        ->where('items.id', '=', $id)
+                        ->get();
+        return response()->json($_product);
+    }
+
+    public function package(string $id)
+    {
+        $_package = DB::table('items')
+                        ->join('packages', 'items.package_id', '=', 'packages.id')
+                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price'])
+                        ->where('items.id', '=', $id)
+                        ->get();
+        return response()->json($_package);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $_item = Item::create($request->all());
+        return response()->json($_item, 201);
+    }
+
 
     /**
      * Update the specified resource in storage.

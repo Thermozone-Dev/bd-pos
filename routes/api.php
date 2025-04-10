@@ -22,6 +22,11 @@ Route::post('/v1/items', [ItemController::class, 'store']);
 Route::put('/v1/items/{id}', [ItemController::class, 'update']);
 Route::delete('/v1/items/{id}', [ItemController::class, 'destroy']);
 
+Route::get('/v1/itemProducts', [ItemController::class, 'products']);
+Route::get('/v1/itemProducts/{id}', [ItemController::class, 'product']);
+Route::get('/v1/itemPackages', [ItemController::class, 'packages']);
+Route::get('/v1/itemPackages/{id}', [ItemController::class, 'package']);
+
 // Product Routes
 Route::get('/v1/products', [ProductController::class, 'index']);
 Route::get('/v1/products/{id}', [ProductController::class, 'show']);
