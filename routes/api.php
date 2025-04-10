@@ -8,11 +8,18 @@ use App\Http\Controllers\Api\v1\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
-Route::group(['prefix' => 'v1'], function () {
+Route::group(['prefix' => 'auth'], function () {
+    Route::get('/login', [AuthController::class, 'login']);
+
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::get('/logout', [AuthController::class, 'logout']);
+        Route::get('/user', [AuthController::class, 'show']);
+    });
+});
+
+
+Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     // Journal Routes
     Route::get('/journal', [JournalController::class, 'newTransaction']);
     Route::get('/journal/{id}', [JournalController::class, 'updateTransaction']);
