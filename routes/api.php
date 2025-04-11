@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\v1\AuthController;
+use App\Http\Controllers\Api\v1\DiscountController;
 use App\Http\Controllers\Api\v1\ItemController;
 use App\Http\Controllers\Api\v1\JournalController;
 use App\Http\Controllers\Api\v1\PackageController;
@@ -49,4 +50,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     Route::post('/packages', [PackageController::class, 'store']);
     Route::put('/packages/{id}', [PackageController::class, 'update']);
     Route::delete('/packages/{id}', [PackageController::class, 'destroy']);
+
+    // Discount Routes
+    Route::get('/discounts', [DiscountController::class, 'index']);
+    Route::get('/discounts/{id}', [DiscountController::class, 'show']);
+    Route::post('/discounts', [DiscountController::class, 'store']);
+    Route::put('/discounts/{id}', [DiscountController::class, 'update']);
+    Route::delete('/discounts/{id}', [DiscountController::class, 'destroy']);
 });
