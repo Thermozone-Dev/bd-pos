@@ -25,7 +25,8 @@ class AuthController extends Controller
             ]);
         }
 
-        return $_user->createToken($request->device_name, ['general:utils'])->plainTextToken;
+        $token = $_user->createToken($request->device_name, ['general:utils'])->plainTextToken;
+        return response()->json($token, 200);
     }
 
     public function logout(Request $request){
@@ -34,6 +35,7 @@ class AuthController extends Controller
         ]);
 
         auth()->user()->tokens()->where('name', $request->device_name)->delete();
+        return response()->json(null, 204);
     }
 
     public function index(){
