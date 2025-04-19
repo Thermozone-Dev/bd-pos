@@ -8,13 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TransactionBasket extends Model
 {
-    protected $fillable = [
-        'transaction_id',
-    ];
-
     public function transation(): BelongsTo
     {
-        return $this->belongsTo(Transaction::class, 'transaction_id', 'id');
+        return $this->belongsTo(Transaction::class, 'id', 'transaction_basket_id');
     }
 
     public function items(): HasMany
