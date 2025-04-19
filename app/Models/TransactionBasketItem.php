@@ -15,9 +15,9 @@ class TransactionBasketItem extends Model
         'quantity',
     ];
 
-    public function transaction(): BelongsTo
+    public function basket(): BelongsTo
     {
-        return $this->belongsTo(Transaction::class, 'transaction_basket', 'transaction_id', 'transaction_basket_item_id');
+        return $this->belongsTo(TransactionBasket::class, 'transaction_basket_id', 'id');
     }
 
     public function discount(): HasMany

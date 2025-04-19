@@ -45,11 +45,6 @@ class Transaction extends Model
 
     public function basket(): HasOne
     {
-        return $this->hasOne(TransactionBasket::class, 'id', 'transaction_basket_id');
-    }
-
-    public function basketItems(): HasMany
-    {
-        return $this->hasMany(TransactionBasketItem::class, 'transaction_basket', 'transaction_basket_item_id', 'transaction_id');
+        return $this->hasOne(TransactionBasket::class, 'transaction_basket_id', 'id');
     }
 }
