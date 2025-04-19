@@ -10,12 +10,16 @@ class TransactionBasket extends Model
 {
     protected $fillable = [
         'transaction_id',
-        'transaction_basket_item_id',
     ];
 
     public function transation(): BelongsTo
     {
         return $this->belongsTo(Transaction::class, 'transaction_id', 'id');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(TransactionBasketItem::class, 'transaction_basket_id', 'id');
     }
 
     public function discount(): HasMany

@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::table('transaction_baskets', function (Blueprint $table) {
             //
             $table->unsignedBigInteger('transaction_id');
-            $table->unsignedBigInteger('transaction_basket_item_id');
         });
     }
 
@@ -25,7 +24,6 @@ return new class extends Migration
     {
         Schema::table('transaction_baskets', function (Blueprint $table) {
             $table->dropColumn('transaction_id');
-            $table->dropColumn('transaction_basket_item_id');
         });
     }
 };
