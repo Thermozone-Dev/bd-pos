@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('discounts', function (Blueprint $table) {
-            $table->dropIfExists('is_flat_value');
+            $table->dropColumn('is_flat_value');
         });
     }
 
