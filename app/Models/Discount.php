@@ -8,13 +8,11 @@ class Discount extends Model
 {
     protected $casts = [
         'is_percentage' => 'boolean',
-        'is_flat_value' => 'boolean',
     ];
 
     protected $fillable = [
         'name',
         'value',
         'is_percentage',
-        'is_flat_value',
     ];
 }
