@@ -13,6 +13,8 @@ class TransactionBasketItem extends Model
         'transaction_basket_id',
         'item_id',
         'quantity',
+        'discount_value',
+        'total_value',
     ];
 
     public function basket(): BelongsTo
