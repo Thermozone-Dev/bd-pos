@@ -52,6 +52,6 @@ class Transaction extends Model
 
     public function paymentMehthod(): HasOne
     {
-        return $this->hasOne(PaymentMethod::class, 'payment_method_id');
+        return $this->hasOne(PaymentMethod::class, 'transaction_method_id', 'id');
     }
 }

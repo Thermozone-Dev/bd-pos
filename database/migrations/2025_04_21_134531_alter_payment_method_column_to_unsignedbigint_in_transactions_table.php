@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->dropColumn('payment_method');
-            $table->unsignedBigInteger('payment_method_id');
+            $table->dropColumn('transaction_method');
+            $table->unsignedBigInteger('transaction_method_id');
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->dropColumn('payment_method_id');
-            $table->string('payment_method');
+            $table->dropColumn('transaction_method_id');
+            $table->string('transaction_method');
         });
     }
 };
