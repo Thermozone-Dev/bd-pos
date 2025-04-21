@@ -22,7 +22,7 @@ class Transaction extends Model
         'processed_by',
         'transaction_basket_id',
         'barcode',
-        'transaction_method',
+        'transaction_method_id',
         'transaction_fee',
         'cash_tendered',
         'change',
@@ -48,5 +48,10 @@ class Transaction extends Model
     public function basket(): HasOne
     {
         return $this->hasOne(TransactionBasket::class, 'transaction_basket_id', 'id');
+    }
+
+    public function paymentMehthod(): HasOne
+    {
+        return $this->hasOne(PaymentMethod::class, 'payment_method_id');
     }
 }
