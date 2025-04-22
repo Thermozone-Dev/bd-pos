@@ -11,10 +11,12 @@ class PaymentMethod extends Model
 
     protected $casts = [
         'is_digital' => 'boolean',
+        'is_enabled' => 'boolean',
     ];
 
     protected $fillable = [
         'name',
-        'is_digital'
+        'is_digital',
+        'is_enabled',
     ];
 }

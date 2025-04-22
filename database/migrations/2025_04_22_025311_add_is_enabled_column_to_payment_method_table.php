@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payment_methods', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->boolean('is_digital');
-            $table->timestamps();
+        Schema::table('payment_methods', function (Blueprint $table) {
+            $table->boolean('is_enabled');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payment_methods');
+        Schema::table('payment_methods', function (Blueprint $table) {
+            $table->dropColumn('is_enabled');
+        });
     }
 };
