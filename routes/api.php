@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\v1\DiscountController;
 use App\Http\Controllers\Api\v1\ItemController;
 use App\Http\Controllers\Api\v1\JournalController;
 use App\Http\Controllers\Api\v1\PackageController;
+use App\Http\Controllers\Api\v1\PaymentMethodController;
 use App\Http\Controllers\Api\v1\ProductController;
 use App\Http\Controllers\Api\v1\TransactionController;
 use Illuminate\Http\Request;
@@ -66,4 +67,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     Route::post('/transactions', [TransactionController::class, 'store']);
     Route::put('/transactions/{id}', [TransactionController::class, 'update']);
     Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
+
+    // PaymentMethod Routes
+    Route::get('/paymentmethods', [PaymentMethodController::class, 'index']);
+    Route::get('/paymentmethods/{id}', [PaymentMethodController::class, 'show']);
+    Route::post('/paymentmethods', [PaymentMethodController::class, 'store']);
+    Route::put('/paymentmethods/{id}', [PaymentMethodController::class, 'update']);
+    Route::delete('/paymentmethods/{id}', [PaymentMethodController::class, 'destroy']);
 });
