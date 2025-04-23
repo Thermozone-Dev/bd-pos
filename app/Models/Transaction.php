@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Transaction extends Model
 {
@@ -20,15 +22,17 @@ class Transaction extends Model
         'processed_by',
         'transaction_basket_id',
         'barcode',
-        'transaction_method',
+        'transaction_method_id',
         'transaction_fee',
         'cash_tendered',
         'change',
+        'gross_sales',
         'vatable_sales',
         'vat',
         'vat_exempt_sales',
         'vat_exempt',
         'zero_rated_sales',
+        'total_sales',
         'is_valid',
         'is_pwd',
         'is_sc',
@@ -39,5 +43,15 @@ class Transaction extends Model
     public function processedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'processed_by');
+    }
+
+    public function basket(): HasOne
+    {
+        return $this->hasOne(TransactionBasket::class, 'transaction_basket_id', 'id');
+    }
+
+    public function paymentMehthod(): HasOne
+    {
+        return $this->hasOne(PaymentMethod::class, 'transaction_method_id', 'id');
     }
 }

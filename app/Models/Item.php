@@ -22,4 +22,12 @@ class Item extends Model
     {
         return $this->hasOne(Package::class, 'id', 'package_id');
     }
+
+    public function data(): HasOne
+    {
+        return match ($this->type) {
+            'product' => $this->product(),
+            'package' => $this->package(),
+        };
+    }
 }

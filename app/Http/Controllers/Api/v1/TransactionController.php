@@ -1,0 +1,304 @@
+<?php
+
+namespace App\Http\Controllers\Api\v1;
+
+use App\Http\Controllers\Controller;
+use App\Models\Discount;
+use App\Models\Item;
+use App\Models\NacInfo;
+use App\Models\PwdInfo;
+use App\Models\ScInfo;
+use App\Models\SoloparentInfo;
+use App\Models\Transaction;
+use App\Models\TransactionBasket;
+use App\Models\TransactionBasketHasDiscount;
+use App\Models\TransactionBasketItem;
+use App\Models\TransactionBasketItemHasDiscount;
+use Exception;
+use Illuminate\Http\Request;
+use PhpParser\Node\Expr\Cast\Array_;
+
+use function PHPUnit\Framework\isEmpty;
+use function PHPUnit\Framework\isNull;
+
+class TransactionController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $_transactions = Transaction::all();
+        return response()->json($_transactions);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        try {
+            //Validate Request
+            $request->validate([
+                'secret_key' => 'required|string',
+                'items.*.item_id' => 'numeric',
+                'items.*.item_quantity' => 'numeric',
+                'items.*.item_discounts.*' => 'numeric',
+                'transaction_discounts.*' => 'numeric',
+                'transaction_method' => 'required|numeric',
+                'transaction_fee' => 'required|regex:/^\d*\.\d{2}$/',
+                'total_sales' => 'required|regex:/^\d*\.\d{2}$/',
+                'cash_tendered' => 'required|regex:/^\d*\.\d{2}$/',
+                'change' => 'required|regex:/^\d*\.\d{2}$/',
+                'gross_sales' => 'required|regex:/^\d*\.\d{2}$/',
+                'vatable_sales' => 'required|regex:/^\d*\.\d{2}$/',
+                'vat' => 'required|regex:/^\d*\.\d{2}$/',
+                'vat_exempt' => 'required|regex:/^\d*\.\d{2}$/',
+                'vat_exempt_sales' => 'required|regex:/^\d*\.\d{2}$/',
+                'zero_rated_sales' => 'required|regex:/^\d*\.\d{2}$/',
+                'gov_discount_details.pwd.name' => 'string',
+                'gov_discount_details.pwd.id' => 'string',
+                'gov_discount_details.pwd.tin' => 'string',
+                'gov_discount_details.sc.name' => 'string',
+                'gov_discount_details.sc.id' => 'string',
+                'gov_discount_details.sc.tin' => 'string',
+                'gov_discount_details.nac.name' => 'string',
+                'gov_discount_details.nac.id' => 'string',
+                'gov_discount_details.nac.tin' => 'string',
+                'gov_discount_details.sp.name' => 'string',
+                'gov_discount_details.sp.id' => 'string',
+                'gov_discount_details.sp.child_name' => 'string',
+                'gov_discount_details.sp.child_age' => 'numeric',
+                'gov_discount_details.sp.child_birthday' => 'date|date_format:Y-m-d',
+            ]);
+
+            if ($request->secret_key != config('api.secret_key')) {
+                $_err = ['error' => 'Invalid Secret Key',];
+                return response()->json($_err, 400);
+            }
+
+            $_data = [
+                'processed_by' => auth()->user()->id,
+                'transaction_basket_id' => null,
+                'barcode' =>  null,
+                'transaction_method_id' => $request->transaction_method,
+                'transaction_fee' => $request->transaction_fee,
+                'cash_tendered' => $request->cash_tendered,
+                'total_sales' => $request->total_sales,
+                'change' => $request->change,
+                'gross_sales' => $request->gross_sales,
+                'vatable_sales' => $request->vatable_sales,
+                'vat' => $request->vat,
+                'vat_exempt' => $request->vat_exempt,
+                'vat_exempt_sales' => $request->vat_exempt_sales,
+                'zero_rated_sales' => $request->zero_rated_sales,
+                'is_valid' => true,
+                'is_pwd' => false,
+                'is_sc' => false,
+                'is_nac' => false,
+                'is_soloparent' => false,
+            ];
+
+            //Create Basket
+            $_basket = TransactionBasket::create();
+            $_data['transaction_basket_id'] = $_basket->id;
+
+            //Create Basket Items
+            $_gov_discount_list = [];
+            $_basket_item_data = $this->processItems($_basket, $request->items, $_gov_discount_list);
+
+            //return these values
+            $_basket_items = $_basket_item_data[0];
+            $_gov_discount_list = $_basket_item_data[1];
+
+            // Per Basket Discount
+            if (!isNull($request['transaction_discounts'])) {
+                foreach ($request['transaction_discounts'] as $data) {
+                    $_discount = Discount::find($data['id']);
+
+                    $_basket_has_discount_data = [
+                        'basket_basket_id' => $_basket->id,
+                        'discount_id' => $_discount->id,
+                    ];
+                    $_basket_has_discount = TransactionBasketHasDiscount::create($_basket_has_discount_data);
+
+                    //Add Gov Discount Processing
+                    $_gov_discount_list = $this->getDiscounts($data, $_gov_discount_list);
+                }
+            }
+
+
+            //Create Transaction
+            $_transaction = Transaction::create($_data);
+            $_transaction->barcode = $_transaction->id;
+
+            //Gov discount processing
+            if(!empty($_gov_discount_list)){
+                if(isset($request->gov_discount_details)){
+                    foreach ($request->gov_discount_details as $key => $details) {
+                        match ($key) {
+                                'sc' => $this->createScInfo($details, $_transaction->id),
+                                'pwd' => $this->createPwdInfo($details, $_transaction->id),
+                                'nac' => $this->createNacInfo($details, $_transaction->id),
+                                'sp' => $this->createSpInfo($details, $_transaction->id),
+                        };
+                        match ($key) {
+                                'sc' => $_transaction->is_sc = true,
+                                'pwd' => $_transaction->is_pwd = true,
+                                'nac' => $_transaction->is_nac = true,
+                                'sp' => $_transaction->is_soloparent = true,
+                        };
+                    }
+                }
+                else{
+                    $_err = ['error' => 'Missing Discount Details',];
+                    return response()->json($_err, 400);
+                }
+            }
+
+            $_transaction->update();
+
+            //Process Data Formatting for json
+            $_return_data = [
+                'transaction details' => $_transaction,
+                'transaction basket' => $_basket_items,
+            ];
+
+            return response()->json($_return_data, 201);
+
+        } catch (Exception $err) {
+            return response()->json($err->getMessage());
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $_transaction = Transaction::find($id);
+        return response()->json($_transaction);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $_transaction = Transaction::findFirst($id);
+        $_transaction->update($request->all());
+        return response()->json($_transaction, 200);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        Transaction::destroy($id);
+        return response()->json(null, 204);
+    }
+
+    private function createPwdInfo($details, $transaction_id){
+        $_data = [
+            'transaction_id' => $transaction_id,
+            'name' => $details['name'],
+            'pwd_id' => $details['id'],
+            'pwd_tin' => $details['tin'],
+        ];
+
+        PwdInfo::create($_data);
+    }
+
+    private function createScInfo($details, $transaction_id){
+        $_data = [
+            'transaction_id' => $transaction_id,
+            'name' => $details['name'],
+            'sc_id' => $details['id'],
+            'sc_tin' => $details['tin'],
+        ];
+
+        ScInfo::create($_data);
+    }
+
+    private function createNacInfo($details, $transaction_id){
+        $_data = [
+            'transaction_id' => $transaction_id,
+            'name' => $details['name'],
+            'pnstm_id' => $details['id'],
+        ];
+
+        NacInfo::create($_data);
+    }
+
+    private function createSpInfo($details, $transaction_id){
+        $_data = [
+            'transaction_id' => $transaction_id,
+            'name' => $details['name'],
+            'spic_id' => $details['id'],
+            'child_name' => $details['child_name'],
+            'child_age' => $details['child_age'],
+            'child_birthday' => $details['child_birthday'],
+        ];
+
+        SoloparentInfo::create($_data);
+    }
+
+    private function getDiscounts($data, $gov_discount_list): array
+    {
+        $_gov_discount = match ($data) {
+            1 => 'sc',
+            2 => 'pwd',
+            3 => 'nac',
+            4 => 'sp',
+            default => null,
+
+        };
+
+        if (!is_null($_gov_discount) || !in_array($_gov_discount, $gov_discount_list)){
+            array_push($gov_discount_list, $_gov_discount);
+        }
+        return $gov_discount_list;
+    }
+
+    private function processItems(TransactionBasket $basket, array $items, array $gov_discount_list)
+    {
+        $_basket_items = [];
+        foreach($items as $key => $item){
+            $_item_data = [
+                'transaction_basket_id' => $basket['id'],
+                'item_id' => $item['item_id'],
+                'quantity' => $item['item_quantity'],
+                'discount_value' => $item['discount_value'],
+                'total_value' => $item['total_value'],
+            ];
+
+            $_basket_item = TransactionBasketItem::create($_item_data);
+
+            // Discount Check
+
+
+            // Per Item Discounts
+            if (isset($item['item_discounts'])) {
+                foreach ($item['item_discounts'] as $key => $data) {
+                    $_discount = Discount::find($data);
+
+                    $_item_has_discount_data = [
+                        'transaction_basket_item_id' => $_basket_item->id,
+                        'discount_id' => $_discount->id,
+                    ];
+                    $_item_has_discount = TransactionBasketItemHasDiscount::create($_item_has_discount_data);
+
+                    //Add Gov Discount Processing
+                    $gov_discount_list = $this->getDiscounts($data, $gov_discount_list);
+                }
+            }
+
+            $_basket_item->update($_item_data);
+            array_push($_basket_items, $_basket_item);
+
+            return [$_basket_items, $gov_discount_list];
+        }
+    }
+}
+

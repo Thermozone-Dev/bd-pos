@@ -115,13 +115,15 @@ class TransactionResource extends Resource
                 TextColumn::make('barcode'),
                 TextColumn::make('transaction_method')->label('Transaction Method'),
                 TextColumn::make('transaction_fee')->label('Transaction Fee'),
-                TextColumn::make('vatable_sales')->label('VATable Sales'),
+                TextColumn::make('gross_sales')->label('Gross Sales'),
                 TextColumn::make('cash_tendered')->label('Cash Tendered'),
                 TextColumn::make('change')->label('Change'),
+                TextColumn::make('vatable_sales')->label('VATable Sales'),
                 TextColumn::make('vat')->label('VAT'),
                 TextColumn::make('vat_exempt_sales')->label('VAT Exempt Sales'),
                 TextColumn::make('vat_exempt')->label('VAT Exempt'),
                 TextColumn::make('zero_rated_sales')->label('Zero Rated Sales'),
+                TextColumn::make('total_sales')->label('Total Sales'),
                 IconColumn::make('is_valid')->label('Valid')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
