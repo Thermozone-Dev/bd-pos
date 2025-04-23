@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\v1\PackageController;
 use App\Http\Controllers\Api\v1\PaymentMethodController;
 use App\Http\Controllers\Api\v1\ProductController;
 use App\Http\Controllers\Api\v1\TransactionController;
+use App\Http\Middleware\EnsureSecretKeyIsValid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'auth'], function () {
     Route::get('/login', [AuthController::class, 'login']);
 
-    Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::group(['middleware' => ['auth:sanctum', EnsureSecretKeyIsValid::class]], function () {
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::get('/tokens', [AuthController::class, 'checkTokens']);
         Route::get('/user', [AuthController::class, 'show']);
@@ -23,7 +24,7 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 
-Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
+Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKeyIsValid::class]], function () {
     // Journal Routes
     Route::get('/journal', [JournalController::class, 'newTransaction']);
     Route::get('/journal/{id}', [JournalController::class, 'updateTransaction']);
