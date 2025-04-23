@@ -39,16 +39,8 @@ class AuthController extends Controller
     }
 
     public function checkTokens(Request $request){
-        $request->validate([
-            'secret_key' => 'required',
-        ]);
-
-        if ($request->secret_key == config('api.secret_key')) {
-            $_tokens = auth()->user()->tokens()->get();
-            return response()->json($_tokens, 200);
-        }
-        $err = ['error' => 'Invalid Secret Key',];
-        return response()->json($err, 400);
+        $_tokens = auth()->user()->tokens()->get();
+        return response()->json($_tokens, 200);
     }
 
     public function index(){
