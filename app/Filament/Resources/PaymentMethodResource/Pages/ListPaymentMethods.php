@@ -15,7 +15,7 @@ class ListPaymentMethods extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->visible(true),
+            Actions\CreateAction::make()->visible(auth()->user()->hasRole('super_admin')),
         ];
     }
 }

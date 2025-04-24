@@ -61,7 +61,7 @@ class PaymentMethodResource extends Resource
                 //
             ])
             ->actions([
-                EditAction::make(),
+                EditAction::make()->visible(auth()->user()->hasRole('super_admin')),
             ])
             ->bulkActions([
                 //
