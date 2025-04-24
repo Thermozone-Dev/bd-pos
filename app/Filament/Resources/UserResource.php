@@ -63,11 +63,6 @@ class UserResource extends Resource
                             ->placeholder('********')
                             ->visible(fn ($livewire) => $livewire instanceof CreateUser)
                             ->rule(Password::default()),
-                        // Select::make('roles')
-                        //     ->relationship('roles', 'name')
-                        //     ->multiple()
-                        //     ->preload()
-                        //     ->searchable(),
                 ]),
 
                 Section::make('New Password')
@@ -89,6 +84,24 @@ class UserResource extends Resource
                             ->visible(fn ($livewire) => $livewire instanceof EditUser)
                             ->rule(Password::default()),
                 ])->visible(fn ($livewire) => $livewire instanceof EditUser),
+
+                Section::make('Authentication')
+                    ->columns(2)
+                    ->schema([
+                        Select::make('roles')
+                            ->relationship('roles', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->hidden(auth()->user()->hasRole('Manager')),
+                        Select::make('roles')
+                            ->relationship('roles', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->disableOptionWhen(fn(string $value): bool => $value == 1)
+                            ->hidden(auth()->user()->hasRole('super_admin')),
+                    ])
             ]);
     }
 
