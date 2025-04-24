@@ -40,7 +40,6 @@ class TransactionController extends Controller
         try {
             //Validate Request
             $request->validate([
-                'secret_key' => 'required|string',
                 'items.*.item_id' => 'numeric',
                 'items.*.item_quantity' => 'numeric',
                 'items.*.item_discounts.*' => 'numeric',
@@ -71,11 +70,6 @@ class TransactionController extends Controller
                 'gov_discount_details.sp.child_age' => 'numeric',
                 'gov_discount_details.sp.child_birthday' => 'date|date_format:Y-m-d',
             ]);
-
-            if ($request->secret_key != config('api.secret_key')) {
-                $_err = ['error' => 'Invalid Secret Key',];
-                return response()->json($_err, 400);
-            }
 
             $_data = [
                 'processed_by' => auth()->user()->id,
