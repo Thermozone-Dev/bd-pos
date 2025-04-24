@@ -92,8 +92,16 @@ class UserResource extends Resource
                             ->relationship('roles', 'name')
                             ->multiple()
                             ->preload()
-                            ->searchable(),
-                    ]),
+                            ->searchable()
+                            ->hidden(auth()->user()->hasRole('Manager')),
+                        Select::make('roles')
+                            ->relationship('roles', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->disableOptionWhen(fn(string $value): bool => $value == 1)
+                            ->hidden(auth()->user()->hasRole('super_admin')),
+                    ])
             ]);
     }
 
