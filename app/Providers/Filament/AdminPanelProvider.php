@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Livewire\TabulatedWidget;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -38,8 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                TabulatedWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
