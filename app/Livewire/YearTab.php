@@ -12,5 +12,9 @@ class YearTab extends Widget
         return "Year";
     }
 
+    public function getColumns(){
+        return 4;
+    }
+
     protected int | string | array $columnSpan = 'full';
 }
