@@ -18,5 +18,4 @@ class TabulatedWidget extends MultiWidget
     {
         return true;
     }
-
 }

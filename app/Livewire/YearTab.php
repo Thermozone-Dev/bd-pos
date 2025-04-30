@@ -11,4 +11,6 @@ class YearTab extends Widget
     public function getDisplayName(): string {
         return "Year";
     }
+
+    protected int | string | array $columnSpan = 'full';
 }

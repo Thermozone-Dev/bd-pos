@@ -8,6 +8,10 @@ class TodayTab extends Widget
 {
     protected static string $view = 'livewire.today-tab';
 
+    public function getColumns(){
+        return 4;
+    }
+
     public function getDisplayName(): string {
         return "Today";
     }
