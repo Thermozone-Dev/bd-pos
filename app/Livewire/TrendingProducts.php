@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Product;
 use Filament\Tables;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
@@ -17,6 +18,7 @@ class TrendingProducts extends BaseWidget
                     ->orderBy('price', 'desc')
             )
             ->columns([
+                SpatieMediaLibraryImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Name')
                     ->sortable(),
