@@ -1,0 +1,28 @@
+<x-filament-widgets::widget>
+    <x-filament::section>
+        <div class="grid col-span-2 grid-flow-col gap-4">
+            <div class="col-span-1">
+                @livewire(YesterdayTransactions::class)
+            </div>
+            <div class="col-span-1">
+                @livewire(YesterdayGrossTotal::class)
+            </div>
+        </div><br>
+        <div class="grid grid-flow-col grid-cols-5 gap-4">
+            <div class="col-span-3">
+                @livewire(YesterdaySales::class)
+            </div>
+            <div class="col-span-2">
+                @livewire(YesterdayIncome::class)
+            </div>
+        </div><br>
+        <div class="grid col-span-2 grid-flow-col gap-4">
+            <div class="col-span-1">
+                @livewire(TrendingProducts::class)
+            </div>
+            <div class="col-span-1">
+                @livewire(BestEmployees::class)
+            </div>
+        </div>
+    </x-filament::section>
+</x-filament-widgets::widget>
