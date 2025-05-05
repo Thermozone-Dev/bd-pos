@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['prefix' => 'auth'], function () {
-    Route::get('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login']);
 
     Route::group(['middleware' => ['auth:sanctum', EnsureSecretKeyIsValid::class]], function () {
-        Route::get('/logout', [AuthController::class, 'logout']);
+        Route::delete('/logout', [AuthController::class, 'logout']);
         Route::get('/tokens', [AuthController::class, 'checkTokens']);
         Route::get('/user', [AuthController::class, 'show']);
     });
@@ -70,9 +70,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
 
     // PaymentMethod Routes
-    Route::get('/paymentmethods', [PaymentMethodController::class, 'index']);
-    Route::get('/paymentmethods/{id}', [PaymentMethodController::class, 'show']);
-    Route::post('/paymentmethods', [PaymentMethodController::class, 'store']);
-    Route::put('/paymentmethods/{id}', [PaymentMethodController::class, 'update']);
-    Route::delete('/paymentmethods/{id}', [PaymentMethodController::class, 'destroy']);
+    Route::get('/paymentMethods', [PaymentMethodController::class, 'index']);
+    Route::get('/paymentMethods/{id}', [PaymentMethodController::class, 'show']);
+    Route::post('/paymentMethods', [PaymentMethodController::class, 'store']);
+    Route::put('/paymentMethods/{id}', [PaymentMethodController::class, 'update']);
+    Route::delete('/paymentMethods/{id}', [PaymentMethodController::class, 'destroy']);
 });
