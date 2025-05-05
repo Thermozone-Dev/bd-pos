@@ -38,6 +38,7 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         try {
+            // return response()->json($request->transaction_fee, 201);
             //Validate Request
             $request->validate([
                 'items.*.item_id' => 'numeric',
@@ -45,16 +46,15 @@ class TransactionController extends Controller
                 'items.*.item_discounts.*' => 'numeric',
                 'transaction_discounts.*' => 'numeric',
                 'transaction_method' => 'required|numeric',
-                'transaction_fee' => 'required|regex:/^\d*\.\d{2}$/',
-                'total_sales' => 'required|regex:/^\d*\.\d{2}$/',
-                'cash_tendered' => 'required|regex:/^\d*\.\d{2}$/',
-                'change' => 'required|regex:/^\d*\.\d{2}$/',
-                'gross_sales' => 'required|regex:/^\d*\.\d{2}$/',
-                'vatable_sales' => 'required|regex:/^\d*\.\d{2}$/',
-                'vat' => 'required|regex:/^\d*\.\d{2}$/',
-                'vat_exempt' => 'required|regex:/^\d*\.\d{2}$/',
-                'vat_exempt_sales' => 'required|regex:/^\d*\.\d{2}$/',
-                'zero_rated_sales' => 'required|regex:/^\d*\.\d{2}$/',
+                'transaction_fee' => 'required|numeric',
+                'total_sales' => 'required|numeric',
+                'cash_tendered' => 'required|numeric',
+                'change' => 'required|numeric',
+                'gross_sales' => 'required|numeric',
+                'vatable_sales' => 'required|numeric',
+                'vat' => 'required|numeric',
+                'vat_exempt_sales' => 'required|numeric',
+                'zero_rated_sales' => 'required|numeric',
                 'gov_discount_details.pwd.name' => 'string',
                 'gov_discount_details.pwd.id' => 'string',
                 'gov_discount_details.pwd.tin' => 'string',
@@ -83,7 +83,7 @@ class TransactionController extends Controller
                 'gross_sales' => $request->gross_sales,
                 'vatable_sales' => $request->vatable_sales,
                 'vat' => $request->vat,
-                'vat_exempt' => $request->vat_exempt,
+                'vat_exempt' => 0.00,
                 'vat_exempt_sales' => $request->vat_exempt_sales,
                 'zero_rated_sales' => $request->zero_rated_sales,
                 'is_valid' => true,
@@ -258,7 +258,7 @@ class TransactionController extends Controller
     private function processItems(TransactionBasket $basket, array $items, array $gov_discount_list)
     {
         $_basket_items = [];
-        foreach($items as $key => $item){
+        foreach($items as $item){
             $_item_data = [
                 'transaction_basket_id' => $basket['id'],
                 'item_id' => $item['item_id'],
@@ -274,7 +274,7 @@ class TransactionController extends Controller
 
             // Per Item Discounts
             if (isset($item['item_discounts'])) {
-                foreach ($item['item_discounts'] as $key => $data) {
+                foreach ($item['item_discounts'] as $data) {
                     $_discount = Discount::find($data);
 
                     $_item_has_discount_data = [
