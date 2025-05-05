@@ -15,11 +15,7 @@ class EnsureSecretKeyIsValid
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $request->validate([
-            'secret_key' => 'required|string',
-        ]);
-
-        if ($request->secret_key != config('api.secret_key')) {
+        if ($request->header('Pos-Secret-Key') != config('api.secret_key')) {
             $_err = ['error' => 'Invalid Secret Key',];
             return response()->json($_err, 400);
         }
