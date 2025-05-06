@@ -10,7 +10,11 @@
         <p>Machine Identification Number: <b>XXXXXXXXXX</b></p>
         <p>POS Terminal Number: <b>XXX</b></p>
 
-        <p>Date & Time Generated: <b>XXXXXXXXX</b></p>
+        <p>Date & Time Generated: <b>
+            @php
+                echo \Carbon\Carbon::now()->format('F j, Y h:i A');
+            @endphp</b>
+        </p>
         <p>Issued by: <b>{{ Auth::user()->name }}</b></p>
     </div><br>
     <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
@@ -29,29 +33,23 @@
                 <th style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Net Sales</th>
             </tr>
         </thead>
-        <tr style="background-color: white;">
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-        </tr>
-        <tr style="background-color: white;">
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-            <td style="border: 1px solid black; padding: 8px;">Test</td>
-        </tr>
+        @foreach ($spInfos as $spInfo)
+            @php
+                $spTransaction = $spTransactions[$spInfo->transaction_id] ?? null;
+            @endphp
+            <tr style="background-color: white;">
+                <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($spInfo->created_at)->format('F j, Y') }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->name }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->spic_id }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->child_name }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($spInfo->child_birthday)->format('F j, Y') }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->child_age }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($spInfo->transaction_id, 6, '0', STR_PAD_LEFT) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ $spTransaction->gross_sales }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ $spTransaction->total_sales }}</td>
+            </tr>
+        @endforeach
+
     </table>
 </section>

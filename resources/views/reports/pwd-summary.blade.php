@@ -10,7 +10,11 @@
         <p>Machine Identification Number: <b>XXXXXXXXXX</b></p>
         <p>POS Terminal Number: <b>XXX</b></p>
 
-        <p>Date & Time Generated: <b>XXXXXXXXX</b></p>
+        <p>Date & Time Generated: <b>
+            @php
+                echo \Carbon\Carbon::now()->format('F j, Y h:i A');
+            @endphp</b>
+        </p>
         <p>Issued by: <b>{{ Auth::user()->name }}</b></p>
     </div><br>
     <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
@@ -33,32 +37,23 @@
                 <th colspan="4" rowspan="1" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">20%</th>
             </tr>
         </thead>
-        <tr style="background-color: white;">
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-
-        </tr>
-        <tr style="background-color: white;">
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px;">Test</td>
-        </tr>
+        @foreach ($pwdInfos as $pwdInfo)
+            @php
+                $pwdTransaction = $pwdTransactions[$pwdInfo->transaction_id] ?? null;
+            @endphp
+            <tr style="background-color: white;">
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($pwdInfo->created_at)->format('F j, Y') }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdInfo->name }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdInfo->pwd_id }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdInfo->pwd_tin }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ str_pad($pwdInfo->transaction_id, 6, '0', STR_PAD_LEFT) }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdTransaction->gross_sales }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdTransaction->vat }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdTransaction->vat_exempt }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">&#x2715;</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">&#x2713;</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdTransaction->total_sales }}</td>
+            </tr>
+        @endforeach
     </table>
 </section>
