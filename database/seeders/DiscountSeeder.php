@@ -17,24 +17,28 @@ class DiscountSeeder extends Seeder
             'name' => 'senior-citizen',
             'value' => '20',
             'is_percentage' => 1,
+            'is_government_discount' => 1,
         ]);
 
         DB::table('discounts')->insert([
             'name' => 'persons-with-disabilities',
             'value' => '20',
             'is_percentage' => 1,
+            'is_government_discount' => 1,
         ]);
 
         DB::table('discounts')->insert([
             'name' => 'national-athletes-coaches',
             'value' => '20',
             'is_percentage' => 1,
+            'is_government_discount' => 1,
         ]);
 
         DB::table('discounts')->insert([
             'name' => 'solo-parent',
             'value' => '10',
             'is_percentage' => 1,
+            'is_government_discount' => 1,
         ]);
     }
 }
