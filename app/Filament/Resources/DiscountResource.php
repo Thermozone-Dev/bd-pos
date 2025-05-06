@@ -37,22 +37,10 @@ class DiscountResource extends Resource
                 TextInput::make('value')
                     ->label('Value')
                     ->required(),
-                    Toggle::make('is_percentage')
-                    ->label('Percentage')
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        if ($state) {
-                            $set('is_flat_value', false);
-                        }
-                    }),
-                Toggle::make('is_flat_value')
-                    ->label('Flat Value')
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        if ($state) {
-                            $set('is_percentage', false);
-                        }
-                    }),
+                Toggle::make('is_percentage')
+                    ->label('Percentage'),
+                Toggle::make('is_government_discount')
+                    ->label('Government Discount'),
             ]);
     }
 
@@ -70,8 +58,8 @@ class DiscountResource extends Resource
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->alignCenter(),
-                IconColumn::make('is_flat_value')
-                    ->label('Flat Value')
+                IconColumn::make('is_government_discount')
+                    ->label('Government Discount')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
