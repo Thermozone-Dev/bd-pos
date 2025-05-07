@@ -23,12 +23,11 @@ class ListTransactions extends ListRecords
                 ->form([
                     DatePicker::make('start_date')
                         ->label('Start Date')
-                        ->required()
-                        ->default(now()->endOfDay()),
+                        ->required(),
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
-                        ->default(now()->endOfWeek()),
+                        ->default(now()),
                 ])
                 ->action(function (array $data) {
 
@@ -39,6 +38,7 @@ class ListTransactions extends ListRecords
                         // ->selectRaw('MAX(id) as grandBeginningBal')
                         // ->selectRaw('MAX(id) as grandEndingBal')
                         ->selectRaw('SUM(gross_sales) as grossSales')
+                        ->selectRaw('SUM(total_sales) as totalSales')
                         ->selectRaw('SUM(vatable_sales) as vatableSales')
                         ->selectRaw('SUM(vat) as vat')
                         ->selectRaw('SUM(vat_exempt_sales) as vatExemptSales')
@@ -52,8 +52,9 @@ class ListTransactions extends ListRecords
 
                     // dd($transactions);
 
-                    $pdf = SnappyPdf::loadView('reports.bir-summary')
-                        ->setPaper('folio', 'landscape');
+                    $pdf = SnappyPdf::loadView('reports.bir-summary', [
+                        'transactions' => $transactions,
+                    ])->setPaper('folio', 'landscape');
 
                     return $pdf->stream('BIR Summary Report.pdf');
 
