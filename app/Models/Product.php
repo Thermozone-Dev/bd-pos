@@ -15,6 +15,8 @@ class Product extends Model implements HasMedia
     protected $fillable = [
         'name',
         'price',
+        'product_type_id',
+        'sku',
     ];
 
     public function packages(): BelongsToMany
