@@ -10,6 +10,8 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
 
+use function Laravel\Prompts\form;
+
 class ListTransactions extends ListRecords
 {
     protected static string $resource = TransactionResource::class;
@@ -62,6 +64,33 @@ class ListTransactions extends ListRecords
                     //     fn () => print($pdf->output()),
                     //     'document.pdf'
                     // );
+                }),
+            Action::make('downloadPdf')
+                ->label('General Transaction Summary Report')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->form([
+                    DatePicker::make('start_date')
+                        ->label('Start Date')
+                        ->required(),
+                    DatePicker::make('end_date')
+                        ->label('End Date')
+                        ->required()
+                        ->default(now()),
+                ])
+                ->action(function(array $data) {
+
+                     $transactions = Transaction::query()
+                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+                        ->get();
+
+
+
+                    $pdf = SnappyPdf::loadView('reports.general-transaction-summary', [
+                        'transactions' => $transactions,
+                    ])->setPaper('folio', 'landscape');
+
+                    return $pdf->stream('General Transaction Summary report.pdf');
+
                 }),
         ];
     }
