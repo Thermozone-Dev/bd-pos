@@ -20,7 +20,7 @@
                 <th rowspan="2" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Transaction ID</th>
                 <th rowspan="2" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Processed By</th>
                 <th rowspan="2" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Created At</th>
-                <th rowspan="2" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Updated At</th>
+
 
                 <th colspan="6" style="background-color: #ffc000; border: 1px solid black; padding: 8px; text-align: center;">Values</th>
 
@@ -47,24 +47,24 @@
             </tr>
         </thead>
         @foreach ($transactions as $transaction)
+
             <tr style="background-color: white;">
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->id }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->processed_by }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->created_at }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->zero_rated_sales }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->total_sales }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->gross_sales }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->cash_tendered }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->transaction_fee }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->vatable_sales }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->vat }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->vat_exempt_sales }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->change }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->is_pwd }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->is_sc }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->is_nac }}</td>
+                <td style="border: 1px solid black; padding: 8px;">Test{{ $transaction->is_soloparent }}</td>
             </tr>
         @endforeach
     </table>

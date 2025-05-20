@@ -65,7 +65,7 @@ class ListTransactions extends ListRecords
                     //     'document.pdf'
                     // );
                 }),
-            Action::make('downloadPdf')
+            Action::make('downloadGeneral ')
                 ->label('General Transaction Summary Report')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->form([
@@ -82,7 +82,6 @@ class ListTransactions extends ListRecords
                      $transactions = Transaction::query()
                         ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
                         ->get();
-
 
 
                     $pdf = SnappyPdf::loadView('reports.general-transaction-summary', [
