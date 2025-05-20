@@ -7,7 +7,9 @@ use App\Http\Controllers\Api\v1\JournalController;
 use App\Http\Controllers\Api\v1\PackageController;
 use App\Http\Controllers\Api\v1\PaymentMethodController;
 use App\Http\Controllers\Api\v1\ProductController;
+use App\Http\Controllers\Api\v1\ShiftController;
 use App\Http\Controllers\Api\v1\TransactionController;
+use App\Http\Controllers\Api\v1\XReadingController;
 use App\Http\Middleware\EnsureSecretKeyIsValid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,11 +25,20 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
+Route::get('/xreading/{id}', [XReadingController::class, 'show']);
+
+
 
 Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKeyIsValid::class]], function () {
     // Journal Routes
     Route::get('/journal', [JournalController::class, 'newTransaction']);
     Route::get('/journal/{id}', [JournalController::class, 'updateTransaction']);
+
+    // Shift Routes
+    Route::post('/shift/start', [ShiftController::class, 'start']);
+    Route::put('/shift/end/{id}', [ShiftController::class, 'end']);
+
+    // XReading Routes
 
     // Item Routes
     Route::get('/items', [ItemController::class, 'index']);
