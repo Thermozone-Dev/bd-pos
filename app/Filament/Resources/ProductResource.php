@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Item;
 use App\Models\Product;
+use App\Models\ProductType;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -45,6 +46,18 @@ class ProductResource extends Resource
                     ->label('Price')
                     ->numeric()
                     ->required(),
+                Select::make('product_type_id')
+                    ->label('Product Type')
+                    ->options(
+                        ProductType::query()
+                            ->get()
+                            ->mapWithKeys(fn ($type) => [$type->id => $type->name])
+                            ->toArray(),
+                    )
+                    ->required(),
+                TextInput::make('sku')
+                    ->label('SKU')
+                    ->required(),
                 SpatieMediaLibraryFileUpload::make('image')
                     ->label('Product Image')
                     ->downloadable(),
@@ -64,6 +77,10 @@ class ProductResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
+                    ->sortable(),
+                TextColumn::make('productType.name')
+                    ->sortable(),
+                TextColumn::make('sku')
                     ->sortable(),
                 SpatieMediaLibraryImageColumn::make('image'),
             ])
