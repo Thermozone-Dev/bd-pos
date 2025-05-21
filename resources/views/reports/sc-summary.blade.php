@@ -47,12 +47,12 @@
                 <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $scInfo->sc_id }}</td>
                 <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $scInfo->sc_tin }}</td>
                 <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ str_pad($scInfo->transaction_id, 6, '0', STR_PAD_LEFT) }}</td>
-                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $scTransaction->gross_sales }}</td>
-                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $scTransaction->vat }}</td>
-                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $scTransaction->vat_exempt }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->gross_sales, 2) }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->vat, 2) }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->vat_exempt, 2) }}</td>
                 <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">&#x2715;</td>
                 <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">&#x2713;</td>
-                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $scTransaction->total_sales }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->total_sales, 2) }}</td>
             </tr>
         @endforeach
     </table>

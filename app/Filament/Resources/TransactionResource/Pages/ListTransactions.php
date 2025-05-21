@@ -33,6 +33,24 @@ class ListTransactions extends ListRecords
                 ])
                 ->action(function (array $data) {
 
+                    $filteredTransactions = Transaction::with('basket.items')
+                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+                        ->get();
+
+                    $dailyDiscounts = $filteredTransactions
+                        ->groupBy(fn($transaction) => $transaction->created_at->toDateString())
+                        ->map(function ($transactionsOfDay) {
+                            $dayTotal = 0;
+
+                            foreach ($transactionsOfDay as $transaction) {
+                                if ($transaction->basket) {
+                                    $dayTotal += $transaction->basket->items->sum('discount_value');
+                                }
+                            }
+
+                            return $dayTotal;
+                        });
+
                     $transactions = Transaction::query()
                         ->selectRaw('DATE(created_at) as date')
                         ->selectRaw('MIN(id) as beginningOR')
@@ -56,6 +74,7 @@ class ListTransactions extends ListRecords
 
                     $pdf = SnappyPdf::loadView('reports.bir-summary', [
                         'transactions' => $transactions,
+                        'discounts' => $dailyDiscounts,
                     ])->setPaper('folio', 'landscape');
 
                     return $pdf->stream('BIR Summary Report.pdf');
@@ -88,7 +107,7 @@ class ListTransactions extends ListRecords
                         'transactions' => $transactions,
                     ])->setPaper('folio', 'landscape');
 
-                    return $pdf->stream('General Transaction Summary report.pdf');
+                    return $pdf->stream('General Transaction Summary Report.pdf');
 
                 }),
         ];

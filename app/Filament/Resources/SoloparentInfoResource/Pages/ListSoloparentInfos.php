@@ -38,11 +38,29 @@ class ListSoloparentInfos extends ListRecords
                         ->get();
 
                     $transactionIds = $spInfos->pluck('transaction_id')->unique();
-                    $spTransactions = Transaction::whereIn('id', $transactionIds)->get()->keyBy('id');
+
+                    $spTransactions = Transaction::whereIn('id', $transactionIds)
+                        ->with('basket.items')
+                        ->get();
+
+                    $transactionDiscounts = [];
+
+                    foreach ($spTransactions as $transaction) {
+                        $totalDiscount = 0;
+
+                        foreach ($transaction->basket() as $basket) {
+                            foreach ($basket->items as $item) {
+                                $totalDiscount += $item->discount_value ?? 0;
+                            }
+                        }
+
+                        $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount;
+                    }
 
                     $pdf = SnappyPdf::loadView('reports.sp-summary', [
                         'spInfos' => $spInfos,
                         'spTransactions' => $spTransactions,
+                        'transactionDiscounts' => $transactionDiscounts,
                     ])
                         ->setPaper('folio', 'landscape');
 

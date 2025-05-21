@@ -31,18 +31,23 @@
             </tr>
         </thead>
         @foreach ($nacInfos as $nacInfo)
-            @php
-                $nacTransaction = $nacTransactions[$nacInfo->transaction_id] ?? null;
-            @endphp
-            <tr style="background-color: white;">
-                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($nacInfo->created_at)->format('F j, Y') }}</td>
-                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ $nacInfo->name }}</td>
-                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ $nacInfo->pnstm_id }}</td>
-                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ str_pad($nacInfo->transaction_id, 6, '0', STR_PAD_LEFT) }}</td>
-                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ $nacTransaction->gross_sales }}</td>
-                <td colspan="3" style="border: 1px solid black; padding: 8px;">Test</td>
-                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ $nacTransaction->total_sales }}</td>
-            </tr>
+            @foreach ($nacTransactions as $nacTransaction)
+                @if ($nacInfo->transaction_id == $nacTransaction->id)
+                    @foreach ($transactionDiscounts as $key => $transactionDiscount)
+                        @if ($nacTransaction->transaction_basket_id == $key)
+                            <tr style="background-color: white;">
+                                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($nacInfo->created_at)->format('F j, Y') }}</td>
+                                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ $nacInfo->name }}</td>
+                                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ $nacInfo->pnstm_id }}</td>
+                                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ str_pad($nacInfo->transaction_id, 6, '0', STR_PAD_LEFT) }}</td>
+                                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ number_format($nacTransaction->gross_sales, 2) }}</td>
+                                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ number_format($transactionDiscount, 2) }}</td>
+                                <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ number_format($nacTransaction->total_sales, 2) }}</td>
+                            </tr>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
         @endforeach
     </table>
 </section>

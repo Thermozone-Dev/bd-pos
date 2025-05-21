@@ -34,21 +34,26 @@
             </tr>
         </thead>
         @foreach ($spInfos as $spInfo)
-            @php
-                $spTransaction = $spTransactions[$spInfo->transaction_id] ?? null;
-            @endphp
-            <tr style="background-color: white;">
-                <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($spInfo->created_at)->format('F j, Y') }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->name }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->spic_id }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->child_name }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($spInfo->child_birthday)->format('F j, Y') }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->child_age }}</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($spInfo->transaction_id, 6, '0', STR_PAD_LEFT) }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ $spTransaction->gross_sales }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ $spTransaction->total_sales }}</td>
-            </tr>
+            @foreach ($spTransactions as $spTransaction)
+                @if ($spInfo->transaction_id == $spTransaction->id)
+                    @foreach ($transactionDiscounts as $key => $transactionDiscount)
+                        @if ($spTransaction->transaction_basket_id == $key)
+                            <tr style="background-color: white;">
+                                <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($spInfo->created_at)->format('F j, Y') }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->name }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->spic_id }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->child_name }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($spInfo->child_birthday)->format('F j, Y') }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->child_age }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionDiscount, 2) }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($spInfo->transaction_id, 6, '0', STR_PAD_LEFT) }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ number_format($spTransaction->gross_sales, 2) }}</td>
+                                <td style="border: 1px solid black; padding: 8px;">{{ number_format($spTransaction->total_sales, 2) }}</td>
+                            </tr>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
         @endforeach
 
     </table>

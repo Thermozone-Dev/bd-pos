@@ -47,12 +47,12 @@
                 <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdInfo->pwd_id }}</td>
                 <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdInfo->pwd_tin }}</td>
                 <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ str_pad($pwdInfo->transaction_id, 6, '0', STR_PAD_LEFT) }}</td>
-                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdTransaction->gross_sales }}</td>
-                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdTransaction->vat }}</td>
-                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdTransaction->vat_exempt }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->gross_sales, 2) }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat, 2) }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat_exempt, 2) }}</td>
                 <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">&#x2715;</td>
                 <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">&#x2713;</td>
-                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdTransaction->total_sales }}</td>
+                <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->total_sales, 2) }}</td>
             </tr>
         @endforeach
     </table>
