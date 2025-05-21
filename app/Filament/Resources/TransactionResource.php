@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\TransactionBasket;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -16,6 +17,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -109,27 +113,50 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->searchable()
             ->columns([
-                TextColumn::make('processedBy.name')->label('Processed By'),
-                TextColumn::make('transaction_basket_id')->label('Transaction Basket ID'),
-                TextColumn::make('barcode'),
-                TextColumn::make('transaction_method')->label('Transaction Method'),
-                TextColumn::make('transaction_fee')->label('Transaction Fee'),
-                TextColumn::make('gross_sales')->label('Gross Sales'),
-                TextColumn::make('cash_tendered')->label('Cash Tendered'),
-                TextColumn::make('change')->label('Change'),
-                TextColumn::make('vatable_sales')->label('VATable Sales'),
-                TextColumn::make('vat')->label('VAT'),
-                TextColumn::make('vat_exempt_sales')->label('VAT Exempt Sales'),
-                TextColumn::make('vat_exempt')->label('VAT Exempt'),
-                TextColumn::make('zero_rated_sales')->label('Zero Rated Sales'),
-                TextColumn::make('total_sales')->label('Total Sales'),
-                IconColumn::make('is_valid')->label('Valid')
+                TextColumn::make('processedBy.name')
+                ->label('Processed By')
+                ->searchable(),
+                TextColumn::make('transaction_basket_id')
+                    ->label('Transaction Basket ID')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('created_at')
+                    ->label('Created at')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('barcode')
+                    ->label('Barcode'),
+                TextColumn::make('transaction_method')
+                    ->label('Transaction Method'),
+                TextColumn::make('transaction_fee')
+                    ->label('Transaction Fee'),
+                TextColumn::make('gross_sales')
+                    ->label('Gross Sales'),
+                TextColumn::make('cash_tendered')
+                    ->label('Cash Tendered'),
+                TextColumn::make('change')
+                    ->label('Change'),
+                TextColumn::make('vatable_sales')
+                    ->label('VATable Sales'),
+                TextColumn::make('vat')
+                    ->label('VAT'),
+                TextColumn::make('vat_exempt_sales')
+                    ->label('VAT Exempt Sales'),
+                TextColumn::make('vat_exempt')
+                    ->label('VAT Exempt'),
+                TextColumn::make('zero_rated_sales')
+                    ->label('Zero Rated Sales')
+                    ->searchable(),
+                TextColumn::make('total_sales')
+                    ->label('Total Sales'),
+                IconColumn::make('is_valid')
+                    ->label('Valid')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->alignCenter(),
-                IconColumn::make('is_pwd')->label('PWD')
+                IconColumn::make('is_pwd')
+                    ->label('PWD')
                     ->label('PWD')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
@@ -141,19 +168,36 @@ class TransactionResource extends Resource
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->alignCenter(),
-                IconColumn::make('is_nac')->label('National Athlete / Coach')
+                IconColumn::make('is_nac')
+                    ->label('National Athlete / Coach')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->alignCenter(),
-                IconColumn::make('is_soloparent')->label('Solo Parent')
+                IconColumn::make('is_soloparent')
+                    ->label('Solo Parent')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->alignCenter(),
             ])
             ->filters([
-                //
+                SelectFilter::make('processed_by')
+                ->label('Processed By')
+                ->relationship('processedBy', 'name')
+                ->searchable()
+                ->preload(),
+
+                Filter::make('created_at')
+                ->form([
+                    DatePicker::make('from')->label('From Date'),
+                    DatePicker::make('until')->label('To Date'),
+                ])
+                ->query(function ($query, array $data) {
+                    return $query
+                        ->when($data['from'], fn ($q) => $q->whereDate('created_at', '>=', $data['from']))
+                        ->when($data['until'], fn ($q) => $q->whereDate('created_at', '<=', $data['until']));
+                }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
