@@ -101,7 +101,6 @@ class TransactionController extends Controller
             $_gov_discount_list = [];
             $_basket_item_data = $this->processItems($_basket, $request->items, $_gov_discount_list);
 
-            return response()->json($_basket_item_data);
 
             //return these values
             $_basket_items = $_basket_item_data[0];

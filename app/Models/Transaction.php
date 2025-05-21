@@ -47,10 +47,10 @@ class Transaction extends Model
 
     public function basket(): HasOne
     {
-        return $this->hasOne(TransactionBasket::class, 'transaction_basket_id', 'id');
+        return $this->hasOne(TransactionBasket::class, 'id', 'transaction_basket_id');
     }
 
-    public function paymentMehthod(): HasOne
+    public function paymentMethod(): HasOne
     {
         return $this->hasOne(PaymentMethod::class, 'transaction_method_id', 'id');
     }

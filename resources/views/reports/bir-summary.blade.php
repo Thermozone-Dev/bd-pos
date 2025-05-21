@@ -60,40 +60,42 @@
             </tr>
         </thead>
         @foreach ($transactions as $transaction)
-            <tr style="background-color: white;">
-                <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($transaction->date)->format('m/d/Y') }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->beginningOR, 6, '0', STR_PAD_LEFT) }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->endingOR, 6, '0', STR_PAD_LEFT) }}</td>
-                <td style="border: 1px solid black; padding: 8px;"></td>
-                <td style="border: 1px solid black; padding: 8px;"></td>
-                <td style="border: 1px solid black; padding: 8px;"></td>
-                <td style="border: 1px solid black; padding: 8px;">P {{ $transaction->grossSales }}</td>
-                <td style="border: 1px solid black; padding: 8px;">P {{ $transaction->vatableSales }}</td>
-                <td style="border: 1px solid black; padding: 8px;">P {{ $transaction->vat }}</td>
-                <td style="border: 1px solid black; padding: 8px;">P {{ $transaction->vatExemptSales }}</td>
-                <td style="border: 1px solid black; padding: 8px;">P {{ $transaction->zeroRatedSales }}</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">Test</td>
-                <td style="border: 1px solid black; padding: 8px;">P {{ $transaction->vat }}</td>
-                <td style="border: 1px solid black; padding: 8px;">P {{ $transaction->totalSales }}</td>
-                <td style="border: 1px solid black; padding: 8px;"></td>
-                <td style="border: 1px solid black; padding: 8px;">P {{ $transaction->totalSales }}</td>
-                <td style="border: 1px solid black; padding: 8px;"></td>
-                <td style="border: 1px solid black; padding: 8px;"></td>
-                <td style="border: 1px solid black; padding: 8px;"></td>
-            </tr>
+            @foreach ($discounts as $discount)
+                <tr style="background-color: white;">
+                    <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($transaction->date)->format('m/d/Y') }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->beginningOR, 6, '0', STR_PAD_LEFT) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->endingOR, 6, '0', STR_PAD_LEFT) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ $discount }}</td>
+                    <td style="border: 1px solid black; padding: 8px;"></td>
+                    <td style="border: 1px solid black; padding: 8px;"></td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->grossSales, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vatableSales, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vat, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vatExemptSales, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->zeroRatedSales, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">Test</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vat, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->totalSales, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;"></td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->totalSales, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;"></td>
+                    <td style="border: 1px solid black; padding: 8px;"></td>
+                    <td style="border: 1px solid black; padding: 8px;"></td>
+                </tr>
+            @endforeach
         @endforeach
     </table>
 </section>
