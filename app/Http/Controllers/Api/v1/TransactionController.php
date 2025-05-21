@@ -101,6 +101,8 @@ class TransactionController extends Controller
             $_gov_discount_list = [];
             $_basket_item_data = $this->processItems($_basket, $request->items, $_gov_discount_list);
 
+            return response()->json($_basket_item_data);
+
             //return these values
             $_basket_items = $_basket_item_data[0];
             $_gov_discount_list = $_basket_item_data[1];
@@ -130,13 +132,13 @@ class TransactionController extends Controller
             if(!empty($_gov_discount_list)){
                 if(isset($request->gov_discount_details)){
                     foreach ($request->gov_discount_details as $key => $details) {
-                        match ($key) {
+                        match ($details['name']) {
                                 'sc' => $this->createScInfo($details, $_transaction->id),
                                 'pwd' => $this->createPwdInfo($details, $_transaction->id),
                                 'nac' => $this->createNacInfo($details, $_transaction->id),
                                 'sp' => $this->createSpInfo($details, $_transaction->id),
                         };
-                        match ($key) {
+                        match ($details->name) {
                                 'sc' => $_transaction->is_sc = true,
                                 'pwd' => $_transaction->is_pwd = true,
                                 'nac' => $_transaction->is_nac = true,
@@ -291,8 +293,8 @@ class TransactionController extends Controller
             $_basket_item->update($_item_data);
             array_push($_basket_items, $_basket_item);
 
-            return [$_basket_items, $gov_discount_list];
         }
+        return [$_basket_items, $gov_discount_list];
     }
 }
 
