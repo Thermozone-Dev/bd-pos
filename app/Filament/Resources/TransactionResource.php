@@ -116,8 +116,7 @@ class TransactionResource extends Resource
             ->searchable()
             ->columns([
                 TextColumn::make('processedBy.name')
-                ->label('Processed By')
-                ->searchable(),
+                ->label('Processed By'),
                 TextColumn::make('transaction_basket_id')
                     ->label('Transaction Basket ID')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -125,7 +124,8 @@ class TransactionResource extends Resource
                     ->label('Created at')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('barcode')
-                    ->label('Barcode'),
+                    ->label('Barcode')
+                    ->searchable(),
                 TextColumn::make('transaction_method')
                     ->label('Transaction Method'),
                 TextColumn::make('transaction_fee')
