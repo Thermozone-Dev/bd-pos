@@ -23,10 +23,14 @@ class DiscountLogger extends Logger
     {
         return $logger
             ->fields([
-                Field::make('name'),
-                Field::make('value'),
-                Field::make('is_percentage'),
-                Field::make('is_government_discount'),
+                Field::make('name')
+                    ->label('Name'),
+                Field::make('value')
+                    ->label('Value'),
+                Field::make('is_percentage')
+                    ->label('Is Percentage'),
+                Field::make('is_government_discount')
+                    ->label('Is Government Discount'),
             ])
             ->relationManagers([
                 //

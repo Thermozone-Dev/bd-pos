@@ -29,11 +29,16 @@ class ProductLogger extends Logger
     {
         return $logger
             ->fields([
-                Field::make('name'),
-                Field::make('price'),
-                Field::make('productType'),
-                Field::make('sku'),
+                Field::make('name')
+                    ->label('Name'),
+                Field::make('price')
+                    ->label('Price'),
+                Field::make('productType')
+                    ->label('Product Type'),
+                Field::make('sku')
+                    ->label('SKU'),
                 Field::make('image')
+                    ->label('Image')
                     ->media(gallery:true),
             ])
             ->relationManagers([

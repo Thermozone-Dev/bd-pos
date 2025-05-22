@@ -23,9 +23,12 @@ class PackageLogger extends Logger
     {
         return $logger
             ->fields([
-                Field::make('name'),
-                Field::make('price'),
+                Field::make('name')
+                    ->label('Name'),
+                Field::make('price')
+                    ->label('Price'),
                 Field::make('image')
+                    ->label('Image')
                     ->media(gallery:true),
             ])
             ->relationManagers([
