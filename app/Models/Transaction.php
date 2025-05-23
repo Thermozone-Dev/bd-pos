@@ -6,9 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Transaction extends Model
 {
+    use LogsActivity;
+
     protected $casts = [
         'is_valid' => 'boolean',
         'is_pwd' => 'boolean',
@@ -39,6 +43,14 @@ class Transaction extends Model
         'is_nac',
         'is_soloparent',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+    return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->logOnlyDirty()
+        ->dontSubmitEmptyLogs();
+    }
 
     public function processedBy(): BelongsTo
     {
