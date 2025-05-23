@@ -11,6 +11,8 @@ class Shift extends Model
         'user_id',
         'time_in',
         'time_out',
+        'opening_balance',
+        'ending_balance',
     ];
 
     public function user(): BelongsTo

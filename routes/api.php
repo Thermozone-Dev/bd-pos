@@ -36,7 +36,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
 
     // Shift Routes
     Route::post('/shift/start', [ShiftController::class, 'start']);
-    Route::put('/shift/end/{id}', [ShiftController::class, 'end']);
+    Route::put('/shift/end', [ShiftController::class, 'end']);
 
     // XReading Routes
 
