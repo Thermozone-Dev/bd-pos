@@ -8,24 +8,35 @@ use Illuminate\Http\Request;
 
 class ShiftController extends Controller
 {
-    public function start()
+    public function start(Request $request)
     {
+        $request->validate([
+            'opening_balance' => 'required',
+        ]);
+
         $user = auth()->user()->id;
         $shift = Shift::create([
             'user_id' => $user,
             'time_in' => now(),
+            'opening_balance' => (float) $request->opening_balance,
         ]);
 
         return response()->json($shift->id, 201);
     }
 
-    public function end(String $id)
+    public function end(Request $request)
     {
-        $shift = Shift::find($id);
+        $request->validate([
+            'ending_balance' => 'required',
+            'id' => 'required|numeric',
+        ]);
+
+        $shift = Shift::find($request->id);
 
         if ($shift && !$shift->time_out) {
             $shift->update([
                 'time_out' => now(),
+                'ending_balance' => $request->ending_balance,
             ]);
             return response()->json($shift, 200);
         }
