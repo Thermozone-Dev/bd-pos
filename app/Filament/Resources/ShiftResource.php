@@ -6,17 +6,26 @@ use App\Filament\Resources\ShiftResource\Pages;
 use App\Filament\Resources\ShiftResource\RelationManagers;
 use App\Models\Shift;
 use App\Models\User;
+use Closure;
 use DateTime;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 
 class ShiftResource extends Resource
 {
@@ -73,7 +82,62 @@ class ShiftResource extends Resource
                     ->dateTime('M d, Y - h:i A'),
             ])
             ->filters([
-                //
+                SelectFilter::make('user_id')
+                ->label('User')
+                ->relationship('user', 'name')
+                ->searchable()
+                ->preload(),
+
+                Filter::make('created_at')
+                ->form([
+                    DatePicker::make('from')->label('From Date'),
+                    DatePicker::make('until')->label('To Date'),
+                ])
+                ->query(function ($query, array $data) {
+                    return $query
+                        ->when($data['from'], fn ($q) => $q->whereDate('created_at', '>=', $data['from']))
+                        ->when($data['until'], fn ($q) => $q->whereDate('created_at', '<=', $data['until']));
+                }),
+
+                Filter::make('search_filters')
+                    ->form([
+                        Grid::make()
+                            ->schema([
+                                Toggle::make('filter_date_by_range')
+                                    ->label(fn ($state) => $state ? 'Turn off to filter by date range' : 'Turn on to filter by specific date')
+                                    ->default(false)
+                                    ->afterStateUpdated(function (Set $set) {
+                                        $set('date_from', null);
+                                        $set('date_to', null);
+                                        $set('date', null);
+                                    })
+                                    ->inline(false)
+                                    ->reactive(),
+                                Grid::make(2)
+                                    ->hidden(fn (Get $get) => $get('filter_date_by_range') === true)
+                                    ->schema([
+                                        TextInput::make('date_from')->numeric(),
+                                        TextInput::make('date_to')->numeric(),
+                                    ])
+                                    ->columnSpan(2),
+                                Grid::make(1)
+                                    ->hidden(fn (Get $get) => $get('filter_date_by_range') === false)
+                                    ->schema([
+                                        TextInput::make('date')->label('Date'),
+                                    ])
+                                    ->columnSpan(1),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when(isset($data['date']) && $data['filter_date_by_range'], fn ($query) =>
+                                $query->whereDate('created_at', $data['date'])
+                            )
+                            ->when(
+                                isset($data['date_from'], $data['date_to']) && !$data['filter_date_by_range'],
+                                fn ($query) => $query->whereBetween('created_at', [$data['date_from'], $data['date_to']])
+                            );
+                    })
             ])
             ->actions([
             ])
