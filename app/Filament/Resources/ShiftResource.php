@@ -88,17 +88,6 @@ class ShiftResource extends Resource
                 ->searchable()
                 ->preload(),
 
-                Filter::make('created_at')
-                ->form([
-                    DatePicker::make('from')->label('From Date'),
-                    DatePicker::make('until')->label('To Date'),
-                ])
-                ->query(function ($query, array $data) {
-                    return $query
-                        ->when($data['from'], fn ($q) => $q->whereDate('created_at', '>=', $data['from']))
-                        ->when($data['until'], fn ($q) => $q->whereDate('created_at', '<=', $data['until']));
-                }),
-
                 Filter::make('search_filters')
                     ->form([
                         Grid::make()
@@ -116,14 +105,14 @@ class ShiftResource extends Resource
                                 Grid::make(2)
                                     ->hidden(fn (Get $get) => $get('filter_date_by_range') === true)
                                     ->schema([
-                                        TextInput::make('date_from')->numeric(),
-                                        TextInput::make('date_to')->numeric(),
+                                        DatePicker::make('date_from')->label('Date From'),
+                                        DatePicker::make('date_to')->label('Date To'),
                                     ])
                                     ->columnSpan(2),
                                 Grid::make(1)
                                     ->hidden(fn (Get $get) => $get('filter_date_by_range') === false)
                                     ->schema([
-                                        TextInput::make('date')->label('Date'),
+                                        DatePicker::make('date')->label('Date'),
                                     ])
                                     ->columnSpan(1),
                             ]),
