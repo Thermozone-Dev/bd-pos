@@ -54,4 +54,14 @@ class Transaction extends Model
     {
         return $this->hasOne(PaymentMethod::class, 'transaction_method_id', 'id');
     }
+
+    public function void(): HasOne
+    {
+        return $this->hasOne(VoidTransaction::class, 'transaction_id', 'id');
+    }
+
+    public function return(): HasOne
+    {
+        return $this->hasOne(ReturnTransaction::class, 'transaction_id', 'id');
+    }
 }
