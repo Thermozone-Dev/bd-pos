@@ -11,11 +11,13 @@
         "bezhansalleh/filament-shield": "^3.3",
         "filament/filament": "^3.2.0",
         "filament/spatie-laravel-media-library-plugin": "^3.3",
+        "filament/spatie-laravel-settings-plugin": "^3.2",
         "kenepa/multi-widget": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "noxoua/filament-activity-log": "^2.1",
+        "owenvoke/blade-fontawesome": "^2.9",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-medialibrary": "^11.12"
     },
