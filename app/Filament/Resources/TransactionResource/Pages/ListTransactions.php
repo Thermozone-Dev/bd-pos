@@ -53,6 +53,10 @@ class ListTransactions extends ListRecords
                         ->where('created_at', '>=', $time_in)
                         ->where('transaction_method_id', '1')
                         ->sum('cash_tendered');
+                    $totalChange = Transaction::query()
+                        ->where('created_at', '>=', $time_in)
+                        ->where('transaction_method_id', '1')
+                        ->sum('change');
                     $totalDigitalPayment = Transaction::query()
                         ->where('created_at', '>=', $time_in)
                         ->where('transaction_method_id', '!=', '1' )
@@ -68,13 +72,17 @@ class ListTransactions extends ListRecords
                     $voidValue = Transaction::query()
                         ->where('created_at', '>=', $time_in)
                         ->where('is_valid', false)
+                        ->with('void')
                         ->sum('cash_tendered');
                     $refundValue = Transaction::query()
                         ->where('created_at', '>=', $time_in)
                         ->where('is_valid', false)
+                        ->with('return')
                         ->sum('cash_tendered');
+                    // $withdrawalValue
+                    $cashInDrawer = $shift->ending_balance;
 
-                    dd($voidValue);
+                    dd($cashInDrawer);
 
                     $filteredTransactions = Transaction::with('basket.items')
                         ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
