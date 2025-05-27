@@ -24,9 +24,10 @@ class Product extends Model implements HasMedia
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()
-        ->logOnly(['name', 'price', 'product_type_id', 'sku']);
-        // Chain fluent methods for configuration options
+    return LogOptions::defaults()
+        ->logOnly(['*'])
+        ->logOnlyDirty()
+        ->dontSubmitEmptyLogs();
     }
 
     public function packages(): BelongsToMany

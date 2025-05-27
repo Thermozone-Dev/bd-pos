@@ -37,7 +37,14 @@ return [
             'title' => 'Restored',
             'description' => 'Entry restored',
         ],
-        // Your custom events...
+        'login' => [
+            'title' => 'Login',
+            'description' => 'User Logged In',
+        ],
+        'logout' => [
+            'title' => 'Logout',
+            'description' => 'User Logged Out',
+        ],
     ],
     'boolean' => [
         'true' => 'True',
