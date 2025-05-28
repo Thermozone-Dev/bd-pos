@@ -43,8 +43,8 @@ class TransactionController extends Controller
             $request->validate([
                 'items.*.item_id' => 'numeric',
                 'items.*.item_quantity' => 'numeric',
-                'items.*.item_discounts.*' => 'numeric',
-                'transaction_discounts.*' => 'numeric',
+                'items.*.item_discounts.id' => 'numeric',
+                'transaction_discounts.id' => 'numeric',
                 'transaction_method' => 'required|numeric',
                 'transaction_fee' => 'required|numeric',
                 'total_sales' => 'required|numeric',
@@ -99,19 +99,17 @@ class TransactionController extends Controller
             $_gov_discount_list = $_basket_item_data[1];
 
             // Per Basket Discount
-            if (!isNull($request['transaction_discounts'])) {
-                foreach ($request['transaction_discounts'] as $data) {
-                    $_discount = Discount::find($data['id']);
+            if (!(count($request->transaction_discounts) === 0)) {
+                $_discount = Discount::find($request->transaction_discounts['id']);
 
-                    $_basket_has_discount_data = [
-                        'basket_basket_id' => $_basket->id,
-                        'discount_id' => $_discount->id,
-                    ];
-                    $_basket_has_discount = TransactionBasketHasDiscount::create($_basket_has_discount_data);
+                $_basket_has_discount_data = [
+                    'transaction_basket_id' => $_basket->id,
+                    'discount_id' => $_discount->id,
+                ];
+                $_basket_has_discount = TransactionBasketHasDiscount::create($_basket_has_discount_data);
 
-                    //Add Gov Discount Processing
-                    $_gov_discount_list = $this->getDiscounts($data, $_gov_discount_list);
-                }
+                //Add Gov Discount Processing
+                $_gov_discount_list = $this->getDiscounts($request->transaction_discounts, $_gov_discount_list);
             }
 
 
@@ -263,22 +261,20 @@ class TransactionController extends Controller
             $_basket_item = TransactionBasketItem::create($_item_data);
 
             // Discount Check
-
-
             // Per Item Discounts
-            if (isset($item['item_discounts'])) {
-                foreach ($item['item_discounts'] as $data) {
-                    $_discount = Discount::find($data);
+            if (!(count($item['item_discounts']) === 0)) {
+                $data = $item['item_discounts']['id'];
 
-                    $_item_has_discount_data = [
-                        'transaction_basket_item_id' => $_basket_item->id,
-                        'discount_id' => $_discount->id,
-                    ];
-                    $_item_has_discount = TransactionBasketItemHasDiscount::create($_item_has_discount_data);
+                $_discount = Discount::find($data);
 
-                    //Add Gov Discount Processing
-                    $gov_discount_list = $this->getDiscounts($data, $gov_discount_list);
-                }
+                $_item_has_discount_data = [
+                    'transaction_basket_item_id' => $_basket_item->id,
+                    'discount_id' => $_discount->id,
+                ];
+                $_item_has_discount = TransactionBasketItemHasDiscount::create($_item_has_discount_data);
+
+                //Add Gov Discount Processing
+                $gov_discount_list = $this->getDiscounts($data, $gov_discount_list);
             }
 
             $_basket_item->update($_item_data);
