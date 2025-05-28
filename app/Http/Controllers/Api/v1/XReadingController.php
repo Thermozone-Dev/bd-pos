@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Filament\Loggers\ShiftLogger;
+use App\Filament\Loggers\TransactionLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\User;
@@ -16,6 +18,8 @@ class XReadingController extends Controller
     {
         $user = Auth::user();
         $shift = $user->shifts()->latest()->first();
+
+        ShiftLogger::make($shift)->requestXReading();
 
         if (!$shift) {
             return response()->json(['message' => 'No shift found.'], 404);
@@ -61,6 +65,7 @@ class XReadingController extends Controller
         $refundValue = $transactions
             ->where('is_valid', false)
             ->sum('cash_tendered');
+
 
         return response()->json([
             'report_date' => $reportDate,
