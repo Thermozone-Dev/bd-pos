@@ -55,20 +55,12 @@ class TransactionController extends Controller
                 'vat' => 'required|numeric',
                 'vat_exempt_sales' => 'required|numeric',
                 'zero_rated_sales' => 'required|numeric',
-                'gov_discount_details.pwd.name' => 'string',
-                'gov_discount_details.pwd.id' => 'numeric',
-                'gov_discount_details.pwd.tin' => 'numeric',
-                'gov_discount_details.sc.name' => 'string',
-                'gov_discount_details.sc.id' => 'numeric',
-                'gov_discount_details.sc.tin' => 'numeric',
-                'gov_discount_details.nac.name' => 'string',
-                'gov_discount_details.nac.id' => 'numeric',
-                'gov_discount_details.nac.tin' => 'numeric',
-                'gov_discount_details.sp.name' => 'string',
-                'gov_discount_details.sp.id' => 'numeric',
-                'gov_discount_details.sp.child_name' => 'string',
-                'gov_discount_details.sp.child_age' => 'numeric',
-                'gov_discount_details.sp.child_birthday' => 'date|date_format:Y-m-d',
+                'gov_discount_details.*.name' => 'string',
+                'gov_discount_details.*.id' => 'numeric',
+                'gov_discount_details.*.tin' => 'numeric',
+                'gov_discount_details.*.child_name' => 'string',
+                'gov_discount_details.*.child_age' => 'numeric',
+                'gov_discount_details.*.child_birthday' => 'date|date_format:Y-m-d',
             ]);
 
             $_data = [
@@ -131,13 +123,13 @@ class TransactionController extends Controller
             if(!empty($_gov_discount_list)){
                 if(isset($request->gov_discount_details)){
                     foreach ($request->gov_discount_details as $key => $details) {
-                        match ($details['name']) {
+                        match ($key) {
                                 'sc' => $this->createScInfo($details, $_transaction->id),
                                 'pwd' => $this->createPwdInfo($details, $_transaction->id),
                                 'nac' => $this->createNacInfo($details, $_transaction->id),
                                 'sp' => $this->createSpInfo($details, $_transaction->id),
                         };
-                        match ($details->name) {
+                        match ($key) {
                                 'sc' => $_transaction->is_sc = true,
                                 'pwd' => $_transaction->is_pwd = true,
                                 'nac' => $_transaction->is_nac = true,
