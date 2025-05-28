@@ -43,7 +43,7 @@ class UserLogger extends Logger
 
     public function login() : Void {
         $attributes = [
-            'time-in' => now(),
+            'time-in' => now()->toDateTimeLocalString(),
         ];
 
         $this->log(
@@ -54,7 +54,7 @@ class UserLogger extends Logger
 
     public function logout() : Void {
         $attributes = [
-            'time-out' => now(),
+            'time-out' => now()->toDateTimeLocalString(),
         ];
 
         $this->log(
