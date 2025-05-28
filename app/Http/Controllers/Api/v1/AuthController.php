@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Filament\Loggers\UserLogger;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -26,6 +27,9 @@ class AuthController extends Controller
         }
 
         $token = $_user->createToken($request->device_name, ['general:utils'])->plainTextToken;
+
+        UserLogger::make($_user)->login();
+
         return response()->json(['token' => $token], 201);
     }
 
@@ -34,7 +38,10 @@ class AuthController extends Controller
             'device_name' => 'required',
         ]);
 
-        auth()->user()->tokens()->where('name', $request->device_name)->delete();
+        $_user = auth()->user();
+        UserLogger::make($_user)->logout();
+
+        $_user->tokens()->where('name', $request->device_name)->delete();
         return response()->json(null, 204);
     }
 
