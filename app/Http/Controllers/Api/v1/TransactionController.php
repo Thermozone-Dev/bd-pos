@@ -99,17 +99,19 @@ class TransactionController extends Controller
             $_gov_discount_list = $_basket_item_data[1];
 
             // Per Basket Discount
-            if (!(count($request->transaction_discounts) === 0)) {
-                $_discount = Discount::find($request->transaction_discounts['id']);
+            if(!empty($item['item_discounts'])) {
+                if (!(count($request->transaction_discounts) === 0)) {
+                    $_discount = Discount::find($request->transaction_discounts['id']);
 
-                $_basket_has_discount_data = [
-                    'transaction_basket_id' => $_basket->id,
-                    'discount_id' => $_discount->id,
-                ];
-                $_basket_has_discount = TransactionBasketHasDiscount::create($_basket_has_discount_data);
+                    $_basket_has_discount_data = [
+                        'transaction_basket_id' => $_basket->id,
+                        'discount_id' => $_discount->id,
+                    ];
+                    $_basket_has_discount = TransactionBasketHasDiscount::create($_basket_has_discount_data);
 
-                //Add Gov Discount Processing
-                $_gov_discount_list = $this->getDiscounts($request->transaction_discounts, $_gov_discount_list);
+                    //Add Gov Discount Processing
+                    $_gov_discount_list = $this->getDiscounts($request->transaction_discounts, $_gov_discount_list);
+                }
             }
 
 
@@ -262,19 +264,21 @@ class TransactionController extends Controller
 
             // Discount Check
             // Per Item Discounts
-            if (!(count($item['item_discounts']) === 0)) {
-                $data = $item['item_discounts']['id'];
+            if(!empty($item['item_discounts'])) {
+                if (!(count($item['item_discounts']) === 0)) {
+                    $data = $item['item_discounts']['id'];
 
-                $_discount = Discount::find($data);
+                    $_discount = Discount::find($data);
 
-                $_item_has_discount_data = [
-                    'transaction_basket_item_id' => $_basket_item->id,
-                    'discount_id' => $_discount->id,
-                ];
-                $_item_has_discount = TransactionBasketItemHasDiscount::create($_item_has_discount_data);
+                    $_item_has_discount_data = [
+                        'transaction_basket_item_id' => $_basket_item->id,
+                        'discount_id' => $_discount->id,
+                    ];
+                    $_item_has_discount = TransactionBasketItemHasDiscount::create($_item_has_discount_data);
 
-                //Add Gov Discount Processing
-                $gov_discount_list = $this->getDiscounts($data, $gov_discount_list);
+                    //Add Gov Discount Processing
+                    $gov_discount_list = $this->getDiscounts($data, $gov_discount_list);
+                }
             }
 
             $_basket_item->update($_item_data);
