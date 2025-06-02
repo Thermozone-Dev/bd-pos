@@ -44,5 +44,19 @@ class ShiftController extends Controller
         return response()->json(['message' => 'No active shift found'], 404);
     }
 
+    public function show($id)
+    {
+        $shift = Shift::where('user_id', auth()->user()->id)
+            ->where('id', $id)
+            ->whereNull('time_out')
+            ->first();
+
+        if (!$shift) {
+            return response()->json(['message' => 'Shift not found or already ended.'], 404);
+        }
+
+        return response()->json($shift, 200);
+    }
+
 
 }
