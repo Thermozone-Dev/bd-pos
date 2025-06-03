@@ -33,57 +33,6 @@ class ListTransactions extends ListRecords
                 ])
                 ->action(function (array $data) {
 
-                    // Test for shifts
-                    $shift = auth()->user()->shifts()->latest()->get()->first();
-                    $time_in = $shift->time_in;
-                    $beginningOR = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->orderBy('created_at')
-                        ->get()
-                        ->first()
-                        ->id;
-                    $endingOR = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->orderBy('created_at')
-                        ->get()
-                        ->last()
-                        ->id;
-                    $openingFund = $shift->opening_balance;
-                    $totalCashPayment = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->where('transaction_method_id', '1')
-                        ->sum('cash_tendered');
-                    $totalChange = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->where('transaction_method_id', '1')
-                        ->sum('change');
-                    $totalDigitalPayment = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->where('transaction_method_id', '!=', '1' )
-                        ->Where('transaction_method_id', '!=', '5' )
-                        ->sum('cash_tendered');
-                    $totalCreditPayment = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->where('transaction_method_id', '5')
-                        ->sum('cash_tendered');
-                    $totalPayments = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->sum('cash_tendered');
-                    $voidValue = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->where('is_valid', false)
-                        ->with('void')
-                        ->sum('cash_tendered');
-                    $refundValue = Transaction::query()
-                        ->where('created_at', '>=', $time_in)
-                        ->where('is_valid', false)
-                        ->with('return')
-                        ->sum('cash_tendered');
-                    // $withdrawalValue
-                    $cashInDrawer = $shift->ending_balance;
-
-                    dd($cashInDrawer);
-
                     $filteredTransactions = Transaction::with('basket.items')
                         ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
                         ->get();
@@ -135,7 +84,7 @@ class ListTransactions extends ListRecords
                     //     'document.pdf'
                     // );
                 }),
-            Action::make('downloadGeneral ')
+            Action::make('downloadGeneral')
                 ->label('General Transaction Summary Report')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->form([
