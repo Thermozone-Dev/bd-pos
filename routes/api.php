@@ -46,6 +46,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     // ZReading Routes
     Route::get('/zreading', [ZReadingController::class, 'show']);
 
+    // Voiding Routes
+    Route::post('/void/{id}', [TransactionController::class, 'voidTransaction']);
+    Route::post('/restore/{id}', [TransactionController::class, 'restoreTransaction']);
+
     // Item Routes
     Route::get('/items', [ItemController::class, 'index']);
     Route::get('/items/{id}', [ItemController::class, 'show']);
