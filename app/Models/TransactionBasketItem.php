@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -25,6 +26,13 @@ class TransactionBasketItem extends Model
     public function discount(): HasMany
     {
         return $this->hasMany(Discount::class, 'transaction_basket_item_has_discount', 'discount_id', 'transaction_basket_item_id');
+    }
+
+    public function discounts(): BelongsTo
+    {
+        return $this->belongsTo(
+            TransactionBasketItemHasDiscount::class, 'id', 'transaction_basket_item_id'
+        );
     }
 
     public function item(): HasOne
