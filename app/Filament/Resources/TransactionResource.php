@@ -113,7 +113,6 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->searchable()
             ->columns([
                 TextColumn::make('processedBy.name')
                 ->label('Processed By'),
@@ -125,30 +124,40 @@ class TransactionResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('barcode')
                     ->label('Barcode')
-                    ->searchable(),
-                TextColumn::make('transaction_method')
+                    ->formatStateUsing(fn ($state) => str_pad($state, 6, '0', STR_PAD_LEFT)),
+                TextColumn::make('paymentMethod.name')
                     ->label('Transaction Method'),
                 TextColumn::make('transaction_fee')
-                    ->label('Transaction Fee'),
+                    ->label('Transaction Fee')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('gross_sales')
-                    ->label('Gross Sales'),
+                    ->label('Gross Sales')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('cash_tendered')
-                    ->label('Cash Tendered'),
+                    ->label('Cash Tendered')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('change')
-                    ->label('Change'),
+                    ->label('Change')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
+
                 TextColumn::make('vatable_sales')
-                    ->label('VATable Sales'),
+                    ->label('VATable Sales')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('vat')
-                    ->label('VAT'),
+                    ->label('VAT')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('vat_exempt_sales')
-                    ->label('VAT Exempt Sales'),
+                    ->label('VAT Exempt Sales')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('vat_exempt')
-                    ->label('VAT Exempt'),
+                    ->label('VAT Exempt')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('zero_rated_sales')
                     ->label('Zero Rated Sales')
-                    ->searchable(),
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('total_sales')
-                    ->label('Total Sales'),
+                    ->label('Total Sales')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 IconColumn::make('is_valid')
                     ->label('Valid')
                     ->boolean()
