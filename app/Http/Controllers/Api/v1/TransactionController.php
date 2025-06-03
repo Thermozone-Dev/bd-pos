@@ -14,6 +14,7 @@ use App\Models\TransactionBasket;
 use App\Models\TransactionBasketHasDiscount;
 use App\Models\TransactionBasketItem;
 use App\Models\TransactionBasketItemHasDiscount;
+use App\Models\VoidTransaction;
 use Exception;
 use Illuminate\Http\Request;
 use PhpParser\Node\Expr\Cast\Array_;
@@ -286,6 +287,50 @@ class TransactionController extends Controller
 
         }
         return [$_basket_items, $gov_discount_list];
+    }
+
+    public function voidTransaction(Request $request, string $id)
+    {
+        try {
+            $_transaction = Transaction::find($id);
+            if ($_transaction) {
+                $_transaction->is_valid = false;
+                $_transaction->update();
+
+                VoidTransaction::create([
+                    'transaction_id' => $_transaction->id,
+                ]);
+
+                return response()->json(['message' => 'Transaction voided successfully.'], 200);
+
+            } else {
+                return response()->json(['error' => 'Transaction not found.'], 404);
+            }
+        } catch (Exception $err) {
+            return response()->json(['error' => $err->getMessage()], 500);
+        }
+    }
+
+    public function restoreTransaction(Request $request, string $id)
+    {
+        try {
+            $_transaction = Transaction::find($id);
+            if ($_transaction) {
+                $_transaction->is_valid = true;
+                $_transaction->update();
+
+                $voidTransaction = VoidTransaction::where('transaction_id', $_transaction->id)->first();
+                if ($voidTransaction) {
+                    $voidTransaction->delete();
+                }
+
+                return response()->json(['message' => 'Transaction restored successfully.'], 200);
+            } else {
+                return response()->json(['error' => 'Transaction not found.'], 404);
+            }
+        } catch (Exception $err) {
+            return response()->json(['error' => $err->getMessage()], 500);
+        }
     }
 }
 
