@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Discount;
 use App\Models\Item;
 use App\Models\NacInfo;
+use App\Models\Product;
 use App\Models\PwdInfo;
 use App\Models\ScInfo;
 use App\Models\SoloparentInfo;
@@ -18,12 +19,13 @@ use App\Models\VoidTransaction;
 use Exception;
 use Illuminate\Http\Request;
 use PhpParser\Node\Expr\Cast\Array_;
-
 use function PHPUnit\Framework\isEmpty;
 use function PHPUnit\Framework\isNull;
-
+use App\Traits\TransactionSummary;
 class TransactionController extends Controller
 {
+
+    use TransactionSummary;
     /**
      * Display a listing of the resource.
      */
@@ -332,5 +334,31 @@ class TransactionController extends Controller
             return response()->json(['error' => $err->getMessage()], 500);
         }
     }
+
+    public function dailySummary(){
+        $response = [];
+
+        $data = $this->transactionSummary('today');
+
+        if(!empty($data)){
+            if(!empty($data['sold_products'])){
+                $response = $data['sold_products']->map(function ($item) {
+                    $product = Product::find($item['product_id']);
+                    if($product){
+                        return [
+                            'name' => $product->name,
+                            'price' =>$product->price,
+                            'qty' => $item['quantity'],
+                            'total' => $item['quantity'] * $product->price,
+                        ];
+                    }
+                });
+            }
+        }
+
+        return response()->json($response, 200);
+
+    }
+
 }
 

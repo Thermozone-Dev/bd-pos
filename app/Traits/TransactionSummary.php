@@ -173,6 +173,7 @@ trait TransactionSummary
             'per_categories' => $categories,
             'total_per_categoies' => $total_per_categories,
             'transactions_query' => $transaction,
+            'sold_products' => $products->sortByDesc('quantity'),
             'product_trends' => $products->sortByDesc('quantity')->take(8),
         ];
         return $data;
