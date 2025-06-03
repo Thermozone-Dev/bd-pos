@@ -43,8 +43,8 @@ class TransactionController extends Controller
             $request->validate([
                 'items.*.item_id' => 'numeric',
                 'items.*.item_quantity' => 'numeric',
-                'items.*.item_discounts.*' => 'numeric',
-                'transaction_discounts.*' => 'numeric',
+                'items.*.item_discounts.id' => 'numeric',
+                'transaction_discounts.id' => 'numeric',
                 'transaction_method' => 'required|numeric',
                 'transaction_fee' => 'required|numeric',
                 'total_sales' => 'required|numeric',
@@ -55,20 +55,12 @@ class TransactionController extends Controller
                 'vat' => 'required|numeric',
                 'vat_exempt_sales' => 'required|numeric',
                 'zero_rated_sales' => 'required|numeric',
-                'gov_discount_details.pwd.name' => 'string',
-                'gov_discount_details.pwd.id' => 'numeric',
-                'gov_discount_details.pwd.tin' => 'numeric',
-                'gov_discount_details.sc.name' => 'string',
-                'gov_discount_details.sc.id' => 'numeric',
-                'gov_discount_details.sc.tin' => 'numeric',
-                'gov_discount_details.nac.name' => 'string',
-                'gov_discount_details.nac.id' => 'numeric',
-                'gov_discount_details.nac.tin' => 'numeric',
-                'gov_discount_details.sp.name' => 'string',
-                'gov_discount_details.sp.id' => 'numeric',
-                'gov_discount_details.sp.child_name' => 'string',
-                'gov_discount_details.sp.child_age' => 'numeric',
-                'gov_discount_details.sp.child_birthday' => 'date|date_format:Y-m-d',
+                'gov_discount_details.*.name' => 'string',
+                'gov_discount_details.*.id' => 'numeric',
+                'gov_discount_details.*.tin' => 'numeric',
+                'gov_discount_details.*.child_name' => 'string',
+                'gov_discount_details.*.child_age' => 'numeric',
+                'gov_discount_details.*.child_birthday' => 'date|date_format:Y-m-d',
             ]);
 
             $_data = [
@@ -107,18 +99,18 @@ class TransactionController extends Controller
             $_gov_discount_list = $_basket_item_data[1];
 
             // Per Basket Discount
-            if (!isNull($request['transaction_discounts'])) {
-                foreach ($request['transaction_discounts'] as $data) {
-                    $_discount = Discount::find($data['id']);
+            if(!empty($item['item_discounts'])) {
+                if (!(count($request->transaction_discounts) === 0)) {
+                    $_discount = Discount::find($request->transaction_discounts['id']);
 
                     $_basket_has_discount_data = [
-                        'basket_basket_id' => $_basket->id,
+                        'transaction_basket_id' => $_basket->id,
                         'discount_id' => $_discount->id,
                     ];
                     $_basket_has_discount = TransactionBasketHasDiscount::create($_basket_has_discount_data);
 
                     //Add Gov Discount Processing
-                    $_gov_discount_list = $this->getDiscounts($data, $_gov_discount_list);
+                    $_gov_discount_list = $this->getDiscounts($request->transaction_discounts, $_gov_discount_list);
                 }
             }
 
@@ -131,13 +123,13 @@ class TransactionController extends Controller
             if(!empty($_gov_discount_list)){
                 if(isset($request->gov_discount_details)){
                     foreach ($request->gov_discount_details as $key => $details) {
-                        match ($details['name']) {
+                        match ($key) {
                                 'sc' => $this->createScInfo($details, $_transaction->id),
                                 'pwd' => $this->createPwdInfo($details, $_transaction->id),
                                 'nac' => $this->createNacInfo($details, $_transaction->id),
                                 'sp' => $this->createSpInfo($details, $_transaction->id),
                         };
-                        match ($details->name) {
+                        match ($key) {
                                 'sc' => $_transaction->is_sc = true,
                                 'pwd' => $_transaction->is_pwd = true,
                                 'nac' => $_transaction->is_nac = true,
@@ -271,11 +263,11 @@ class TransactionController extends Controller
             $_basket_item = TransactionBasketItem::create($_item_data);
 
             // Discount Check
-
-
             // Per Item Discounts
-            if (isset($item['item_discounts'])) {
-                foreach ($item['item_discounts'] as $data) {
+            if(!empty($item['item_discounts'])) {
+                if (!(count($item['item_discounts']) === 0)) {
+                    $data = $item['item_discounts']['id'];
+
                     $_discount = Discount::find($data);
 
                     $_item_has_discount_data = [

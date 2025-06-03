@@ -9,4 +9,9 @@ class ReturnTransaction extends Model
     protected $fillable = [
         'transaction_id',
     ];
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class, 'transaction_id');
+    }
 }

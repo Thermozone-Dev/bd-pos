@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\v1\ProductController;
 use App\Http\Controllers\Api\v1\ShiftController;
 use App\Http\Controllers\Api\v1\TransactionController;
 use App\Http\Controllers\Api\v1\XReadingController;
+use App\Http\Controllers\ZReadingController;
 use App\Http\Middleware\EnsureSecretKeyIsValid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,8 +38,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     // Shift Routes
     Route::post('/shift/start', [ShiftController::class, 'start']);
     Route::put('/shift/end', [ShiftController::class, 'end']);
+    Route::get('/shift/{id}', [ShiftController::class, 'show']);
 
     // XReading Routes
+    Route::get('/xreading', [XReadingController::class, 'show']);
+
+    // ZReading Routes
+    Route::get('/zreading', [ZReadingController::class, 'show']);
 
     // Item Routes
     Route::get('/items', [ItemController::class, 'index']);

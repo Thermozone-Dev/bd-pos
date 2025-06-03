@@ -45,6 +45,14 @@ return [
             'title' => 'Logout',
             'description' => 'User Logged Out',
         ],
+        'request-x-reading' => [
+            'title' => 'Request X-Reading',
+            'description' => 'Requested X-Reading',
+        ],
+        'request-z-reading' => [
+            'title' => 'request Z-Reading',
+            'description' => 'Requested Z-Reading',
+        ],
     ],
     'boolean' => [
         'true' => 'True',
