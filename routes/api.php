@@ -23,6 +23,8 @@ Route::group(['prefix' => 'auth'], function () {
         Route::delete('/logout', [AuthController::class, 'logout']);
         Route::get('/tokens', [AuthController::class, 'checkTokens']);
         Route::get('/user', [AuthController::class, 'show']);
+        Route::get('/roles/{role}', [AuthController::class, 'hasRole']);
+        Route::get('/manager', [AuthController::class, 'isManager']);
     });
 });
 
