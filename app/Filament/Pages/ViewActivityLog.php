@@ -14,7 +14,7 @@ class ViewActivityLog extends ListActivities
 
     protected static ?int $navigationSort = 11;
 
-    public function isFiltersBlank()
+    public function isFiltersBlank(): bool
     {
         $values = request()->only(
             array_keys($this->getFilters()),
