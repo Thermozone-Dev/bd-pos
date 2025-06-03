@@ -61,6 +61,12 @@ class AuthController extends Controller
     }
 
     public function hasRole(string $role){
-        //
+        $_user = auth()->user();
+        return response()->json(['has_role' => $_user->hasRole($role)]);
+    }
+
+    public function isManager(){
+        $_user = auth()->user();
+        return response()->json(['is_manager' => $_user->hasRole('Manager')]);
     }
 }
