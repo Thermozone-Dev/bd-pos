@@ -47,6 +47,8 @@ class ShiftController extends Controller
     public function show($id)
     {
         $shift = Shift::where('user_id', auth()->user()->id)
+            ->where('created_at', '>=', now()->startOfDay())
+            ->where('created_at', '<=', now()->endOfDay())
             ->where('id', $id)
             ->whereNull('time_out')
             ->first();
@@ -57,6 +59,4 @@ class ShiftController extends Controller
 
         return response()->json($shift, 200);
     }
-
-
 }
