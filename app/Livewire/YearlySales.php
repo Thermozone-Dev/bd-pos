@@ -2,7 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Models\Transaction;
 use Filament\Widgets\ChartWidget;
+use Flowframe\Trend\Trend;
+use Flowframe\Trend\TrendValue;
 
 class YearlySales extends ChartWidget
 {
@@ -10,12 +13,21 @@ class YearlySales extends ChartWidget
 
     protected function getData(): array
     {
+
+        $data = Trend::model(Transaction::class)
+            ->between(
+                start: now()->subYears(5),
+                end: now()->endOfYear(),
+            )
+            ->perYear()
+            ->sum('total_sales');
+
         return [
-            'labels' => ['2020', '2021', '2022', '2023', '2024', '2025'],
+            'labels' => $data->map(fn (TrendValue $value) => $value->date ),
             'datasets' => [
                 [
                     'label' => 'Yearly Sales',
-                    'data' => [5323, 5120, 4803, 7021, 8079, 8209],
+                    'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
                     'backgroundColor' => 'red',
                     'borderColor' => 'red',
                     'fill' => false,
