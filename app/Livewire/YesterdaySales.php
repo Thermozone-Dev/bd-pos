@@ -2,20 +2,30 @@
 
 namespace App\Livewire;
 
+use App\Models\Transaction;
+use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
-
+use Flowframe\Trend\Trend;
+use Illuminate\Support\Facades\DB;
+use App\Traits\TransactionSummary;
 class YesterdaySales extends ChartWidget
 {
+    use TransactionSummary;
+
+
     protected static ?string $heading = 'Yesterday Sales';
 
     protected function getData(): array
     {
+
+        $results = $this->getEveryfourhours('yesterday');
+
         return [
-            'labels' => ['4 AM', '8 AM', '12 PM', '4 PM', '8 PM', '12 AM'],
+            'labels' => $results->pluck('label'),
             'datasets' => [
                 [
                     'label' => 'Yesterday Sales',
-                    'data' => [65, 59, 80, 81, 56, 55],
+                    'data' => $results->pluck('total_amount'),
                     'backgroundColor' => 'red',
                     'borderColor' => 'red',
                     'fill' => false,

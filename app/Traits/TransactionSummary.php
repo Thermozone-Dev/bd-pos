@@ -1,0 +1,215 @@
+<?php
+
+namespace App\Traits;
+
+use App\Models\Transaction;
+use App\Models\TransactionBasketItem;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
+trait TransactionSummary
+{
+    /**
+     * Generate a report based on the specified filter.
+     *
+     * @param string $filter
+     * @return void
+     */
+
+    public function transactionSummary($filter)
+    {
+        // Switch statement to handle different filter cases
+
+        switch ($filter) {
+            case 'yesterday':
+                $transaction = Transaction::withoutGlobalScopes()
+                    ->whereDate('created_at', Carbon::yesterday());
+                return $this->getData($transaction);
+                break;
+
+            case 'today':
+                $transaction = Transaction::withoutGlobalScopes()
+                    ->whereDate('created_at', Carbon::today());
+                    return $this->getData($transaction);
+                break;
+
+            case 'week':
+                $transaction = Transaction::withoutGlobalScopes()
+                    ->whereBetween('created_at', [Carbon::now()->startOfWeek()->startOfDay(),Carbon::now()->endOfWeek()->endOfDay()]);
+                    return $this->getData($transaction);
+                break;
+
+            case 'month':
+                $transaction = Transaction::withoutGlobalScopes()
+                    ->whereMonth('created_at', Carbon::now()->month);
+                    return $this->getData($transaction);
+                break;
+
+            case 'year':
+                    $transaction = Transaction::withoutGlobalScopes()
+                        ->whereYear('created_at', Carbon::now()->year);
+                    return $this->getData($transaction);
+
+                break;
+
+            default:
+                return 'Add filter (today, yesterday, week, month, year) to the reportForTransaction method';
+        }
+    }
+
+
+    public function getData($transaction){
+
+        DB::statement("SET SQL_MODE=''");
+
+
+        $bestEmployee = Transaction::select('processed_by', DB::raw('SUM(total_sales) as total'))
+            ->groupBy('processed_by')
+            ->whereIn('id',$transaction->pluck('id'))
+            ->orderByDesc('total')
+            ->take(8)
+            ->get();
+
+        //get transaction basket items
+        $basketItems = TransactionBasketItem::whereIn('transaction_basket_id', $transaction->pluck('transaction_basket_id'))->get();
+
+        //get bought products
+        $products = collect();
+        $categories = collect();
+
+
+        foreach($basketItems as $basketItem){
+            if($basketItem->item->product){
+                // get quantity per product
+
+                $quantity = $basketItem->quantity ?? 1;
+
+                $index = $products->search(fn ($item) => $item['product_id'] === $basketItem->item->product->id);
+
+                if ($index !== false) {
+                    $item = $products->get($index);
+                    $item['quantity'] += $quantity;
+                    $products->put($index, $item);
+                } else {
+                    $products->push([
+                        'product_id' => $basketItem->item->product->id,
+                        'name' => $basketItem->item->product->name,
+                        'image_path' => $basketItem->item->product->getMedia()?->first()?->getUrl() ?? null,
+                        'quantity' => $quantity,
+                    ]);
+                }
+
+                // get category income
+                $index = $categories->search(fn ($test) => $test['id'] === $basketItem->item->product->productType->id);
+
+                if ($index !== false) {
+                    $item = $categories->get($index);
+                    $item['income'] += $basketItem->total_value;
+                    $categories->put($index, $item);
+                } else {
+                    $categories->push([
+                        'id' => $basketItem->item->product->productType->id,
+                        'name' => $basketItem->item->product->productType->name,
+                        'income' => $basketItem->total_value ?? 0
+                    ]);
+                }
+
+
+            }
+            if($basketItem->item->package){
+                $basketItem->item->package->productsJunction
+                    ->map(function($item) use ($basketItem,$products) {
+                        $quantity = ($basketItem->quantity ?? 1) * ($item->quantity ?? 1); //mutiply by number of products in the package.
+                        $index = $products->search(fn ($test) => $test['product_id'] === $item->product_id);
+
+                        if ($index !== false) {
+                            $item = $products->get($index);
+                            $item['quantity'] += $quantity;
+                            $products->put($index, $item);
+                        } else {
+                            $products->push([
+                                'product_id' => $item->product->id,
+                                'image_path' => $item->product->getMedia()?->first()?->getUrl() ?? null,
+                                'name' => $item->product->name,
+                                'quantity' => $quantity,
+                            ]);
+                        }
+
+                    });
+
+                // get category income (per package)
+                $index = $categories->search(fn ($test) => $test['name'] === 'Packages');
+
+                if ($index !== false) {
+                    $item = $categories->get($index);
+                    $item['income'] += $basketItem->total_value;
+                    $categories->put($index, $item);
+                } else {
+                    $categories->push([
+                        'id' => null,
+                        'name' => 'Packages',
+                        'income' => $basketItem->total_value ?? 0
+                    ]);
+                }
+            }
+        }
+
+
+        $total_per_categories = 0;
+
+        $categories = $categories->map(function($category){
+            $category['income'] = $category['income'];
+            return $category;
+        });
+
+        foreach($categories as $item){
+            $total_per_categories += $item['income'];
+        }
+
+        $data=[
+            'total_transaction' => $transaction->get()->count(),
+            'total_sales' => number_format($transaction->get()->sum('total_sales'),2),
+            'best_employee' => $bestEmployee,
+            'per_categories' => $categories,
+            'total_per_categoies' => $total_per_categories,
+            'transactions_query' => $transaction,
+            'product_trends' => $products->sortByDesc('quantity')->take(8),
+        ];
+        return $data;
+    }
+
+    public function getEveryfourhours($filter = 'today'){
+        $date = Carbon::now();
+        if($filter == 'yesterday'){
+            $date = Carbon::yesterday();
+        }
+
+        $rawData = Transaction::select(
+            DB::raw("FLOOR(HOUR(created_at) / 4) AS hour_block"),
+            DB::raw("SUM(total_sales) as total_amount")
+        )
+        ->with('processedBy')
+        ->whereDate('created_at', $date)
+        ->groupBy('hour_block')
+        ->pluck('total_amount', 'hour_block'); // returns associative array [block => total]
+
+        $results = collect();
+
+        for ($block = 0; $block < 6; $block++) {
+            $startHour = $block * 4;
+            $endHour = $startHour + 3;
+
+            $label = Carbon::createFromTime($endHour + 1)->format('g A'); // label = end of range + 1
+            $timeRange = Carbon::createFromTime($startHour)->format('g A') . ' – ' . Carbon::createFromTime($endHour)->format('g:i A');
+
+            $results->push([
+                'label' => $label,
+                'time_range' => $timeRange,
+                'total_amount' => $rawData[$block] ?? 0,
+            ]);
+        }
+
+        return $results;
+
+    }
+}
