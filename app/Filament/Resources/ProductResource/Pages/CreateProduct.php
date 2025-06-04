@@ -18,6 +18,8 @@ class CreateProduct extends CreateRecord
         $product = Product::create([
             'name' => $data['name'],
             'price' => $data['price'],
+            'product_type_id' => $data['product_type_id'],
+            'sku' => $data['sku'],
         ]);
 
         $item = Item::create([
