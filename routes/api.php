@@ -92,6 +92,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     Route::put('/transactions/{id}', [TransactionController::class, 'update']);
     Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
     Route::get('/transactions-daily-summary', [TransactionController::class,'dailySummary']);
+    Route::get('/transactions-role-base-daily-summary', [TransactionController::class,'rolebaseDailysummary']);
+
 
     // PaymentMethod Routes
     Route::get('/paymentMethods', [PaymentMethodController::class, 'index']);

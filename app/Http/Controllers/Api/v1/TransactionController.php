@@ -22,6 +22,10 @@ use PhpParser\Node\Expr\Cast\Array_;
 use function PHPUnit\Framework\isEmpty;
 use function PHPUnit\Framework\isNull;
 use App\Traits\TransactionSummary;
+use BezhanSalleh\FilamentShield\Support\Utils;
+use Carbon\Carbon;
+use Illuminate\Container\Attributes\Auth;
+
 class TransactionController extends Controller
 {
 
@@ -336,29 +340,90 @@ class TransactionController extends Controller
     }
 
     public function dailySummary(){
-        $response = [];
 
-        $data = $this->transactionSummary('today');
-
-        if(!empty($data)){
-            if(!empty($data['sold_products'])){
-                $response = $data['sold_products']->map(function ($item) {
-                    $product = Product::find($item['product_id']);
-                    if($product){
-                        return [
-                            'name' => $product->name,
-                            'price' =>$product->price,
-                            'qty' => $item['quantity'],
-                            'total' => $item['quantity'] * $product->price,
-                        ];
-                    }
-                });
+         try {
+            if(!auth()->check()){
+                return response()->json(['error' => 'Unauthrorized.'], 401);
             }
+            $response = [];
+
+            $data = $this->transactionSummary('today');
+
+            if(!empty($data)){
+                if(!empty($data['sold_products'])){
+                    $response = $data['sold_products']->map(function ($item) {
+                        $product = Product::find($item['product_id']);
+                        if($product){
+                            return [
+                                'name' => $product->name,
+                                'price' =>$product->price,
+                                'qty' => $item['quantity'],
+                                'total' => $item['quantity'] * $product->price,
+                            ];
+                        }
+                    });
+                }
+            }
+
+            return response()->json($response, 200);
+
+        } catch (Exception $err) {
+            return response()->json(['error' => $err->getMessage()], 500);
         }
 
-        return response()->json($response, 200);
+
+
 
     }
+
+
+    public function rolebaseDailysummary(){
+        try {
+            if(!auth()->check()){
+                return response()->json(['error' => 'Unauthrorized.'], 401);
+            }
+            $response = response()->json([], 200);
+
+            $response = $this->dailySummary();
+
+            $_user = auth()->user();
+
+            if($_user->hasRole('Cashier')){
+
+                $transaction = Transaction::withoutGlobalScopes()
+                    ->whereDate('created_at', Carbon::today())
+                    ->where('processed_by', $_user->id);
+                $data = $this->getData($transaction);
+
+                if(!empty($data)){
+                    if(!empty($data['sold_products'])){
+                        $response = $data['sold_products']->map(function ($item) {
+                            $product = Product::find($item['product_id']);
+                            if($product){
+                                return [
+                                    'name' => $product->name,
+                                    'price' =>$product->price,
+                                    'qty' => $item['quantity'],
+                                    'total' => $item['quantity'] * $product->price,
+                                ];
+                            }
+                        });
+                        $response = response()->json($response, 200);
+                    }
+                }
+            }
+
+            return $response;
+
+        } catch (Exception $err) {
+            return response()->json(['error' => $err->getMessage()], 500);
+        }
+
+
+
+
+    }
+
 
 }
 
