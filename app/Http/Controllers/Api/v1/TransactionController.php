@@ -347,21 +347,30 @@ class TransactionController extends Controller
             }
             $response = [];
 
-            $data = $this->transactionSummary('today');
+            $data = $this->transactionSummary('yesterday');
 
             if(!empty($data)){
-                if(!empty($data['sold_products'])){
-                    $response = $data['sold_products']->map(function ($item) {
-                        $product = Product::find($item['product_id']);
-                        if($product){
-                            return [
-                                'name' => $product->name,
-                                'price' =>$product->price,
-                                'qty' => $item['quantity'],
-                                'total' => $item['quantity'] * $product->price,
-                            ];
-                        }
+                $result = collect();
+                if(!empty($data['products_excluded_in_package']) || !empty($data['packages']) ){
+                    $data['packages']->map(function ($item) use ($result){
+                        $result->push([
+                            'name' => $item['name'],
+                            'price' =>$item['price'],
+                            'qty' => $item['quantity'],
+                            'total' => $item['quantity'] * $item['price'],
+                        ]);
+                        return;
                     });
+                    $data['products_excluded_in_package']->map(function ($item) use ($result){
+                        $result->push([
+                            'name' => $item['name'],
+                            'price' =>$item['price'],
+                            'qty' => $item['quantity'],
+                            'total' => $item['quantity'] * $item['price'],
+                        ]);
+                        return;
+                    });
+                    $response = response()->json($result, 200);
                 }
             }
 
@@ -388,31 +397,39 @@ class TransactionController extends Controller
 
             $_user = auth()->user();
 
-            if($_user->hasRole('Cashier')){
+            if(!$_user->hasRole('Cashier')){
 
                 $transaction = Transaction::withoutGlobalScopes()
                     ->whereDate('created_at', Carbon::today())
                     ->where('processed_by', $_user->id);
+
                 $data = $this->getData($transaction);
 
                 if(!empty($data)){
-                    if(!empty($data['sold_products'])){
-                        $response = $data['sold_products']->map(function ($item) {
-                            $product = Product::find($item['product_id']);
-                            if($product){
-                                return [
-                                    'name' => $product->name,
-                                    'price' =>$product->price,
-                                    'qty' => $item['quantity'],
-                                    'total' => $item['quantity'] * $product->price,
-                                ];
-                            }
+                    $result = collect();
+                    if(!empty($data['products_excluded_in_package']) || !empty($data['packages']) ){
+                        $data['packages']->map(function ($item) use ($result){
+                            $result->push([
+                                'name' => $item['name'],
+                                'price' =>$item['price'],
+                                'qty' => $item['quantity'],
+                                'total' => $item['quantity'] * $item['price'],
+                            ]);
+                            return;
                         });
-                        $response = response()->json($response, 200);
+                        $data['products_excluded_in_package']->map(function ($item) use ($result){
+                            $result->push([
+                                'name' => $item['name'],
+                                'price' =>$item['price'],
+                                'qty' => $item['quantity'],
+                                'total' => $item['quantity'] * $item['price'],
+                            ]);
+                            return;
+                        });
+                        $response = response()->json($result, 200);
                     }
                 }
             }
-
             return $response;
 
         } catch (Exception $err) {

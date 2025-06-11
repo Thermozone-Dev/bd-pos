@@ -26,7 +26,7 @@ class TodaySales extends ChartWidget
             'labels' => $results->pluck('label'),
             'datasets' => [
                 [
-                    'label' => 'Yesterday Sales',
+                    'label' => 'Today Sales',
                     'data' => $results->pluck('total_amount'),
                     'backgroundColor' => 'red',
                     'borderColor' => 'red',

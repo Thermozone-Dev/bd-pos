@@ -77,11 +77,15 @@ trait TransactionSummary
         $products = collect();
         $categories = collect();
 
+        $packages = collect();
+
+        $products_excluded_in_package = collect();
+
 
         foreach($basketItems as $basketItem){
             if($basketItem->item->product){
-                // get quantity per product
 
+                // get quantity per product package included
                 $quantity = $basketItem->quantity ?? 1;
 
                 $index = $products->search(fn ($item) => $item['product_id'] === $basketItem->item->product->id);
@@ -115,8 +119,32 @@ trait TransactionSummary
                 }
 
 
+                //get all products that not included in package
+
+                $index = $products_excluded_in_package->search(fn ($item) => $item['product_id'] === $basketItem->item->product->id);
+
+                if ($index !== false) {
+                    $item = $products_excluded_in_package->get($index);
+                    $item['quantity'] += $quantity;
+                    $item['income'] += $basketItem->total_value + ($basketItem->total_value*.12);
+                    $products_excluded_in_package->put($index, $item);
+                } else {
+                    $products_excluded_in_package->push([
+                        'product_id' => $basketItem->item->product->id,
+                        'name' => $basketItem->item->product->name,
+                        'price' => $basketItem->item->product->price,
+                        'image_path' => $basketItem->item->product->getMedia()?->first()?->getUrl() ?? null,
+                        'quantity' => $quantity,
+                        'income' => $basketItem->total_value + ($basketItem->total_value*.12) ?? 0,
+                    ]);
+                }
+
             }
+
+
             if($basketItem->item->package){
+
+                // get products in package
                 $basketItem->item->package->productsJunction
                     ->map(function($item) use ($basketItem,$products) {
                         $quantity = ($basketItem->quantity ?? 1) * ($item->quantity ?? 1); //mutiply by number of products in the package.
@@ -134,7 +162,6 @@ trait TransactionSummary
                                 'quantity' => $quantity,
                             ]);
                         }
-
                     });
 
                 // get category income (per package)
@@ -145,32 +172,50 @@ trait TransactionSummary
                     $item['income'] += $basketItem->total_value;
                     $categories->put($index, $item);
                 } else {
+
                     $categories->push([
                         'id' => null,
                         'name' => 'Packages',
                         'income' => $basketItem->total_value ?? 0
                     ]);
                 }
+
+                //get all packages
+                $index = $packages->search(fn ($test) => $test['id'] === $basketItem->item->package->id);
+                if ($index !== false) {
+                    $item = $packages->get($index);
+                    $item['quantity'] += $basketItem->quantity;
+                    $item['income'] += $basketItem->total_value + ($basketItem->total_value * .12);
+                    $packages->put($index, $item);
+                } else {
+                    $packages->push([
+                        'id' => $basketItem->item->package->id,
+                        'name' => $basketItem->item->package->name,
+                        'quantity' => $basketItem->quantity,
+                        'price' => $basketItem->item->package->price,
+                        'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0
+                    ]);
+                }
             }
         }
-
 
         $total_per_categories = 0;
 
         $categories = $categories->map(function($category){
-            $category['income'] = $category['income'];
+            $category['income'] = $category['income'] + ($category['income'] * .12);
             return $category;
         });
 
         foreach($categories as $item){
             $total_per_categories += $item['income'];
         }
-
         $data=[
             'total_transaction' => $transaction->get()->count(),
             'total_sales' => number_format($transaction->get()->sum('total_sales'),2),
             'best_employee' => $bestEmployee,
             'per_categories' => $categories,
+            'packages' => $packages,
+            'products_excluded_in_package' => $products_excluded_in_package,
             'total_per_categoies' => $total_per_categories,
             'transactions_query' => $transaction,
             'sold_products' => $products->sortByDesc('quantity'),
