@@ -345,7 +345,7 @@ class TransactionController extends Controller
             if(!auth()->check()){
                 return response()->json(['error' => 'Unauthrorized.'], 401);
             }
-            $response = [];
+            $response = response()->json([], 200);
 
             $data = $this->transactionSummary('yesterday');
 
@@ -370,11 +370,11 @@ class TransactionController extends Controller
                         ]);
                         return;
                     });
-                    $response = response()->json($result, 200);
+                    $response = response()->json($result->toArray(), 200);
                 }
             }
 
-            return response()->json($response, 200);
+            return $response;
 
         } catch (Exception $err) {
             return response()->json(['error' => $err->getMessage()], 500);
@@ -391,7 +391,6 @@ class TransactionController extends Controller
             if(!auth()->check()){
                 return response()->json(['error' => 'Unauthrorized.'], 401);
             }
-            $response = response()->json([], 200);
 
             $response = $this->dailySummary();
 
@@ -401,7 +400,8 @@ class TransactionController extends Controller
 
                 $transaction = Transaction::withoutGlobalScopes()
                     ->whereDate('created_at', Carbon::today())
-                    ->where('processed_by', $_user->id);
+                    ->where('processed_by', $_user->id)
+                    ->get();
 
                 $data = $this->getData($transaction);
 
@@ -426,7 +426,7 @@ class TransactionController extends Controller
                             ]);
                             return;
                         });
-                        $response = response()->json($result, 200);
+                        $response = response()->json($result->toArray(), 200);
                     }
                 }
             }
@@ -435,10 +435,6 @@ class TransactionController extends Controller
         } catch (Exception $err) {
             return response()->json(['error' => $err->getMessage()], 500);
         }
-
-
-
-
     }
 
 
