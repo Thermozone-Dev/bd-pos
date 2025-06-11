@@ -1,16 +1,19 @@
 <section style="padding: 5px; font-family: Arial, sans-serif;">
     <div style="text-align: center; line-height: 0.55em;">
-        <h1>Thermozone Philippines Corporation</h1>
-        <p>2280 Marconi St., Barangay San Isidro, Makati City</p>
-        <p>TIN: 223 661 818 0000</p>
+        <h1>Clark Nature Park, Inc.</h1>
+        <p>Gil Puyat Avenue, Clark Civil Aviation Complex, Clark Freeport Zone, Pampanga, Philippines</p>
+        <p>TIN: 007 287 877 000</p>
     </div><br>
     <div style="text-align: left; line-height: 0.55em;">
         <p>Software Name: <b>POS Sikat v1.0</b></p>
         <p>Serial Number: <b>XXXXXXXXXX</b></p>
         <p>Machine Identification Number: <b>XXXXXXXXXX</b></p>
         <p>POS Terminal Number: <b>XXX</b></p>
-
-        <p>Date & Time Generated: <b>XXXXXXXXX</b></p>
+        <p>Date & Time Generated: <b>
+            @php
+                echo \Carbon\Carbon::now()->format('F j, Y h:i A');
+            @endphp</b>
+        </p>
         <p>Issued by: <b>{{ Auth::user()->name }}</b></p>
     </div><br>
     <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
