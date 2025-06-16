@@ -347,7 +347,7 @@ class TransactionController extends Controller
             }
             $response = response()->json([], 200);
 
-            $data = $this->transactionSummary('yesterday');
+            $data = $this->transactionSummary('today');
 
             if(!empty($data)){
                 $result = collect();
