@@ -393,18 +393,15 @@ class TransactionController extends Controller
             }
 
             $response = $this->dailySummary();
-
             $_user = auth()->user();
 
             if(!$_user->hasRole('Cashier')){
 
                 $transaction = Transaction::withoutGlobalScopes()
                     ->whereDate('created_at', Carbon::today())
-                    ->where('processed_by', $_user->id)
-                    ->get();
+                    ->where('processed_by', $_user->id);
 
                 $data = $this->getData($transaction);
-
                 if(!empty($data)){
                     $result = collect();
                     if(!empty($data['products_excluded_in_package']) || !empty($data['packages']) ){
@@ -430,6 +427,7 @@ class TransactionController extends Controller
                     }
                 }
             }
+
             return $response;
 
         } catch (Exception $err) {

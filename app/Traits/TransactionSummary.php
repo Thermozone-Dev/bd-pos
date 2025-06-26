@@ -59,7 +59,6 @@ trait TransactionSummary
 
 
     public function getData($transaction){
-
         DB::statement("SET SQL_MODE=''");
 
 
