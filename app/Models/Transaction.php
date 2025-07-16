@@ -43,7 +43,9 @@ class Transaction extends Model
         'is_nac',
         'is_soloparent',
         'is_zero_rated',
-        'or_number'
+        'or_number',
+        'vat_deduction',
+        'vat_adjustment',
     ];
 
     public function getActivitylogOptions(): LogOptions

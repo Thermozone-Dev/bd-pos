@@ -149,6 +149,14 @@ class TransactionResource extends Resource
                     ->label('VAT Exempt Sales')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
+                TextColumn::make('vat_deduction')
+                    ->label('VAT Deduction')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
+                TextColumn::make('vat_adjustment')
+                    ->label('VAT Adjustment')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('zero_rated_sales')
                     ->label('Zero Rated Sales')
                     ->toggleable(isToggledHiddenByDefault: true)
