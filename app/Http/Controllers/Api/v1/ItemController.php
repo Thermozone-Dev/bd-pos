@@ -24,7 +24,7 @@ class ItemController extends Controller
     {
         $_products = DB::table('items')
                         ->join('products', 'items.product_id', '=', 'products.id')
-                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price'])
+                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price', 'products.pax'])
                         ->get();
 
         foreach ($_products as $product) {
@@ -39,7 +39,7 @@ class ItemController extends Controller
     {
         $_packages = DB::table('items')
                         ->join('packages', 'items.package_id', '=', 'packages.id')
-                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price'])
+                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price', 'packages.pax'])
                         ->get();
 
         foreach ($_packages as $package) {
@@ -62,7 +62,7 @@ class ItemController extends Controller
     {
         $_product = DB::table('items')
                         ->join('products', 'items.product_id', '=', 'products.id')
-                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price'])
+                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price', 'products.pax'])
                         ->where('items.id', '=', $id)
                         ->get();
 
@@ -75,7 +75,7 @@ class ItemController extends Controller
     {
         $_package = DB::table('items')
                         ->join('packages', 'items.package_id', '=', 'packages.id')
-                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price'])
+                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price', 'packages.pax'])
                         ->where('items.id', '=', $id)
                         ->get();
 
