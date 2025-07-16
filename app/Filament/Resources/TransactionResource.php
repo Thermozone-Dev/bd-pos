@@ -164,6 +164,12 @@ class TransactionResource extends Resource
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->alignCenter(),
+                IconColumn::make('is_zero_rated')
+                    ->label('Zero Rated')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->alignCenter(),
                 IconColumn::make('is_pwd')
                     ->label('PWD')
                     ->label('PWD')

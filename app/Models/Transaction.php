@@ -19,6 +19,7 @@ class Transaction extends Model
         'is_sc' => 'boolean',
         'is_nac' => 'boolean',
         'is_soloparent' => 'boolean',
+        'is_zero_rated' => 'boolean',
         'created_by' => 'integer',
     ];
 
@@ -42,6 +43,7 @@ class Transaction extends Model
         'is_sc',
         'is_nac',
         'is_soloparent',
+        'is_zero_rated',
     ];
 
     public function getActivitylogOptions(): LogOptions
