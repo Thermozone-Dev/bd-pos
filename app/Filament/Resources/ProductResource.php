@@ -55,6 +55,9 @@ class ProductResource extends Resource
                             ->toArray(),
                     )
                     ->required(),
+                TextInput::make('pax')
+                    ->label('PAX')
+                    ->numeric(),
                 TextInput::make('sku')
                     ->label('SKU')
                     ->required(),
@@ -74,13 +77,21 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Product Name')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
+                    ->label('Price')
                     ->sortable(),
                 TextColumn::make('productType.name')
+                    ->label('Product Type')
                     ->sortable(),
                 TextColumn::make('sku')
+                    ->label('SKU')
+                    ->sortable(),
+                TextColumn::make('pax')
+                    ->label('PAX')
+                    ->formatStateUsing(fn ($state) => $state ?? 'N/A')
                     ->sortable(),
                 SpatieMediaLibraryImageColumn::make('image'),
             ])
