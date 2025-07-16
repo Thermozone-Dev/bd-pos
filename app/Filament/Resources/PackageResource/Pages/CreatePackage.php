@@ -24,6 +24,7 @@ class CreatePackage extends CreateRecord
         $package = Package::create([
             'name' => $data['name'],
             'price' => $data['price'],
+            'pax' => $data['pax'],
         ]);
 
         $item = Item::create([

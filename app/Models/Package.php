@@ -18,6 +18,7 @@ class Package extends Model implements HasMedia
     protected $fillable = [
         'name',
         'price',
+        'pax',
     ];
 
     public function getActivitylogOptions(): LogOptions
