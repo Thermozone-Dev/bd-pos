@@ -35,7 +35,6 @@ class Transaction extends Model
         'vatable_sales',
         'vat',
         'vat_exempt_sales',
-        'vat_exempt',
         'zero_rated_sales',
         'total_sales',
         'is_valid',

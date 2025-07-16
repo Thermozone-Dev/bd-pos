@@ -94,10 +94,6 @@ class TransactionResource extends Resource
                     ->label('VAT Exempt Sales')
                     ->numeric()
                     ->default('0'),
-                TextInput::make('vat_exempt')
-                    ->label('VAT Exempt')
-                    ->numeric()
-                    ->default('0'),
                 TextInput::make('zero_rated_sales')
                     ->label('Zero Rated Sales')
                     ->numeric()
