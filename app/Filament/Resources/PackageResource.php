@@ -51,6 +51,7 @@ class PackageResource extends Resource
                             ->columnSpan(1),
                         TextInput::make('pax')
                             ->label('PAX')
+                            ->default(0)
                             ->numeric(),
                         SpatieMediaLibraryFileUpload::make('image')
                             ->label('Product Image')
@@ -78,7 +79,7 @@ class PackageResource extends Resource
                 TextColumn::make('name')->label('Package Name'),
                 TextColumn::make('price')->label('Price'),
                 TextColumn::make('pax')->label('PAX')
-                    ->formatStateUsing(fn ($state) => $state ?? 'N/A'),
+                    ->formatStateUsing(fn ($state) => $state > 0 ? $state : 'N/A'),
                 TextColumn::make('products.name')->label('Products')->badge(),
             ])
             ->filters([

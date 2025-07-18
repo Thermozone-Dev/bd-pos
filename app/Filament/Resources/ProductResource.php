@@ -57,6 +57,7 @@ class ProductResource extends Resource
                     ->required(),
                 TextInput::make('pax')
                     ->label('PAX')
+                    ->default(0)
                     ->numeric(),
                 TextInput::make('sku')
                     ->label('SKU')
@@ -91,8 +92,7 @@ class ProductResource extends Resource
                     ->sortable(),
                 TextColumn::make('pax')
                     ->label('PAX')
-                    ->formatStateUsing(fn ($state) => $state ?? 'N/A')
-                    ->sortable(),
+                    ->formatStateUsing(fn ($state) => $state > 0 ? $state : 'N/A'),
                 SpatieMediaLibraryImageColumn::make('image'),
             ])
             ->filters([
