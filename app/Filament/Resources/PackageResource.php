@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ProductTaxCategory;
 use App\Filament\Resources\PackageResource\Pages;
 use App\Filament\Resources\PackageResource\RelationManagers;
 use App\Models\Item;
@@ -50,6 +51,9 @@ class PackageResource extends Resource
                             ->numeric()
                             ->minValue(0)
                             ->columnSpan(1),
+                        Select::make('product_tax_category')
+                            ->label('Product Tax Category')
+                            ->options(ProductTaxCategory::class),
                         TextInput::make('pax')
                             ->label('PAX')
                             ->default(0)
