@@ -93,6 +93,8 @@ class ProductResource extends Resource
                 TextColumn::make('pax')
                     ->label('PAX')
                     ->formatStateUsing(fn ($state) => $state > 0 ? $state : 'N/A'),
+                TextColumn::make('product_tax_category')
+                    ->label('Product Tax Category'),
                 SpatieMediaLibraryImageColumn::make('image'),
             ])
             ->filters([

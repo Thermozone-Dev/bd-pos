@@ -7,6 +7,7 @@ use App\Filament\Resources\PackageResource\RelationManagers;
 use App\Models\Item;
 use App\Models\Package;
 use App\Models\Product;
+use Dom\Text;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -80,6 +81,7 @@ class PackageResource extends Resource
                 TextColumn::make('price')->label('Price'),
                 TextColumn::make('pax')->label('PAX')
                     ->formatStateUsing(fn ($state) => $state > 0 ? $state : 'N/A'),
+                TextColumn::make('product_tax_category')->label('Product Tax Category'),
                 TextColumn::make('products.name')->label('Products')->badge(),
             ])
             ->filters([

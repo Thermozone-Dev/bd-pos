@@ -19,6 +19,7 @@ class Product extends Model implements HasMedia
         'name',
         'price',
         'product_type_id',
+        'product-tax-category',
         'pax',
         'sku',
     ];
