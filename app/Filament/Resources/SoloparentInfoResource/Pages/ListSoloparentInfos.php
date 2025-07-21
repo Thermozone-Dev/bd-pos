@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SoloparentInfoResource\Pages;
 
+use App\Exports\TransactionExport;
 use App\Filament\Resources\SoloparentInfoResource;
 use App\Models\SoloparentInfo;
 use App\Models\Transaction;
@@ -10,6 +11,7 @@ use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ListSoloparentInfos extends ListRecords
 {
@@ -33,39 +35,73 @@ class ListSoloparentInfos extends ListRecords
                 ])
                 ->action(function (array $data) {
 
-                    $spInfos = SoloparentInfo::query()
-                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
-                        ->get();
-
-                    $transactionIds = $spInfos->pluck('transaction_id')->unique();
-
-                    $spTransactions = Transaction::whereIn('id', $transactionIds)
-                        ->with('basket.items')
-                        ->get();
-
-                    $transactionDiscounts = [];
-
-                    foreach ($spTransactions as $transaction) {
-                        $totalDiscount = 0;
-
-                        foreach ($transaction->basket() as $basket) {
-                            foreach ($basket->items as $item) {
-                                $totalDiscount += $item->discount_value ?? 0;
-                            }
-                        }
-
-                        $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount;
-                    }
-
+                    $report = $this->export_value($data);
                     $pdf = SnappyPdf::loadView('reports.sp-summary', [
-                        'spInfos' => $spInfos,
-                        'spTransactions' => $spTransactions,
-                        'transactionDiscounts' => $transactionDiscounts,
+                        'spInfos' => $report['spInfos'],
+                        'spTransactions' => $report['spTransactions'] ,
+                        'transactionDiscounts' => $report['transactionDiscounts'],
                     ])
-                        ->setPaper('folio', 'landscape');
+                    ->setPaper('folio', 'landscape');
 
                     return $pdf->stream('E-5 - Solo Parent Report.pdf');
                 }),
+
+                Action::make('export_record_to_excel')
+                ->label('Export Record to Excel')
+                ->icon('fas-file-export')
+                ->color('success')
+                ->form([
+                    DatePicker::make('start_date')
+                        ->label('Start Date')
+                        ->required(),
+                    DatePicker::make('end_date')
+                        ->label('End Date')
+                        ->required()
+                        ->default(now()),
+                ])
+                ->action(function(array $data) {
+                    $report = $this->export_value($data);
+
+                    $export = new TransactionExport(
+                        $report, //variable
+                        'sp' // blade path of export table
+                    );
+                    return Excel::download($export, 'E-5 - Solo Parent Report.xlsx');
+
+                }),
         ];
+    }
+
+    public function export_value($data): array
+    {
+        $spInfos = SoloparentInfo::query()
+            ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+            ->get();
+
+        $transactionIds = $spInfos->pluck('transaction_id')->unique();
+
+        $spTransactions = Transaction::whereIn('id', $transactionIds)
+            ->with('basket.items')
+            ->get();
+
+        $transactionDiscounts = [];
+
+        foreach ($spTransactions as $transaction) {
+            $totalDiscount = 0;
+
+            foreach ($transaction->basket() as $basket) {
+                foreach ($basket->items as $item) {
+                    $totalDiscount += $item->discount_value ?? 0;
+                }
+            }
+
+            $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount;
+        }
+        return [
+            'spInfos' => $spInfos,
+            'spTransactions' => $spTransactions,
+            'transactionDiscounts' => $transactionDiscounts,
+        ];
+
     }
 }
