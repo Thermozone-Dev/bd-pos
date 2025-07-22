@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Enums\ProductTaxCategory;
 use App\Http\Controllers\Controller;
 use App\Models\Item;
 use App\Models\Package;
@@ -24,12 +25,19 @@ class ItemController extends Controller
     {
         $_products = DB::table('items')
                         ->join('products', 'items.product_id', '=', 'products.id')
-                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price'])
+                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price', 'products.pax', 'products.product_tax_category'])
                         ->get();
 
         foreach ($_products as $product) {
-            $_media = Product::find($product->product_id)->getMedia();
+            $_model = Product::find($product->product_id);
+            $_media = $_model->getMedia();
             $product->image_url = $_media->first() ? $_media->first()->getUrl() : null;
+
+            foreach (ProductTaxCategory::cases() as $taxCategory) {
+                if ($taxCategory->value === $_model->product_tax_category->value) {
+                    $product->vat_exempt = $taxCategory->isVatExempt();
+                }
+            }
         }
 
         return response()->json($_products);
@@ -39,12 +47,19 @@ class ItemController extends Controller
     {
         $_packages = DB::table('items')
                         ->join('packages', 'items.package_id', '=', 'packages.id')
-                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price'])
+                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price', 'packages.pax', 'packages.product_tax_category'])
                         ->get();
 
         foreach ($_packages as $package) {
-            $_media = Package::find($package->package_id)->getMedia();
+            $_model = Package::find($package->package_id);
+            $_media = $_model->getMedia();
             $package->image_url = $_media->first() ? $_media->first()->getUrl() : null;
+
+            foreach (ProductTaxCategory::cases() as $taxCategory) {
+                if ($taxCategory->value === $_model->product_tax_category->value) {
+                    $package->vat_exempt = $taxCategory->isVatExempt();
+                }
+            }
         }
         return response()->json($_packages);
     }
@@ -62,7 +77,7 @@ class ItemController extends Controller
     {
         $_product = DB::table('items')
                         ->join('products', 'items.product_id', '=', 'products.id')
-                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price'])
+                        ->select(['items.id', 'items.product_id', 'products.name', 'products.price', 'products.pax'])
                         ->where('items.id', '=', $id)
                         ->get();
 
@@ -75,7 +90,7 @@ class ItemController extends Controller
     {
         $_package = DB::table('items')
                         ->join('packages', 'items.package_id', '=', 'packages.id')
-                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price'])
+                        ->select(['items.id', 'items.package_id', 'packages.name', 'packages.price', 'packages.pax'])
                         ->where('items.id', '=', $id)
                         ->get();
 

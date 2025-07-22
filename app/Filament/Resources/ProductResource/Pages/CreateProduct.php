@@ -19,6 +19,8 @@ class CreateProduct extends CreateRecord
             'name' => $data['name'],
             'price' => $data['price'],
             'product_type_id' => $data['product_type_id'],
+            'product_tax_category' => $data['product_tax_category'],
+            'pax' => $data['pax'],
             'sku' => $data['sku'],
         ]);
 
