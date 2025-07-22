@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductTaxCategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,9 +16,15 @@ class Package extends Model implements HasMedia
 {
     use InteractsWithMedia, LogsActivity;
 
+    protected $casts = [
+        'product_tax_category' => ProductTaxCategory::class,
+    ];
+
     protected $fillable = [
         'name',
         'price',
+        'product_tax_category',
+        'pax',
     ];
 
     public function getActivitylogOptions(): LogOptions

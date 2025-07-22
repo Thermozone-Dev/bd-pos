@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ProductTaxCategory;
 use App\Filament\Resources\PackageResource\Pages;
 use App\Filament\Resources\PackageResource\RelationManagers;
 use App\Models\Item;
 use App\Models\Package;
 use App\Models\Product;
+use Dom\Text;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -49,6 +51,13 @@ class PackageResource extends Resource
                             ->numeric()
                             ->minValue(0)
                             ->columnSpan(1),
+                        Select::make('product_tax_category')
+                            ->label('Product Tax Category')
+                            ->options(ProductTaxCategory::class),
+                        TextInput::make('pax')
+                            ->label('PAX')
+                            ->default(0)
+                            ->numeric(),
                         SpatieMediaLibraryFileUpload::make('image')
                             ->label('Product Image')
                             ->downloadable(),
@@ -74,6 +83,9 @@ class PackageResource extends Resource
                 SpatieMediaLibraryImageColumn::make('image')->label('Image'),
                 TextColumn::make('name')->label('Package Name'),
                 TextColumn::make('price')->label('Price'),
+                TextColumn::make('pax')->label('PAX')
+                    ->formatStateUsing(fn ($state) => $state > 0 ? $state : 'N/A'),
+                TextColumn::make('product_tax_category')->label('Product Tax Category'),
                 TextColumn::make('products.name')->label('Products')->badge(),
             ])
             ->filters([

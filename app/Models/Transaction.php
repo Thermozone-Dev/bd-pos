@@ -19,6 +19,7 @@ class Transaction extends Model
         'is_sc' => 'boolean',
         'is_nac' => 'boolean',
         'is_soloparent' => 'boolean',
+        'is_zero_rated' => 'boolean',
         'created_by' => 'integer',
     ];
 
@@ -34,7 +35,6 @@ class Transaction extends Model
         'vatable_sales',
         'vat',
         'vat_exempt_sales',
-        'vat_exempt',
         'zero_rated_sales',
         'total_sales',
         'is_valid',
@@ -42,6 +42,10 @@ class Transaction extends Model
         'is_sc',
         'is_nac',
         'is_soloparent',
+        'is_zero_rated',
+        'or_number',
+        'vat_deduction',
+        'vat_adjustment',
     ];
 
     public function getActivitylogOptions(): LogOptions

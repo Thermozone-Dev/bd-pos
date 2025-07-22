@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ProductTaxCategory;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Item;
@@ -55,6 +56,13 @@ class ProductResource extends Resource
                             ->toArray(),
                     )
                     ->required(),
+                Select::make('product_tax_category')
+                    ->label('Product Tax Category')
+                    ->options(ProductTaxCategory::class),
+                TextInput::make('pax')
+                    ->label('PAX')
+                    ->default(0)
+                    ->numeric(),
                 TextInput::make('sku')
                     ->label('SKU')
                     ->required(),
@@ -74,14 +82,24 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Product Name')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
+                    ->label('Price')
                     ->sortable(),
                 TextColumn::make('productType.name')
+                    ->label('Product Type')
                     ->sortable(),
+                TextColumn::make('product_tax_category')
+                    ->label('Product Tax Category')
+                    ->badge(),
                 TextColumn::make('sku')
+                    ->label('SKU')
                     ->sortable(),
+                TextColumn::make('pax')
+                    ->label('PAX')
+                    ->formatStateUsing(fn ($state) => $state > 0 ? $state : 'N/A'),
                 SpatieMediaLibraryImageColumn::make('image'),
             ])
             ->filters([

@@ -94,10 +94,6 @@ class TransactionResource extends Resource
                     ->label('VAT Exempt Sales')
                     ->numeric()
                     ->default('0'),
-                TextInput::make('vat_exempt')
-                    ->label('VAT Exempt')
-                    ->numeric()
-                    ->default('0'),
                 TextInput::make('zero_rated_sales')
                     ->label('Zero Rated Sales')
                     ->numeric()
@@ -125,10 +121,14 @@ class TransactionResource extends Resource
                 TextColumn::make('barcode')
                     ->label('Barcode')
                     ->formatStateUsing(fn ($state) => str_pad($state, 6, '0', STR_PAD_LEFT)),
+                TextColumn::make('or_number')
+                    ->label('OR Number')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('paymentMethod.name')
                     ->label('Transaction Method'),
                 TextColumn::make('transaction_fee')
                     ->label('Transaction Fee')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('gross_sales')
                     ->label('Gross Sales')
@@ -139,7 +139,6 @@ class TransactionResource extends Resource
                 TextColumn::make('change')
                     ->label('Change')
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
-
                 TextColumn::make('vatable_sales')
                     ->label('VATable Sales')
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
@@ -148,12 +147,19 @@ class TransactionResource extends Resource
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('vat_exempt_sales')
                     ->label('VAT Exempt Sales')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
-                TextColumn::make('vat_exempt')
-                    ->label('VAT Exempt')
+                TextColumn::make('vat_deduction')
+                    ->label('VAT Deduction')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
+                TextColumn::make('vat_adjustment')
+                    ->label('VAT Adjustment')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('zero_rated_sales')
                     ->label('Zero Rated Sales')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('total_sales')
                     ->label('Total Sales')
@@ -164,30 +170,41 @@ class TransactionResource extends Resource
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->alignCenter(),
+                IconColumn::make('is_zero_rated')
+                    ->label('Zero Rated')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignCenter(),
                 IconColumn::make('is_pwd')
                     ->label('PWD')
                     ->label('PWD')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->alignCenter(),
                 IconColumn::make('is_sc')
                     ->label('Senior Citizen')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->alignCenter(),
                 IconColumn::make('is_nac')
                     ->label('National Athlete / Coach')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->alignCenter(),
                 IconColumn::make('is_soloparent')
                     ->label('Solo Parent')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->alignCenter(),
             ])
             ->filters([
