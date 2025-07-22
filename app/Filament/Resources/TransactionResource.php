@@ -71,6 +71,9 @@ class TransactionResource extends Resource
                     ->label('Transaction Fee')
                     ->numeric()
                     ->default('0'),
+                TextInput::make('reference_number')
+                    ->label('Reference Number')
+                    ->nullable(),
                 TextInput::make('vatable_sales')
                     ->label('VATable Sales')
                     ->numeric()
