@@ -30,7 +30,7 @@ class AuthController extends Controller
 
         UserLogger::make($_user)->login();
 
-        return response()->json(['token' => $token], 201);
+        return response()->json(['token' => $token, 'name' => $_user->name], 201);
     }
 
     public function logout(Request $request){
