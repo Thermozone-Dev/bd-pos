@@ -27,8 +27,10 @@ class PaymentMethodLogger extends Logger
                 Field::make('name')
                     ->label('Name'),
                 Field::make('is_enabled')
+                    ->formatStateUsing(fn ($state) => $state == 1 ? 'True' : 'False')
                     ->label('Enabled'),
                 Field::make('is_digital')
+                    ->formatStateUsing(fn ($state) => $state == 1 ? 'True' : 'False')
                     ->label('Digital'),
                 Field::make('logo')
                     ->media(gallery:true),

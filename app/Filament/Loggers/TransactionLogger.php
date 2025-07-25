@@ -30,6 +30,7 @@ class TransactionLogger extends Logger
                 Field::make('total_sales')
                     ->label('Total Sales'),
                 Field::make('is_valid')
+                    ->formatStateUsing(fn ($state) => $state == 1 ? 'True' : 'False')
                     ->label('Is Valid'),
             ])
             ->relationManagers([
