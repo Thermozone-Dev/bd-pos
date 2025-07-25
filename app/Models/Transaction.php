@@ -29,6 +29,7 @@ class Transaction extends Model
         'barcode',
         'transaction_method_id',
         'transaction_fee',
+        'reference_number',
         'cash_tendered',
         'change',
         'gross_sales',
