@@ -28,8 +28,10 @@ class DiscountLogger extends Logger
                 Field::make('value')
                     ->label('Value'),
                 Field::make('is_percentage')
+                    ->formatStateUsing(fn ($state) => $state == 1 ? 'True' : 'False')
                     ->label('Is Percentage'),
                 Field::make('is_government_discount')
+                    ->formatStateUsing(fn ($state) => $state == 1 ? 'True' : 'False')
                     ->label('Is Government Discount'),
             ])
             ->relationManagers([
