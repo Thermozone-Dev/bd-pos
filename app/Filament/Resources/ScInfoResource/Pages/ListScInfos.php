@@ -6,6 +6,7 @@ use App\Filament\Resources\ScInfoResource;
 use App\Models\ScInfo;
 use App\Models\Transaction;
 use Barryvdh\Snappy\Facades\SnappyPdf;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -34,7 +35,7 @@ class ListScInfos extends ListRecords
                 ->action(function (array $data) {
 
                     $scInfos = ScInfo::query()
-                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
                         ->get();
 
                     $transactionIds = $scInfos->pluck('transaction_id')->unique();

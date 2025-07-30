@@ -5,6 +5,7 @@ namespace App\Filament\Resources\TransactionResource\Pages;
 use App\Filament\Resources\TransactionResource;
 use App\Models\Transaction;
 use Barryvdh\Snappy\Facades\SnappyPdf;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -99,9 +100,8 @@ class ListTransactions extends ListRecords
                 ->action(function(array $data) {
 
                     $transactions = Transaction::query()
-                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
                         ->get();
-
                     $discountSummary = [];
 
                     foreach ($transactions as $transaction) {
