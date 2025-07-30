@@ -9,12 +9,19 @@ use App\Models\VoidTransaction;
 use App\Models\z_record;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use phpDocumentor\Reflection\Types\Void_;
 
 class ZReadingController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
+        $request->validate([
+            'currentCash' => 'required|numeric',
+        ]);
+
+        $user = Auth::user();
+
         $reportDate = Carbon::now()->format('M d, Y');
         $reportTime = Carbon::now()->format('h:i A');
 
@@ -26,8 +33,8 @@ class ZReadingController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        $startTime = $shift->first()?->time_in ?? 'N/A';
-        $endTime = $shift->last()?->time_out ?? 'N/A';
+        $startTime = $shift->first()?->time_in;
+        $endTime = $shift->last()?->time_out;
 
         $shift = [
             'startTime' => Carbon::parse($startTime)->format('h:i A'),
@@ -115,8 +122,7 @@ class ZReadingController extends Controller
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('zero_rated_sales');
 
-        $grossAmount = Transaction::where('is_valid', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
+        $grossAmount = Transaction::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('gross_sales');
 
@@ -125,39 +131,112 @@ class ZReadingController extends Controller
         $pwdDiscounts = 0;
         $nacDiscounts = 0;
         $soloparentDiscounts = 0;
+        $otherDiscounts = 0;
         $totalDiscounts = 0;
 
-        $data_array = [];
 
         foreach ($transactions as $transaction) {
-            $item_array = [];
             foreach ($transaction->basket()->first()->items()->get() as $item) {
 
                 if ($item->discount_value === 0.00) {
                     continue;
                 }
-                array_push($item_array, $item);
-                // return response()->json($item->discount()->exists());
 
-                // return response()->json(['test' => $item]);
-                // $discount_id = $item;
+                $totalDiscounts += $item->discount_value;
 
+                $discount_id = $item->discounts()->first()?->discount_id;
 
-                // match ($discount_id) {
-                //     1 => $scDiscounts += $item->discount_value,
-                //     2 => $pwdDiscounts += $item->discount_value,
-                //     3 => $nacDiscounts += $item->discount_value,
-                //     4 => $soloparentDiscounts += $item->discount_value,
-                // };
-
-
-
-                // $totalDiscounts += $item->discount_value;
+                match ($discount_id) {
+                    1 => $scDiscounts += $item->discount_value,
+                    2 => $pwdDiscounts += $item->discount_value,
+                    3 => $nacDiscounts += $item->discount_value,
+                    4 => $soloparentDiscounts += $item->discount_value,
+                    default => $otherDiscounts += $item->discount_value,
+                };
             }
-            array_push($data_array, [$transaction->id => $item_array]);
         }
 
-        return response()->json($data_array);
+        // less discount, less return, less void, less vat adjust, net amount
+
+        // FOR LESS CALCULATIONS
+
+        $totalReturns = 0;
+        $totalVoids = Transaction::where('is_valid', false)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->sum('total_sales');
+        $totalVATAdjusts = Transaction::where('is_valid', true)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->sum('vat_adjustment');
+
+        $lessDiscounts = $grossAmount - $totalDiscounts;
+        $lessReturns = 0;
+        $lessVoids = $lessDiscounts - $totalVoids;
+        $lessVATAdjustments = $lessVoids - $totalVATAdjusts;
+        $netAmount = $lessVATAdjustments;
+
+        $scTransactionsVATAdjust = Transaction::where('is_sc', true)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->where('is_valid', true)
+            ->sum('vat_adjustment');
+
+        $pwdTransactionsVATAdjust = Transaction::where('is_pwd', true)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->where('is_valid', true)
+            ->sum('vat_adjustment');
+
+        $regDiscountsVATAdjust = Transaction::where('is_valid', true)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->where('is_sc', false)
+            ->where('is_pwd', false)
+            ->orWhere('is_nac', true)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->orWhere('is_soloparent', true)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->sum('vat_adjustment');
+
+        $zeroRatedVATAdjust = 0;
+        $returnVATAdjust = 0;
+
+        $otherVATAdjust = Transaction::where('is_valid', false)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->sum('vat_adjustment');
+
+        // TRANSACTION SUMMARY
+
+        $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
+
+        $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
+
+        $totalDigitalPayment = $transactions
+            ->whereNotIn('transaction_method_id', [1, 5])
+            ->where('is_valid', true)
+            ->sum('total_sales');
+
+        $totalCreditPayment = $transactions
+            ->where('transaction_method_id', 5)
+            ->where('is_valid', true)
+            ->sum('total_sales');
+
+        $totalPayments = $transactions->sum('total_sales');
+
+        $openingBalance = Shift::where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->first()?->opening_balance ?? 0;
+
+        $cashInDrawer = $openingBalance + $totalCashPayment;
+
+        $withdrawal = $totalChange;
+        $lessWithdrawal = $cashInDrawer - $totalChange;
+
+        $shortOrOver = $request->currentCash - $cashInDrawer;
 
         return response()->json([
             'reportDate' => $reportDate,
@@ -180,11 +259,32 @@ class ZReadingController extends Controller
             'vatExemptSales' => number_format($vatExemptSales, 2, '.', ''),
             'zeroRatedSales' => number_format($zeroRatedSales, 2, '.', ''),
             'grossAmount' => number_format($grossAmount, 2, '.', ''),
+            'lessDiscounts' => number_format($lessDiscounts, 2, '.', ''),
+            'lessReturns' => number_format($lessReturns, 2, '.', ''),
+            'lessVoids' => number_format($lessVoids, 2, '.', ''),
+            'lessVATAdjustments' => number_format($lessVATAdjustments, 2, '.', ''),
+            'netAmount' => number_format($netAmount, 2, '.', ''),
             'scDiscounts' => number_format($scDiscounts, 2, '.', ''),
             'pwdDiscounts' => number_format($pwdDiscounts, 2, '.', ''),
             'nacDiscounts' => number_format($nacDiscounts, 2, '.', ''),
             'soloparentDiscounts' => number_format($soloparentDiscounts, 2, '.', ''),
-            'totalDiscounts' => number_format($totalDiscounts, 2, '.', ''),
+            'otherDiscounts' => number_format($otherDiscounts, 2, '.', ''),
+            'totalVoids' => number_format($totalVoids, 2, '.', ''),
+            'totalReturns' => number_format($totalReturns, 2, '.', ''),
+            'scTransactionsVATAdjust' => number_format($scTransactionsVATAdjust, 2, '.', ''),
+            'pwdTransactionsVATAdjust' => number_format($pwdTransactionsVATAdjust, 2, '.', ''),
+            'regDiscountsVATAdjust' => number_format($regDiscountsVATAdjust, 2, '.', ''),
+            'zeroRatedVATAdjust' => number_format($zeroRatedVATAdjust, 2, '.', ''),
+            'returnVATAdjust' => number_format($returnVATAdjust, 2, '.', ''),
+            'otherVATAdjust' => number_format($otherVATAdjust, 2, '.', ''),
+            'cashInDrawer' => number_format($cashInDrawer, 2, '.', ''),
+            'digitalPayments' => number_format($totalDigitalPayment, 2, '.', ''),
+            'creditPayments' => number_format($totalCreditPayment, 2, '.', ''),
+            'openingBalance' => number_format($openingBalance, 2, '.', ''),
+            'withdrawal' => number_format($withdrawal, 2, '.', ''),
+            'lessWithdrawal' => number_format($lessWithdrawal, 2, '.', ''),
+            'totalPayments' => number_format($totalPayments, 2, '.', ''),
+            'shortOrOver' => number_format($shortOrOver, 2, '.', ''),
         ], 200);
     }
 }
