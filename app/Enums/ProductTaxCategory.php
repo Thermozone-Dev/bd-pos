@@ -11,7 +11,6 @@ enum ProductTaxCategory: string implements HasLabel, HasColor
     case NON_ESSENTIAL_MEDICINE = 'non_essential_medicine';
     case MEDICAL_SUPPLIES = 'medical_supplies';
     case FOOD = 'food';
-    case NON_FOOD = 'non_food';
     case ALCOHOL = 'alcohol';
     case TOBACCO = 'tobacco';
     case PERSONAL_CARE = 'personal_care';
@@ -27,7 +26,6 @@ enum ProductTaxCategory: string implements HasLabel, HasColor
             self::NON_ESSENTIAL_MEDICINE => 'Non-Essential Medicine',
             self::MEDICAL_SUPPLIES => 'Medical Supplies',
             self::FOOD => 'Food',
-            self::NON_FOOD => 'Non-Food',
             self::ALCOHOL => 'Alcohol',
             self::TOBACCO => 'Tobacco',
             self::PERSONAL_CARE => 'Personal Care',
@@ -45,7 +43,6 @@ enum ProductTaxCategory: string implements HasLabel, HasColor
             self::NON_ESSENTIAL_MEDICINE => 'warning',
             self::MEDICAL_SUPPLIES => 'success',
             self::FOOD => 'success',
-            self::NON_FOOD => 'warning',
             self::ALCOHOL => 'warning',
             self::TOBACCO => 'warning',
             self::PERSONAL_CARE => 'warning',
@@ -63,7 +60,6 @@ enum ProductTaxCategory: string implements HasLabel, HasColor
             self::NON_ESSENTIAL_MEDICINE => false,
             self::MEDICAL_SUPPLIES => true,
             self::FOOD => true,
-            self::NON_FOOD => false,
             self::ALCOHOL => false,
             self::TOBACCO => false,
             self::PERSONAL_CARE => false,
