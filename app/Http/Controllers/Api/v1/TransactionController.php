@@ -237,7 +237,7 @@ class TransactionController extends Controller
             'spic_id' => $details['id'],
             'child_name' => $details['child_name'],
             'child_age' => $details['child_age'],
-            'child_birthday' => $details['child_birthday'],
+            'child_birthday' => Carbon::parse($details['child_birthday'])->format('Y-m-d'),
         ];
 
         SoloparentInfo::create($_data);

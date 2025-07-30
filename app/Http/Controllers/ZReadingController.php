@@ -171,7 +171,7 @@ class ZReadingController extends Controller
             ->sum('vat_adjustment');
 
         $lessDiscounts = $grossAmount - $totalDiscounts;
-        $lessReturns = 0;
+        $lessReturns = $lessDiscounts - $totalReturns;
         $lessVoids = $lessDiscounts - $totalVoids;
         $lessVATAdjustments = $lessVoids - $totalVATAdjusts;
         $netAmount = $lessVATAdjustments;
