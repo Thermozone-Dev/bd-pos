@@ -120,6 +120,7 @@ class TransactionResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created at')
+                    ->dateTime('M d, Y - h:i A')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('barcode')
                     ->label('Barcode')
