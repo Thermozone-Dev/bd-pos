@@ -71,6 +71,9 @@ class TransactionResource extends Resource
                     ->label('Transaction Fee')
                     ->numeric()
                     ->default('0'),
+                TextInput::make('reference_number')
+                    ->label('Reference Number')
+                    ->nullable(),
                 TextInput::make('vatable_sales')
                     ->label('VATable Sales')
                     ->numeric()
@@ -117,6 +120,7 @@ class TransactionResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created at')
+                    ->dateTime('M d, Y - h:i A')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('barcode')
                     ->label('Barcode')
@@ -130,6 +134,9 @@ class TransactionResource extends Resource
                     ->label('Transaction Fee')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
+                TextColumn::make('reference_number')
+                    ->label('Reference Number')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('gross_sales')
                     ->label('Gross Sales')
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),

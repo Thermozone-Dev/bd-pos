@@ -54,6 +54,7 @@ class TransactionController extends Controller
                 'transaction_discounts.id' => 'numeric',
                 'transaction_method' => 'required|numeric',
                 'transaction_fee' => 'required|numeric',
+                'reference_number' => 'string',
                 'total_sales' => 'required|numeric',
                 'cash_tendered' => 'required|numeric',
                 'change' => 'required|numeric',
@@ -78,6 +79,7 @@ class TransactionController extends Controller
                 'barcode' =>  null,
                 'transaction_method_id' => $request->transaction_method,
                 'transaction_fee' => $request->transaction_fee,
+                'reference_number' => $request->reference_number,
                 'cash_tendered' => $request->cash_tendered,
                 'total_sales' => $request->total_sales,
                 'change' => $request->change,
@@ -235,7 +237,7 @@ class TransactionController extends Controller
             'spic_id' => $details['id'],
             'child_name' => $details['child_name'],
             'child_age' => $details['child_age'],
-            'child_birthday' => $details['child_birthday'],
+            'child_birthday' => Carbon::parse($details['child_birthday'])->format('Y-m-d'),
         ];
 
         SoloparentInfo::create($_data);

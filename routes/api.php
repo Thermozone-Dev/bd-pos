@@ -43,10 +43,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     Route::get('/shift/{id}', [ShiftController::class, 'show']);
 
     // XReading Routes
-    Route::get('/xreading', [XReadingController::class, 'show']);
+    Route::post('/xreading', [XReadingController::class, 'show']);
 
     // ZReading Routes
-    Route::get('/zreading', [ZReadingController::class, 'show']);
+    Route::post('/zreading', [ZReadingController::class, 'show']);
 
     // Voiding Routes
     Route::post('/void/{id}', [TransactionController::class, 'voidTransaction']);

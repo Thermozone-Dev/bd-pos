@@ -7,6 +7,7 @@ use App\Filament\Resources\NacInfoResource;
 use App\Models\NacInfo;
 use App\Models\Transaction;
 use Barryvdh\Snappy\Facades\SnappyPdf;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
@@ -34,6 +35,10 @@ class ListNacInfos extends ListRecords
                 ])
                 ->action(function (array $data) {
 
+
+                    $nacInfos = NacInfo::query()
+                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+                        ->get();
                     $report = $this->export_value($data);
 
                     $pdf = SnappyPdf::loadView('reports.nac-summary', [

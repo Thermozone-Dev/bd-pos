@@ -6,6 +6,7 @@ use App\Exports\TransactionExport;
 use App\Filament\Resources\TransactionResource;
 use App\Models\Transaction;
 use Barryvdh\Snappy\Facades\SnappyPdf;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -99,6 +100,54 @@ class ListTransactions extends ListRecords
                         ->default(now()),
                 ])
                 ->action(function(array $data) {
+
+                    $transactions = Transaction::query()
+                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+                        ->get();
+                    $discountSummary = [];
+
+                    foreach ($transactions as $transaction) {
+                        // Initialize counters
+                        $discounts = [
+                            'sc' => 0,
+                            'pwd' => 0,
+                            'nac' => 0,
+                            'solo_parent' => 0,
+                        ];
+
+                        $basket = $transaction->basket()->first();
+                        if (!$basket) continue;
+
+                        $items = $basket->items()->get();
+
+                        foreach ($items as $item) {
+                            // Skip if no discount
+                            if (empty($item->discount_value) || $item->discount_value == 0.00) {
+                                continue;
+                            }
+
+                            // dump($item->discount_value, $item->discounts()->first()->discount_id);
+
+                            // Add to correct category based on discount_id
+                            switch ($item->discounts()->first()->discount_id) {
+                                case 1:
+                                    $discounts['sc'] += $item->discount_value;
+                                    break;
+                                case 2:
+                                    $discounts['pwd'] += $item->discount_value;
+                                    break;
+                                case 3:
+                                    $discounts['nac'] += $item->discount_value;
+                                    break;
+                                case 4:
+                                    $discounts['solo_parent'] += $item->discount_value;
+                                    break;
+                            }
+                        }
+
+                        $discountSummary[$transaction->id] = $discounts;
+                    }
+                  
                     $report = $this->export_value($data);
 
                     $pdf = SnappyPdf::loadView('reports.general-transaction-summary', [

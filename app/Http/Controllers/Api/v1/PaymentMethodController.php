@@ -13,19 +13,15 @@ class PaymentMethodController extends Controller
      */
     public function index()
     {
-        $_payment_methods = PaymentMethod::all();
+        $_payment_methods = PaymentMethod::where('is_enabled', true)
+            ->get();
 
         $_data = [];
         foreach ($_payment_methods as $key => $payment_method) {
-            if (!$payment_method->is_enabled) {
-                continue;
-            }
-            $_media = $payment_method->getMedia();
             $_data[$key] = [
                 'id' => $payment_method->id,
                 'name' => $payment_method->name,
                 'is_digital' => $payment_method->is_digital,
-                'logo_url' => $_media->first() ? $_media->first()->getUrl() : null,
             ];
         }
 

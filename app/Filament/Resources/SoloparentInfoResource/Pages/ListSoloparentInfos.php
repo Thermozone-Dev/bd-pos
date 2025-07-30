@@ -7,6 +7,7 @@ use App\Filament\Resources\SoloparentInfoResource;
 use App\Models\SoloparentInfo;
 use App\Models\Transaction;
 use Barryvdh\Snappy\Facades\SnappyPdf;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -34,6 +35,10 @@ class ListSoloparentInfos extends ListRecords
                         ->default(now()->endOfWeek()),
                 ])
                 ->action(function (array $data) {
+
+                    $spInfos = SoloparentInfo::query()
+                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+                        ->get();
 
                     $report = $this->export_value($data);
                     $pdf = SnappyPdf::loadView('reports.sp-summary', [

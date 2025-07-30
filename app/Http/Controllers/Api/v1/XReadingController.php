@@ -14,8 +14,12 @@ use Illuminate\Support\Facades\Auth;
 class XReadingController extends Controller
 {
 
-    public function show()
+    public function show(Request $request)
     {
+        $request->validate([
+            'currentCash' => 'required|numeric',
+        ]);
+
         $user = Auth::user();
         $shift = $user->shifts()->latest()->first();
 
@@ -43,29 +47,34 @@ class XReadingController extends Controller
         $openingFund = $shift->opening_balance;
         $endingFund = $shift->ending_balance;
 
-        $cashPayment = $transactions->where('transaction_method_id', 1)->sum('cash_tendered');
-        $totalChange = $transactions->where('transaction_method_id', 1)->sum('change');
+        $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
 
-        $totalCashPayment = $cashPayment - $totalChange;
+        $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
 
         $totalDigitalPayment = $transactions
             ->whereNotIn('transaction_method_id', [1, 5])
-            ->sum('cash_tendered');
+            ->where('is_valid', true)
+            ->sum('total_sales');
 
         $totalCreditPayment = $transactions
             ->where('transaction_method_id', 5)
-            ->sum('cash_tendered');
+            ->where('is_valid', true)
+            ->sum('total_sales');
 
-        $totalPayments = $transactions->sum('cash_tendered');
+        $totalPayments = $transactions->sum('total_sales');
 
         $voidValue = $transactions
             ->where('is_valid', false)
-            ->sum('cash_tendered');
+            ->sum('total_sales');
 
-        $refundValue = $transactions
-            ->where('is_valid', false)
-            ->sum('cash_tendered');
+        $refundValue = 0;
 
+        $cashInDrawer = $openingFund + $totalCashPayment;
+
+        $withdrawal = $totalChange;
+        $lessWithdrawal = $cashInDrawer - $totalChange;
+
+        $shortOrOver = $request->currentCash - $cashInDrawer;
 
         return response()->json([
             'report_date' => $reportDate,
@@ -76,13 +85,17 @@ class XReadingController extends Controller
             'beginning_or' => $beginningOR,
             'ending_or' => $endingOR,
             'opening_fund' => $openingFund,
+            'ending_fund' => $endingFund,
             'total_cash_payment' => $totalCashPayment,
             'total_digital_payment' => $totalDigitalPayment,
             'total_credit_payment' => $totalCreditPayment,
             'total_payments' => $totalPayments,
             'void_value' => $voidValue,
             'refund_value' => $refundValue,
-            'ending_fund' => $endingFund,
+            'cash_in_drawer' => $cashInDrawer,
+            'withdrawal' => $withdrawal,
+            'less_withdrawal' => $lessWithdrawal,
+            'short_or_over' => $shortOrOver,
         ], 200);
     }
 

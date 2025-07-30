@@ -7,6 +7,7 @@ use App\Filament\Resources\PwdInfoResource;
 use App\Models\PwdInfo;
 use App\Models\Transaction;
 use Barryvdh\Snappy\Facades\SnappyPdf;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
@@ -34,6 +35,13 @@ class ListPwdInfos extends ListRecords
                 ])
                 ->action(function (array $data) {
 
+                    $pwdInfos = PwdInfo::query()
+                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+                        ->get();
+
+                    $transactionIds = $pwdInfos->pluck('transaction_id')->unique();
+                    $pwdTransactions = Transaction::whereIn('id', $transactionIds)->get()->keyBy('id');
+                    
                     $report = $this->export_value($data);
 
                     $pdf = SnappyPdf::loadView('reports.pwd-summary', [

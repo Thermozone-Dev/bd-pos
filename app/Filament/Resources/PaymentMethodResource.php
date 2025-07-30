@@ -39,7 +39,6 @@ class PaymentMethodResource extends Resource
                         Toggle::make('is_enabled'),
                     ])
                     ->columnSpan(1),
-                SpatieMediaLibraryFileUpload::make('logo'),
             ]);
     }
 
