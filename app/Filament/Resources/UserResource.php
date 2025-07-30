@@ -100,7 +100,7 @@ class UserResource extends Resource
                             ->preload()
                             ->searchable()
                             ->disableOptionWhen(fn(string $value): bool => $value == 1)
-                            ->hidden(auth()->user()->hasRole('super_admin')),
+                            ->visible(auth()->user()->hasRole('super_admin')),
                     ])
             ]);
     }
