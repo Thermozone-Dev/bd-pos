@@ -86,21 +86,13 @@ class UserResource extends Resource
                 ])->visible(fn ($livewire) => $livewire instanceof EditUser),
 
                 Section::make('Authentication')
-                    ->columns(2)
                     ->schema([
                         Select::make('roles')
                             ->relationship('roles', 'name')
                             ->multiple()
                             ->preload()
                             ->searchable()
-                            ->hidden(auth()->user()->hasRole('Manager')),
-                        Select::make('roles')
-                            ->relationship('roles', 'name')
-                            ->multiple()
-                            ->preload()
-                            ->searchable()
-                            ->disableOptionWhen(fn(string $value): bool => $value == 1)
-                            ->visible(auth()->user()->hasRole('super_admin')),
+                            ->disableOptionWhen(fn(string $value): bool => auth()->user()->hasRole('super_admin') ? false : $value == 1),
                     ])
             ]);
     }
