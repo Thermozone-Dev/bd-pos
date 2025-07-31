@@ -145,7 +145,7 @@ class ListTransactions extends ListRecords
             ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
             ->get();
 
-        $discountSummary = [];
+        $discountSummary = [];  
 
         foreach ($transactions as $transaction) {
             // Initialize counters
