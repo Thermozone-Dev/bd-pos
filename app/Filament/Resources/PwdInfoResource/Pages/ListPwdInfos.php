@@ -35,13 +35,6 @@ class ListPwdInfos extends ListRecords
                 ])
                 ->action(function (array $data) {
 
-                    $pwdInfos = PwdInfo::query()
-                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
-                        ->get();
-
-                    $transactionIds = $pwdInfos->pluck('transaction_id')->unique();
-                    $pwdTransactions = Transaction::whereIn('id', $transactionIds)->get()->keyBy('id');
-                    
                     $report = $this->export_value($data);
 
                     $pdf = SnappyPdf::loadView('reports.pwd-summary', [
@@ -81,7 +74,7 @@ class ListPwdInfos extends ListRecords
     {
 
         $pwdInfos = PwdInfo::query()
-            ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+            ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
             ->get();
 
         $transactionIds = $pwdInfos->pluck('transaction_id')->unique();
