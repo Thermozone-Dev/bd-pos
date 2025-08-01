@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Settings\BusinessInformationSetting;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -12,6 +13,8 @@ use Filament\Pages\SettingsPage;
 
 class ManageBusinessInformation extends SettingsPage
 {
+    use HasPageShield;
+
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static ?string $navigationGroup = 'Settings';

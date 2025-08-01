@@ -36,13 +36,6 @@ class ListScInfos extends ListRecords
                 ])
                 ->action(function (array $data) {
 
-                    $scInfos = ScInfo::query()
-                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
-                        ->get();
-
-                    $transactionIds = $scInfos->pluck('transaction_id')->unique();
-                    $scTransactions = Transaction::whereIn('id', $transactionIds)->get()->keyBy('id');
-
                     $report = $this->export_value($data);
 
 
@@ -85,8 +78,8 @@ class ListScInfos extends ListRecords
     {
 
         $scInfos = ScInfo::query()
-                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
-                        ->get();
+            ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+            ->get();
 
         $transactionIds = $scInfos->pluck('transaction_id')->unique();
         $scTransactions = Transaction::whereIn('id', $transactionIds)->get()->keyBy('id');

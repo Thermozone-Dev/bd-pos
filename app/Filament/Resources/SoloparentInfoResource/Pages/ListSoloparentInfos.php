@@ -35,11 +35,6 @@ class ListSoloparentInfos extends ListRecords
                         ->default(now()->endOfWeek()),
                 ])
                 ->action(function (array $data) {
-
-                    $spInfos = SoloparentInfo::query()
-                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
-                        ->get();
-
                     $report = $this->export_value($data);
                     $pdf = SnappyPdf::loadView('reports.sp-summary', [
                         'spInfos' => $report['spInfos'],
@@ -80,7 +75,7 @@ class ListSoloparentInfos extends ListRecords
     public function export_value($data): array
     {
         $spInfos = SoloparentInfo::query()
-            ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+            ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
             ->get();
 
         $transactionIds = $spInfos->pluck('transaction_id')->unique();

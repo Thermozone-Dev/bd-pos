@@ -35,10 +35,6 @@ class ListNacInfos extends ListRecords
                 ])
                 ->action(function (array $data) {
 
-
-                    $nacInfos = NacInfo::query()
-                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
-                        ->get();
                     $report = $this->export_value($data);
 
                     $pdf = SnappyPdf::loadView('reports.nac-summary', [
@@ -78,9 +74,8 @@ class ListNacInfos extends ListRecords
 
     public function export_value($data): array
     {
-
         $nacInfos = NacInfo::query()
-            ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+            ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
             ->get();
 
         $transactionIds = $nacInfos->pluck('transaction_id')->unique();

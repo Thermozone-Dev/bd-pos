@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Settings\TaxSetting;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
@@ -15,6 +16,8 @@ use Throwable;
 
 class ManageTax extends SettingsPage
 {
+    use HasPageShield;
+
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
 
