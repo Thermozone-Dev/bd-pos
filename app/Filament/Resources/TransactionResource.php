@@ -46,15 +46,6 @@ class TransactionResource extends Resource
                             ->toArray(),
                     )
                     ->required(),
-                Select::make('transaction_basket_id')
-                    ->label('Transaction Basket ID')
-                    ->options(
-                        TransactionBasket::query()
-                            ->get()
-                            ->mapWithKeys(fn ($transactionBasket) => [$transactionBasket->id => $transactionBasket->name])
-                            ->toArray(),
-                    )
-                    ->required(),
                 TextInput::make('barcode')
                     ->required(),
                 Select::make('transaction_method')

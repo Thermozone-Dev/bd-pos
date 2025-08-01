@@ -16,4 +16,11 @@ class ViewTransaction extends ViewRecord
             Actions\EditAction::make(),
         ];
     }
+
+    protected function getFooterWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\TransactionResource\Widgets\TransactionOverview::class,
+        ];
+    }
 }
