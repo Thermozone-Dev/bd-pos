@@ -80,7 +80,8 @@ class PackageResource extends Resource
     {
         return $table
             ->columns([
-                SpatieMediaLibraryImageColumn::make('image')->label('Image'),
+                SpatieMediaLibraryImageColumn::make('image')->label('Image')
+                    ->defaultImageUrl(fn () => asset('image/pos-default.jpg')),
                 TextColumn::make('name')->label('Package Name'),
                 TextColumn::make('price')->label('Price'),
                 TextColumn::make('pax')->label('PAX')

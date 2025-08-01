@@ -97,7 +97,7 @@ trait TransactionSummary
                     $products->push([
                         'product_id' => $basketItem->item->product->id,
                         'name' => $basketItem->item->product->name,
-                        'image_path' => $basketItem->item->product->getMedia()?->first()?->getUrl() ?? null,
+                        'image_path' => $basketItem->item->product->getMedia()?->first()?->getUrl() ?? asset('images/pos-default.jpg'),
                         'quantity' => $quantity,
                     ]);
                 }
@@ -132,7 +132,7 @@ trait TransactionSummary
                         'product_id' => $basketItem->item->product->id,
                         'name' => $basketItem->item->product->name,
                         'price' => $basketItem->item->product->price,
-                        'image_path' => $basketItem->item->product->getMedia()?->first()?->getUrl() ?? null,
+                        'image_path' => $basketItem->item->product->getMedia()?->first()?->getUrl() ?? asset('images/pos-default.jpg'),
                         'quantity' => $quantity,
                         'income' => $basketItem->total_value + ($basketItem->total_value*.12) ?? 0,
                     ]);
@@ -156,7 +156,7 @@ trait TransactionSummary
                         } else {
                             $products->push([
                                 'product_id' => $item->product->id,
-                                'image_path' => $item->product->getMedia()?->first()?->getUrl() ?? null,
+                                'image_path' => $item->product->getMedia()?->first()?->getUrl() ?? asset('images/pos-default.jpg'),
                                 'name' => $item->product->name,
                                 'quantity' => $quantity,
                             ]);

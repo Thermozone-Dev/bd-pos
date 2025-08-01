@@ -31,7 +31,7 @@ class ItemController extends Controller
         foreach ($_products as $product) {
             $_model = Product::find($product->product_id);
             $_media = $_model->getMedia();
-            $product->image_url = $_media->first() ? $_media->first()->getUrl() : null;
+            $product->image_url = $_media->first() ? $_media->first()->getUrl() : asset('image/pos-default.jpg');
 
             foreach (ProductTaxCategory::cases() as $taxCategory) {
                 if ($taxCategory->value === $_model->product_tax_category->value) {
@@ -53,7 +53,7 @@ class ItemController extends Controller
         foreach ($_packages as $package) {
             $_model = Package::find($package->package_id);
             $_media = $_model->getMedia();
-            $package->image_url = $_media->first() ? $_media->first()->getUrl() : null;
+            $package->image_url = $_media->first() ? $_media->first()->getUrl() : asset('image/pos-default.jpg');
 
             foreach (ProductTaxCategory::cases() as $taxCategory) {
                 if ($taxCategory->value === $_model->product_tax_category->value) {
@@ -82,7 +82,7 @@ class ItemController extends Controller
                         ->get();
 
         $_media = Product::find($_product->first()->product_id)->getMedia();
-        $_product->first()->image_url = $_media->first() ? $_media->first()->getUrl() : null;
+        $_product->first()->image_url = $_media->first() ? $_media->first()->getUrl() : asset('image/pos-default.jpg');
         return response()->json($_product);
     }
 
@@ -95,7 +95,7 @@ class ItemController extends Controller
                         ->get();
 
         $_media = Package::find($_package->first()->package_id)->getMedia();
-        $_package->first()->image_url = $_media->first() ? $_media->first()->getUrl() : null;
+        $_package->first()->image_url = $_media->first() ? $_media->first()->getUrl() : asset('image/pos-default.jpg');
         return response()->json($_package);
     }
 
