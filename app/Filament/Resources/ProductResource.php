@@ -100,7 +100,8 @@ class ProductResource extends Resource
                 TextColumn::make('pax')
                     ->label('PAX')
                     ->formatStateUsing(fn ($state) => $state > 0 ? $state : 'N/A'),
-                SpatieMediaLibraryImageColumn::make('image'),
+                SpatieMediaLibraryImageColumn::make('image')
+                    ->defaultImageUrl(fn () => asset('image/pos-default.jpg')),
             ])
             ->filters([
                 //
