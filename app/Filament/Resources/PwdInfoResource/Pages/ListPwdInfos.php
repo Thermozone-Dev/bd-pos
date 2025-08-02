@@ -75,6 +75,9 @@ class ListPwdInfos extends ListRecords
 
         $pwdInfos = PwdInfo::query()
             ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+            ->whereHas('transaction', function ($query) {
+                $query->where('is_valid', true);
+            })
             ->get();
 
         $transactionIds = $pwdInfos->pluck('transaction_id')->unique();

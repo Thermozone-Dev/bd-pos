@@ -167,10 +167,6 @@ class ListTransactions extends ListRecords
                 if (empty($item->discount_value) || $item->discount_value == 0.00) {
                     continue;
                 }
-
-                // dump($item->discount_value, $item->discounts()->first()->discount_id);
-
-                // Add to correct category based on discount_id
                 switch ($item->discounts()->first()->discount_id) {
                     case 1:
                         $discounts['sc'] += $item->discount_value;

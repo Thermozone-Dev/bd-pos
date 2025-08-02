@@ -76,9 +76,14 @@ class ListScInfos extends ListRecords
 
     public function export_value($data): array
     {
-
         $scInfos = ScInfo::query()
-            ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+            ->whereBetween('created_at', [
+                Carbon::parse($data['start_date'])->startOfDay(),
+                Carbon::parse($data['end_date'])->endOfDay(),
+            ])
+            ->whereHas('transaction', function ($query) {
+                $query->where('is_valid', true);
+            })
             ->get();
 
         $transactionIds = $scInfos->pluck('transaction_id')->unique();
