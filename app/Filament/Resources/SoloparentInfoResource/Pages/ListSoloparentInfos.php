@@ -13,6 +13,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListSoloparentInfos extends ListRecords
 {
@@ -74,6 +75,7 @@ class ListSoloparentInfos extends ListRecords
 
     public function export_value($data): array
     {
+
         $spInfos = SoloparentInfo::query()
             ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
             ->get();
@@ -82,6 +84,9 @@ class ListSoloparentInfos extends ListRecords
 
         $spTransactions = Transaction::whereIn('id', $transactionIds)
             ->with('basket.items')
+            ->when(auth()->user()->hasRole('Cashier'), function (Builder $query) {
+                $query->where('processed_by', auth()->user()->id);
+            })
             ->get();
 
         $transactionDiscounts = [];

@@ -8,14 +8,19 @@ use App\Filament\Resources\PackageResource\RelationManagers;
 use App\Models\Item;
 use App\Models\Package;
 use App\Models\Product;
+use Closure;
 use Dom\Text;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
@@ -50,14 +55,48 @@ class PackageResource extends Resource
                         TextInput::make('price')->label('Price')
                             ->numeric()
                             ->minValue(0)
+                            ->disabled()
+                            ->readOnly()
+                            ->live(onBlur: false, debounce: 500)
+                            ->dehydrated()
                             ->columnSpan(1),
+
                         Select::make('product_tax_category')
                             ->label('Product Tax Category')
                             ->options(ProductTaxCategory::class),
+
                         TextInput::make('pax')
                             ->label('PAX')
                             ->default(0)
                             ->numeric(),
+
+                        Section::make('Base Rate')
+                            ->columns(2)
+                            ->schema([
+                                TextInput::make('base_rate_name')
+                                    ->label('Base Rate Name')
+                                    ->columnSpan(1),
+                                TextInput::make('base_price')
+                                    ->label('Base Price')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->columnSpan(1)
+                                    ->live(onBlur: false, debounce: 500)
+                                    // ->mask(RawJs::make('$money($input)'))
+                                    ->afterStateUpdated(function (Get $get, Set $set) {
+                                        $basePrice = $get('base_price') ?? 0;
+                                        $inclusiveItems = $get('packageHasPackageInclusive') ?? [];
+                                        $inclusiveSum = collect($inclusiveItems)
+                                            ->pluck('price')
+                                            ->map(fn ($p) => (float) $p)
+                                            ->sum();
+
+                                        $set('price', $basePrice + $inclusiveSum);
+                                    })
+                                    ->placeholder(0)
+                                    ->prefix('₱'),
+                            ]),
+
                         SpatieMediaLibraryFileUpload::make('image')
                             ->label('Product Image')
                             ->downloadable(),
@@ -73,6 +112,71 @@ class PackageResource extends Resource
                             ->searchable()
                             ->required(),
                     ]),
+
+                    Repeater::make('packageHasPackageInclusive')
+                        ->relationship()
+                        ->live()
+                        ->afterStateUpdated(function (Get $get, Set $set) {
+                            $basePrice = $get('base_price') ?? 0;
+                            $inclusiveItems = $get('packageHasPackageInclusive') ?? [];
+                            $inclusiveSum = collect($inclusiveItems)
+                                ->pluck('price')
+                                ->map(fn ($p) => (float) $p)
+                                ->sum();
+
+                            $set('price', $basePrice + $inclusiveSum);
+                        })
+                        ->columnSpanFull()
+                        ->schema([
+                            Select::make('package_inclusive_id')
+                                ->relationship(name: 'packageInclusive', titleAttribute: 'name')
+                                ->columnSpan(2)
+                                ->preload()
+                                ->afterStateUpdated(function (callable $set, $state, Get $get) {
+                                    if ($state) {
+                                        $packageInclusive = \App\Models\PackageInclusive::find($state);
+                                        if ($packageInclusive) {
+                                            $set('price', $packageInclusive->price);
+                                        }
+                                    } else {
+                                        $set('price', 0);
+                                    }
+
+                                    $basePrice = (float) $get('../../base_price'); // navigate out of the repeater
+                                    $inclusivePrices = $get('../../packageHasPackageInclusive') ?? [];
+
+                                    $inclusiveSum = collect($inclusivePrices)
+                                        ->pluck('price')
+                                        ->map(fn ($p) => (float) $p)
+                                        ->sum();
+
+                                    $set('../../price', $basePrice + $inclusiveSum);
+
+                                })
+                                ->live(onBlur: false, debounce: 500)
+                                ->searchable()
+                                ->required(),
+
+                            TextInput::make('price')->label('Price')
+                                ->required()
+                                ->numeric()
+                                ->live(onBlur: false, debounce: 500)
+                                ->afterStateUpdated(function (Get $get, Set $set) {
+
+                                    $basePrice = (float) $get('../../base_price'); // navigate out of the repeater
+                                    $inclusivePrices = $get('../../packageHasPackageInclusive') ?? [];
+                                    $inclusiveSum = collect($inclusivePrices)
+                                        ->pluck('price')
+                                        ->map(fn ($p) => (float) $p)
+                                        ->sum();
+
+                                    $set('../../price', $basePrice + $inclusiveSum);
+                                })
+                                ->placeholder(0)
+                                ->minValue(1)
+                                ->live()
+                                ->prefix('₱'),
+                        ])->columns(3),
             ]);
     }
 
@@ -80,7 +184,8 @@ class PackageResource extends Resource
     {
         return $table
             ->columns([
-                SpatieMediaLibraryImageColumn::make('image')->label('Image'),
+                SpatieMediaLibraryImageColumn::make('image')->label('Image')
+                    ->defaultImageUrl(fn () => asset('image/pos-default.jpg')),
                 TextColumn::make('name')->label('Package Name'),
                 TextColumn::make('price')->label('Price'),
                 TextColumn::make('pax')->label('PAX')
@@ -118,6 +223,7 @@ class PackageResource extends Resource
                 ]),
             ]);
     }
+
 
     public static function query(EloquentBuilder $query): EloquentBuilder
     {

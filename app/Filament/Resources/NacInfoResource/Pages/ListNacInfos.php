@@ -12,6 +12,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListNacInfos extends ListRecords
 {
@@ -82,6 +83,9 @@ class ListNacInfos extends ListRecords
 
         $nacTransactions = Transaction::whereIn('id', $transactionIds)
             ->with('basket.items')
+            ->when(auth()->user()->hasRole('Cashier'), function (Builder $query) {
+                $query->where('processed_by', auth()->user()->id);
+            })
             ->get();
 
         $transactionDiscounts = [];
