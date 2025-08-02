@@ -12,6 +12,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListPwdInfos extends ListRecords
 {
@@ -81,7 +82,11 @@ class ListPwdInfos extends ListRecords
             ->get();
 
         $transactionIds = $pwdInfos->pluck('transaction_id')->unique();
-        $pwdTransactions = Transaction::whereIn('id', $transactionIds)->get()->keyBy('id');
+        $pwdTransactions = Transaction::whereIn('id', $transactionIds)
+                ->when(auth()->user()->hasRole('Cashier'), function (Builder $query) {
+                    $query->where('processed_by', auth()->user()->id);
+                })
+                ->get()->keyBy('id');
 
         return [
             'pwdInfos' => $pwdInfos,

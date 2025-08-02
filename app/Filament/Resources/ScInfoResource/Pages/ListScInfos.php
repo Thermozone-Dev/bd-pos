@@ -13,6 +13,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListScInfos extends ListRecords
 {
@@ -87,7 +88,11 @@ class ListScInfos extends ListRecords
             ->get();
 
         $transactionIds = $scInfos->pluck('transaction_id')->unique();
-        $scTransactions = Transaction::whereIn('id', $transactionIds)->get()->keyBy('id');
+        $scTransactions = Transaction::whereIn('id', $transactionIds)
+                ->when(auth()->user()->hasRole('Cashier'), function (Builder $query) {
+                    $query->where('processed_by', auth()->user()->id);
+                })
+                ->get()->keyBy('id');
 
         return [
             'scInfos' => $scInfos,
