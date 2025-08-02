@@ -11,6 +11,7 @@ use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
 
 use function Laravel\Prompts\form;
@@ -97,6 +98,7 @@ class ListTransactions extends ListRecords
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
+                        // ->default('10-06-2025'),
                         ->default(now()),
                 ])
                 ->action(function(array $data) {
@@ -119,10 +121,12 @@ class ListTransactions extends ListRecords
                     ->form([
                         DatePicker::make('start_date')
                             ->label('Start Date')
+                            ->default('06-10-2025')
                             ->required(),
                         DatePicker::make('end_date')
                             ->label('End Date')
                             ->required()
+                            ->default('06-10-2025')
                             ->default(now()),
                     ])
                     ->action(function(array $data) {
@@ -143,6 +147,9 @@ class ListTransactions extends ListRecords
 
         $transactions = Transaction::query()
             ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+            ->when(auth()->user()->hasRole('Cashier'), function (Builder $query) {
+                $query->where('processed_by', auth()->user()->id);
+            })
             ->get();
 
         $discountSummary = [];
