@@ -55,7 +55,7 @@ protected static ?int $navigationSort = 8;
                     ->hiddenOn(['view','create'])
                     ->required(),
 
-                Repeater::make('packageHasPackageInclusives')
+                Repeater::make('packageInclusiveProducts')
                     ->label('Package Inclusives Items')
                     ->relationship()
                     ->defaultItems(0)

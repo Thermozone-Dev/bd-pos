@@ -16,10 +16,10 @@ return new class extends Migration
             $table->unsignedBigInteger('transaction_id'); // Foreign key to transactions table
             $table->unsignedBigInteger('package_inclusive_id'); // Foreign key to package inclusive table
             $table->integer('status')->comment('0: Pending, 1: Claimed, 2: Cancelled')->default(0);
-            $table->string('stub_no')->default(now()->format('mdY-Hisv'));
-            $table->dateTime('claimed_at')->unique()->default(now()->format('Y-m-d H:i:s')); // mdy
-            $table->unsignedBigInteger('claimed_transact_by');
-            $table->unsignedBigInteger('created_by');
+            $table->string('stub_no')->unique()->default(now()->format('mdY-Hisv'));
+            $table->dateTime('claimed_at')->default(now()->format('Y-m-d H:i:s')); // mdy
+            $table->unsignedBigInteger('claimed_transact_by')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
         });
     }

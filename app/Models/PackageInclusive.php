@@ -18,7 +18,7 @@ class PackageInclusive extends Model
         'is_active',
     ];
 
-    public function packageHasPackageInclusives() : HasMany
+    public function packageInclusiveProducts() : HasMany
     {
         return $this->hasMany(PackageInclusiveHasProducts::class, 'package_inclusives_id');
     }
