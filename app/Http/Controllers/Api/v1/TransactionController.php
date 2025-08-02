@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\PwdInfo;
 use App\Models\ScInfo;
 use App\Models\SoloparentInfo;
+use App\Models\Stub;
 use App\Models\Transaction;
 use App\Models\TransactionBasket;
 use App\Models\TransactionBasketHasDiscount;
@@ -161,6 +162,8 @@ class TransactionController extends Controller
             $_return_data = [
                 'transaction details' => $_transaction,
                 'transaction basket' => $_basket_items,
+                'stub_detals' => $this->generate_stub($_transaction->id),
+
             ];
 
             return response()->json($_return_data, 201);
@@ -385,9 +388,6 @@ class TransactionController extends Controller
             return response()->json(['error' => $err->getMessage()], 500);
         }
 
-
-
-
     }
 
 
@@ -441,6 +441,98 @@ class TransactionController extends Controller
         }
     }
 
+    public function claim_stub(Request $request){
+        try {
+            $request->validate([
+                'stub_no' => 'required',
+            ]);
+
+            $stub = Stub::where('stub_no', $request->stub_no)->first();
+
+            if ($stub) {
+                $stub->status = 1; // Mark as claimed
+                $stub->claimed_at = now();
+                $stub->save();
+
+
+                $response = [
+                    'date' => $stub->transaction->created_at->format('F j, Y'),
+                    'time' => $stub->transaction->created_at->format('h:i:s A'),
+                    'transaction_no' => $stub->transaction->id,
+                    'stub' => $stub->stub_no,
+                    'price' => $stub->packageInclusive->price,
+                    'pack_inclusive_name' => $stub->packageInclusive->name,
+                    'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
+                        return [
+                            'name' => $product->product->name,
+                            'quantity' => $product->qty,
+                        ];
+                    }),
+                ];
+
+                return response()->json($response, 200);
+            } else {
+                return response()->json(['error' => 'Stub not found.'], 404);
+            }
+        } catch (Exception $err) {
+            return response()->json(['error' => $err->getMessage()], 500);
+        }
+    }
+
+    public function generate_stub($transaction_id){
+        try {
+            $_transaction = Transaction::find($transaction_id);
+            //add has inclusion if has Item
+            if ($_transaction) {
+                $items = Item::whereIn('id', $_transaction->basket->items->pluck('id'))
+                    ->where('package_id', '!=', null)
+                    ->get();
+
+                foreach ($items as $item) {
+                    if(!empty($item->package->packageHasPackageInclusive)){
+                        $inclusions = $item->package->packageHasPackageInclusive->map(function ($packageInclusion){
+                            return [
+                                'id' => $packageInclusion->id,
+                                'name' => $packageInclusion->packageInclusive->name,
+                                'price' => $packageInclusion->packageInclusive->price,
+                                'description' => $packageInclusion->packageInclusive->description,
+                                'items' => $packageInclusion->packageInclusive->packageInclusiveProducts->map(function ($product) {
+                                    return [
+                                        'name' => $product->product->name,
+                                    ];
+                                }),
+                            ];
+                        });
+                    }
+                }
+
+                foreach ($inclusions as $inclusion){
+                    $stub_no = null;
+                    while (true) {
+                        // Check if the stub number already exists
+                        $stub_no = now()->format('mdY-Hisv');
+                        if (!Stub::where('stub_no', $stub_no)->first()) {
+                            break;
+                        }
+                    }
+                    $stub_details = [
+                        'transaction_id' => $_transaction->id,
+                        'package_inclusive_id' => $inclusion['id'],
+                        'stub_no' =>  $stub_no,
+                        'created_by' => auth()->user()->id,
+                    ];
+                    Stub::create($stub_details);
+                }
+                $_stubs= Stub::where('transaction_id', $_transaction->id)
+                    ->where('status', 0)
+                    ->get();
+
+                return $_stubs;
+            }
+        } catch (Exception $err) {
+            return [];
+        }
+    }
 
 }
 
