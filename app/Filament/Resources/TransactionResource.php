@@ -241,6 +241,13 @@ class TransactionResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->when(auth()->user()->hasRole('Cashier'), function (Builder $query) {
+                $query->where('processed_by', auth()->user()->id);
+            });
+    }
+
     public static function getPages(): array
     {
         return [
