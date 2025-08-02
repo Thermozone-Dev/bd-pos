@@ -13,7 +13,7 @@ class PackageController extends Controller
      */
     public function index()
     {
-        $_packages = Package::all();
+        $_packages = Package::with('packageHasPackageInclusive')->get();
         return response()->json($_packages);
     }
 

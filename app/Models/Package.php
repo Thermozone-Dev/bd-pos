@@ -25,6 +25,8 @@ class Package extends Model implements HasMedia
         'price',
         'product_tax_category',
         'pax',
+        'base_rate_name',
+        'base_price',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -48,6 +50,11 @@ class Package extends Model implements HasMedia
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class, 'id', 'package_id');
+    }
+
+    public function packageHasPackageInclusive(): HasMany
+    {
+        return $this->hasMany(PackageHasPackageInclusive::class, 'package_id', 'id');
     }
 
 }
