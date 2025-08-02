@@ -142,6 +142,7 @@ class ListTransactions extends ListRecords
     {
 
         $transactions = Transaction::query()
+            ->where('is_valid', true)
             ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
             ->get();
 

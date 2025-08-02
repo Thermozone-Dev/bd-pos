@@ -48,7 +48,7 @@ class TransactionResource extends Resource
                     ->required(),
                 TextInput::make('barcode')
                     ->required(),
-                Select::make('transaction_method')
+                Select::make('transaction_method_id')
                     ->label('Transaction Method')
                     ->options([
                         'cash' => 'Cash',

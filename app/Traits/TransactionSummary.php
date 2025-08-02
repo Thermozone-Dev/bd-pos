@@ -23,30 +23,35 @@ trait TransactionSummary
         switch ($filter) {
             case 'yesterday':
                 $transaction = Transaction::withoutGlobalScopes()
+                    ->where('is_valid', true)
                     ->whereDate('created_at', Carbon::yesterday());
                 return $this->getData($transaction);
                 break;
 
             case 'today':
                 $transaction = Transaction::withoutGlobalScopes()
+                    ->where('is_valid', true)
                     ->whereDate('created_at', Carbon::today());
                     return $this->getData($transaction);
                 break;
 
             case 'week':
                 $transaction = Transaction::withoutGlobalScopes()
+                    ->where('is_valid', true)
                     ->whereBetween('created_at', [Carbon::now()->startOfWeek()->startOfDay(),Carbon::now()->endOfWeek()->endOfDay()]);
                     return $this->getData($transaction);
                 break;
 
             case 'month':
                 $transaction = Transaction::withoutGlobalScopes()
+                    ->where('is_valid', true)
                     ->whereMonth('created_at', Carbon::now()->month);
                     return $this->getData($transaction);
                 break;
 
             case 'year':
                     $transaction = Transaction::withoutGlobalScopes()
+                        ->where('is_valid', true)
                         ->whereYear('created_at', Carbon::now()->year);
                     return $this->getData($transaction);
 

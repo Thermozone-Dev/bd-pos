@@ -53,7 +53,8 @@ class TransactionOverview extends BaseWidget
                     }),
                 TextColumn::make('total_value')
                     ->label('Total Price')
-                    ->prefix('₱ '),
+                    ->prefix('₱ ')
+                    ->formatStateUsing(fn ($state) => number_format((float) $state, 2)),
             ]);
     }
 }

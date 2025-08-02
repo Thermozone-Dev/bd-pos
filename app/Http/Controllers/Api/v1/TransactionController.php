@@ -403,6 +403,7 @@ class TransactionController extends Controller
             if(!$_user->hasRole('Cashier')){
 
                 $transaction = Transaction::withoutGlobalScopes()
+                    ->where('is_valid', true)
                     ->whereDate('created_at', Carbon::today())
                     ->where('processed_by', $_user->id);
 
