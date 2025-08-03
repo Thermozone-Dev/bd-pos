@@ -103,4 +103,4 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     Route::delete('/paymentMethods/{id}', [PaymentMethodController::class, 'destroy']);
 });
 
-    Route::put('/verify-claim-stub', [TransactionController::class, 'claim_stub']);
+    Route::post('/verify-claim-stub', [TransactionController::class, 'claim_stub']);

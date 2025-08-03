@@ -162,7 +162,7 @@ class TransactionController extends Controller
             $_return_data = [
                 'transaction details' => $_transaction,
                 'transaction basket' => $_basket_items,
-                'stub_detals' => $this->generate_stub($_transaction->id),
+                'stub_details' => $this->generate_stub($_transaction->id),
 
             ];
 
