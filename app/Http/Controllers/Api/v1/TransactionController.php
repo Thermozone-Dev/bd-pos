@@ -484,7 +484,7 @@ class TransactionController extends Controller
             $_transaction = Transaction::find($transaction_id);
             //add has inclusion if has Item
             if ($_transaction) {
-                $items = Item::whereIn('id', $_transaction->basket->items->pluck('id'))
+                $items = Item::whereIn('id', $_transaction->basket->items->pluck('item_id'))
                     ->where('package_id', '!=', null)
                     ->get();
 
@@ -505,7 +505,6 @@ class TransactionController extends Controller
                         });
                     }
                 }
-
                 foreach ($inclusions as $inclusion){
                     $stub_no = null;
                     while (true) {
@@ -519,18 +518,37 @@ class TransactionController extends Controller
                         'transaction_id' => $_transaction->id,
                         'package_inclusive_id' => $inclusion['id'],
                         'stub_no' =>  $stub_no,
-                        'created_by' => auth()->user()->id,
+                        'created_by' => auth()->user()->id ?? null,
                     ];
                     Stub::create($stub_details);
                 }
-                $_stubs= Stub::where('transaction_id', $_transaction->id)
+                $_stubs = Stub::where('transaction_id', $_transaction->id)
                     ->where('status', 0)
                     ->get();
+                $_stubs = $_stubs->map(function ($stub){
+                        return [
+                            'stub_no'=> $stub->stub_no,
+                            'name' => $stub->packageInclusive->name,
+                            'price' => $stub->packageInclusive->price,
+                            'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
+                                return [
+                                    'name' => $product->product->name,
+                                    'qty' => $product->qty,
+                                ];
+                            }),
+                        ];
+                    });
 
-                return $_stubs;
+                return [
+                    'has_inclusive' => true,
+                    'stubs' =>  $_stubs
+                ];
             }
         } catch (Exception $err) {
-            return [];
+            return [
+                'has_inclusive' => false,
+                'stubs' =>  []
+            ];
         }
     }
 
