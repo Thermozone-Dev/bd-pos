@@ -13,6 +13,7 @@ class Stub extends Model
     protected $fillable = [
         'transaction_id',
         'package_inclusive_id',
+        'quantity',
         'status',
         'claimed_at',
         'claimed_transact_by',

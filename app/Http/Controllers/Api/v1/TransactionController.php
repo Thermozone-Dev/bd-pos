@@ -460,6 +460,7 @@ class TransactionController extends Controller
                     'time' => $stub->transaction->created_at->format('h:i:s A'),
                     'transaction_no' => $stub->transaction->id,
                     'stub' => $stub->stub_no,
+                    'stub' => $stub->quantity,
                     'price' => $stub->packageInclusive->price,
                     'pack_inclusive_name' => $stub->packageInclusive->name,
                     'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
@@ -488,12 +489,18 @@ class TransactionController extends Controller
                     ->where('package_id', '!=', null)
                     ->get();
 
+                $_basket_item_quantity = $_transaction->basket->items->pluck('item_id', 'quantity')
+                    ->where('package_id', '!=', null)
+                    ->get();
+
                 foreach ($items as $item) {
+                    $qty = $_basket_item_quantity[$item->id];
                     if(!empty($item->package->packageHasPackageInclusive)){
-                        $inclusions = $item->package->packageHasPackageInclusive->map(function ($packageInclusion){
+                        $inclusions = $item->package->packageHasPackageInclusive->map(function ($packageInclusion) use ($qty){
                             return [
                                 'id' => $packageInclusion->id,
                                 'name' => $packageInclusion->packageInclusive->name,
+                                'quantity' => $qty,
                                 'price' => $packageInclusion->packageInclusive->price,
                                 'description' => $packageInclusion->packageInclusive->description,
                                 'items' => $packageInclusion->packageInclusive->packageInclusiveProducts->map(function ($product) {
@@ -517,6 +524,7 @@ class TransactionController extends Controller
                     $stub_details = [
                         'transaction_id' => $_transaction->id,
                         'package_inclusive_id' => $inclusion['id'],
+                        'quantity' => $inclusion['quantity'],
                         'stub_no' =>  $stub_no,
                         'created_by' => auth()->user()->id ?? null,
                     ];
@@ -529,6 +537,7 @@ class TransactionController extends Controller
                         return [
                             'stub_no'=> $stub->stub_no,
                             'name' => $stub->packageInclusive->name,
+                            'quantity' => $stub->quantity,
                             'price' => $stub->packageInclusive->price,
                             'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
                                 return [
