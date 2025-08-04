@@ -489,7 +489,7 @@ class TransactionController extends Controller
                     ->where('package_id', '!=', null)
                     ->get();
 
-                $_basket_item_quantity = $_transaction->basket->items->pluck('item_id', 'quantity');
+                $_basket_item_quantity = $_transaction->basket->items->pluck('quantity', 'item_id');
 
                 foreach ($items as $item) {
                     $qty = $_basket_item_quantity[$item->id];
@@ -526,7 +526,7 @@ class TransactionController extends Controller
                         'stub_no' =>  $stub_no,
                         'created_by' => auth()->user()->id ?? null,
                     ];
-                    Stub::create($stub_details);
+                    $stub = Stub::create($stub_details);
                 }
                 $_stubs = Stub::where('transaction_id', $_transaction->id)
                     ->where('status', 0)
