@@ -489,9 +489,7 @@ class TransactionController extends Controller
                     ->where('package_id', '!=', null)
                     ->get();
 
-                $_basket_item_quantity = $_transaction->basket->items->pluck('item_id', 'quantity')
-                    ->where('package_id', '!=', null)
-                    ->get();
+                $_basket_item_quantity = $_transaction->basket->items->pluck('item_id', 'quantity');
 
                 foreach ($items as $item) {
                     $qty = $_basket_item_quantity[$item->id];
