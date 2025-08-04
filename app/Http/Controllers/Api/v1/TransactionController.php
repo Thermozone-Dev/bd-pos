@@ -400,7 +400,7 @@ class TransactionController extends Controller
             $response = $this->dailySummary();
             $_user = auth()->user();
 
-            if(!$_user->hasRole('Cashier')){
+            if($_user->hasRole('Cashier')){
 
                 $transaction = Transaction::withoutGlobalScopes()
                     ->where('is_valid', true)
