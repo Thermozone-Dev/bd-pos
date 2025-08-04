@@ -460,7 +460,7 @@ class TransactionController extends Controller
                     'time' => $stub->transaction->created_at->format('h:i:s A'),
                     'transaction_no' => $stub->transaction->id,
                     'stub' => $stub->stub_no,
-                    'stub' => $stub->quantity,
+                    'quantity' => $stub->quantity,
                     'price' => $stub->packageInclusive->price,
                     'pack_inclusive_name' => $stub->packageInclusive->name,
                     'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
