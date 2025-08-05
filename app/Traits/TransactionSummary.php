@@ -197,7 +197,7 @@ trait TransactionSummary
                         'id' => $basketItem->item->package->id,
                         'name' => $basketItem->item->package->name,
                         'quantity' => $basketItem->quantity,
-                        'price' => $basketItem->item->package->price,
+                        'price' => $basketItem->item->package->base_price,
                         'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0
                     ]);
                 }
