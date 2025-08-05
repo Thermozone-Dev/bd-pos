@@ -70,6 +70,7 @@ trait TransactionSummary
         $bestEmployee = Transaction::select('processed_by', DB::raw('SUM(total_sales) as total'))
             ->groupBy('processed_by')
             ->whereIn('id',$transaction->pluck('id'))
+            ->where('is_valid', true)
             ->orderByDesc('total')
             ->take(8)
             ->get();
@@ -239,6 +240,7 @@ trait TransactionSummary
             DB::raw("SUM(total_sales) as total_amount")
         )
         ->with('processedBy')
+        ->where('is_valid', true)
         ->whereDate('created_at', $date)
         ->groupBy('hour_block')
         ->pluck('total_amount', 'hour_block'); // returns associative array [block => total]
