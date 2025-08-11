@@ -206,7 +206,7 @@ class TransactionController extends Controller
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
             'pwd_id' => $details['id'],
-            'pwd_tin' => $details['tin'],
+            'pwd_tin' => $details['tin'] ?? null,
         ];
 
         PwdInfo::create($_data);
@@ -217,7 +217,7 @@ class TransactionController extends Controller
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
             'sc_id' => $details['id'],
-            'sc_tin' => $details['tin'],
+            'sc_tin' => $details['tin'] ?? null,
         ];
 
         ScInfo::create($_data);
