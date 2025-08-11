@@ -238,9 +238,9 @@ class TransactionController extends Controller
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
             'spic_id' => $details['id'],
-            'child_name' => $details['child_name'],
-            'child_age' => $details['child_age'],
-            'child_birthday' => Carbon::parse($details['child_birthday'])->format('Y-m-d'),
+            'child_name' => $details['child_name'] ?? null,
+            'child_age' => $details['child_age'] ?? null,
+            'child_birthday' => Carbon::parse($details['child_birthday'])->format('Y-m-d') ?? null,
         ];
 
         SoloparentInfo::create($_data);
