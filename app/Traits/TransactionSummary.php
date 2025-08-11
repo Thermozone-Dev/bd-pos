@@ -131,6 +131,7 @@ trait TransactionSummary
                 if ($index !== false) {
                     $item = $products_excluded_in_package->get($index);
                     $item['quantity'] += $quantity;
+                    $item['gross_income'] += $basketItem->total_value;
                     $item['income'] += $basketItem->total_value + ($basketItem->total_value*.12);
                     $products_excluded_in_package->put($index, $item);
                 } else {
@@ -140,6 +141,7 @@ trait TransactionSummary
                         'price' => $basketItem->item->product->price,
                         'image_path' => $basketItem->item->product->getMedia()?->first()?->getUrl() ?? asset('images/pos-default.jpg'),
                         'quantity' => $quantity,
+                        'gross_income' => $basketItem->total_value,
                         'income' => $basketItem->total_value + ($basketItem->total_value*.12) ?? 0,
                     ]);
                 }
@@ -190,6 +192,7 @@ trait TransactionSummary
                 if ($index !== false) {
                     $item = $packages->get($index);
                     $item['quantity'] += $basketItem->quantity;
+                    $item['gross_income'] += $basketItem->total_value;
                     $item['income'] += $basketItem->total_value + ($basketItem->total_value * .12);
                     $packages->put($index, $item);
                 } else {
@@ -198,6 +201,7 @@ trait TransactionSummary
                         'name' => $basketItem->item->package->name,
                         'quantity' => $basketItem->quantity,
                         'price' => $basketItem->item->package->base_price,
+                        'gross_income' => $basketItem->total_value,
                         'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0
                     ]);
                 }

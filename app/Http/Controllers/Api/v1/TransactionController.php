@@ -365,7 +365,7 @@ class TransactionController extends Controller
                             'name' => $item['name'],
                             'price' =>$item['price'],
                             'qty' => $item['quantity'],
-                            'total' => $item['income'],
+                            'total' => $item['gross_income'],
                         ]);
                         return;
                     });
@@ -374,7 +374,7 @@ class TransactionController extends Controller
                             'name' => $item['name'],
                             'price' =>$item['price'],
                             'qty' => $item['quantity'],
-                            'total' => $item['income'],
+                            'total' => $item['gross_income'],
                         ]);
                         return;
                     });
@@ -416,7 +416,7 @@ class TransactionController extends Controller
                                 'name' => $item['name'],
                                 'price' =>$item['price'],
                                 'qty' => $item['quantity'],
-                                'total' => $item['income'],
+                                'total' => $item['gross_income'],
                             ]);
                             return;
                         });
@@ -425,7 +425,7 @@ class TransactionController extends Controller
                                 'name' => $item['name'],
                                 'price' =>$item['price'],
                                 'qty' => $item['quantity'],
-                                'total' => $item['income'],
+                                'total' => $item['gross_income'],
                             ]);
                             return;
                         });
