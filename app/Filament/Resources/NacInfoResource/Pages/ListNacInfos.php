@@ -28,11 +28,11 @@ class ListNacInfos extends ListRecords
                     DatePicker::make('start_date')
                         ->label('Start Date')
                         ->required()
-                        ->default(now()->endOfDay()),
+                        ->default(now()),
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
-                        ->default(now()->endOfWeek()),
+                        ->default(now()),
                 ])
                 ->action(function (array $data) {
 
@@ -54,6 +54,7 @@ class ListNacInfos extends ListRecords
                 ->form([
                     DatePicker::make('start_date')
                         ->label('Start Date')
+                        ->default(now())
                         ->required(),
                     DatePicker::make('end_date')
                         ->label('End Date')

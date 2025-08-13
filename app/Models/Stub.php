@@ -21,9 +21,9 @@ class Stub extends Model
         'stub_no',
     ];
 
-    public function packageInclusive()
+    public function packageInclusive(): BelongsTo
     {
-        return $this->belongsTo(PackageInclusive::class);
+        return $this->belongsTo(PackageInclusive::class, 'package_inclusive_id');
     }
 
     public function transaction()
@@ -36,9 +36,10 @@ class Stub extends Model
     {
         return $this->belongsTo(User::class, 'claimed_transact_by');
     }
-    public function createdBy()
+
+    public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function statusName()
