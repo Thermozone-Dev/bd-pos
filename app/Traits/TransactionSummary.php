@@ -21,6 +21,12 @@ trait TransactionSummary
         // Switch statement to handle different filter cases
 
         switch ($filter) {
+            case 'all':
+                $transaction = Transaction::withoutGlobalScopes()
+                    ->where('is_valid', true);
+                return $this->getData($transaction);
+                break;
+
             case 'yesterday':
                 $transaction = Transaction::withoutGlobalScopes()
                     ->where('is_valid', true)
@@ -55,6 +61,11 @@ trait TransactionSummary
                         ->whereYear('created_at', Carbon::now()->year);
                     return $this->getData($transaction);
 
+            case $filter:
+                    $transaction = Transaction::withoutGlobalScopes()
+                        ->where('is_valid', true)
+                        ->whereYear('created_at', Carbon::parse($filter));
+                    return $this->getData($transaction);
                 break;
 
             default:
@@ -86,8 +97,17 @@ trait TransactionSummary
 
         $products_excluded_in_package = collect();
 
+        $detailed_products = collect();
+        $detailed_packages = collect();
 
         foreach($basketItems as $basketItem){
+            $basketTransaction = Transaction::withoutGlobalScopes()
+                ->where('transaction_basket_id', $basketItem->transaction_basket_id)
+                ->first();
+
+            $basketUser = $basketTransaction->processedBy->id;
+            $basketDate = Carbon::parse($basketTransaction->created_at)->format('Y-m-d');
+
             if($basketItem->item->product){
 
                 // get quantity per product package included
@@ -146,6 +166,26 @@ trait TransactionSummary
                     ]);
                 }
 
+                $index = $detailed_products->search(fn ($item) => $item['product_id'] === $basketItem->item->product->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
+
+                if ($index !== false){
+                    $item = $detailed_products->get($index);
+                    $item['users'][$basketUser]['items']['quantity'] += $quantity;
+                    $item['users'][$basketUser]['items']['total_value'] += $basketItem->total_value;
+                    $detailed_products->put($index, $item);
+                } else{
+
+                    $detailed_products->push([
+                        'product_id' => $basketItem->item->product->id,
+                        'user' => $basketUser,
+                        'date' => $basketDate,
+                        'name' => $basketItem->item->product->name,
+                        'price' => $basketItem->item->product->price,
+                        'quantity' => $quantity,
+                        'gross_income' => $basketItem->total_value,
+                        'income' => $basketItem->total_value + ($basketItem->total_value*.12) ?? 0,
+                    ]);
+                }
             }
 
 
@@ -208,6 +248,25 @@ trait TransactionSummary
                         'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0
                     ]);
                 }
+
+                $index = $detailed_packages->search(fn ($item) => $item['id'] === $basketItem->item->product->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
+                if ($index !== false){
+                    $item = $detailed_packages->get($index);
+                    $item['users'][$basketUser]['items']['quantity'] += $basketItem->quantity;
+                    $item['users'][$basketUser]['items']['total_value'] += $basketItem->total_value;
+                    $detailed_packages->put($index, $item);
+                } else {
+                    $detailed_packages->push([
+                        'id' => $basketItem->item->package->id,
+                        'user' => $basketUser,
+                        'date' => $basketDate,
+                        'name' => $basketItem->item->package->name,
+                        'price' => $basketItem->item->package->base_price,
+                        'quantity' => $basketItem->quantity,
+                        'gross_income' => $basketItem->total_value,
+                        'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0,
+                    ]);
+                }
             }
         }
 
@@ -232,6 +291,8 @@ trait TransactionSummary
             'transactions_query' => $transaction,
             'sold_products' => $products->sortByDesc('quantity'),
             'product_trends' => $products->sortByDesc('quantity')->take(8),
+            'detailed_products' => $detailed_products,
+            'detailed_packages' => $detailed_packages,
         ];
         return $data;
     }
