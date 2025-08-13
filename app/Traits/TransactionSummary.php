@@ -170,8 +170,8 @@ trait TransactionSummary
 
                 if ($index !== false){
                     $item = $detailed_products->get($index);
-                    $item['users'][$basketUser]['items']['quantity'] += $quantity;
-                    $item['users'][$basketUser]['items']['total_value'] += $basketItem->total_value;
+                    $item['quantity'] += $quantity;
+                    $item['total_value'] += $basketItem->total_value;
                     $detailed_products->put($index, $item);
                 } else{
 
@@ -252,8 +252,8 @@ trait TransactionSummary
                 $index = $detailed_packages->search(fn ($item) => $item['id'] === $basketItem->item->product->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
                 if ($index !== false){
                     $item = $detailed_packages->get($index);
-                    $item['users'][$basketUser]['items']['quantity'] += $basketItem->quantity;
-                    $item['users'][$basketUser]['items']['total_value'] += $basketItem->total_value;
+                    $item['quantity'] += $basketItem->quantity;
+                    $item['total_value'] += $basketItem->total_value;
                     $detailed_packages->put($index, $item);
                 } else {
                     $detailed_packages->push([
