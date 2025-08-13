@@ -200,7 +200,7 @@ trait TransactionSummary
                         'id' => $basketItem->item->package->id,
                         'name' => $basketItem->item->package->name,
                         'quantity' => $basketItem->quantity,
-                        'price' => $basketItem->item->package->base_price,
+                        'price' =>  ($basketItem->item->package_base_price < 1) ? $basketItem->item->package->base_price : $basketItem->item->package_base_price, // check first if has base price on transaction basket item if not use package base price
                         'gross_income' => $basketItem->total_value,
                         'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0
                     ]);

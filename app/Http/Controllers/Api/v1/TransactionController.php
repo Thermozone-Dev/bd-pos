@@ -273,7 +273,14 @@ class TransactionController extends Controller
                 'quantity' => $item['item_quantity'],
                 'discount_value' => $item['discount_value'],
                 'total_value' => $item['total_value'],
+                'package_base_price' => null,
             ];
+
+            $test = Item::find($item['item_id']);
+            $test = $test?->package;
+            if($test){
+                $_item_data['package_base_price'] = $test->base_price;
+            }
 
             $_basket_item = TransactionBasketItem::create($_item_data);
 
@@ -511,14 +518,8 @@ class TransactionController extends Controller
                     }
                 }
                 foreach ($inclusions as $inclusion){
-                    $stub_no = null;
-                    while (true) {
-                        // Check if the stub number already exists
-                        $stub_no = now()->format('mdY-Hisv');
-                        if (!Stub::where('stub_no', $stub_no)->first()) {
-                            break;
-                        }
-                    }
+                    $stub_no = $this->generateDailyCounter();
+
                     $stub_details = [
                         'transaction_id' => $_transaction->id,
                         'package_inclusive_id' => $inclusion['id'],
@@ -558,6 +559,32 @@ class TransactionController extends Controller
             ];
         }
     }
+
+    function generateDailyCounter(): string
+    {
+
+        do {
+            $latestStub = Stub::whereDate('created_at', Carbon::today())
+                ->orderBy('stub_no', 'desc')
+                ->first();
+
+            if ($latestStub) {
+                $newCount = intval($latestStub->stub_no) + 1;
+            } else {
+                $newCount = 1;
+            }
+
+            $stubNo = str_pad($newCount, 6, '0', STR_PAD_LEFT);
+
+            $exists = Stub::whereDate('created_at', Carbon::today())
+                ->where('stub_no', $stubNo)
+                ->exists();
+
+        } while ($exists);
+
+        return $stubNo;
+    }
+
 
 }
 
