@@ -16,6 +16,7 @@ class TransactionBasketItem extends Model
         'quantity',
         'discount_value',
         'total_value',
+        'package_base_price'
     ];
 
     public function basket(): BelongsTo
