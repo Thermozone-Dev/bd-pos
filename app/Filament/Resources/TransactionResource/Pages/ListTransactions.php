@@ -94,7 +94,8 @@ class ListTransactions extends ListRecords
                 ->form([
                     DatePicker::make('start_date')
                         ->label('Start Date')
-                        ->required(),
+                        ->required()
+                        ->default(now()),
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
@@ -121,12 +122,11 @@ class ListTransactions extends ListRecords
                     ->form([
                         DatePicker::make('start_date')
                             ->label('Start Date')
-                            ->default('06-10-2025')
-                            ->required(),
+                            ->required()
+                            ->default(now()),
                         DatePicker::make('end_date')
                             ->label('End Date')
                             ->required()
-                            ->default('06-10-2025')
                             ->default(now()),
                     ])
                     ->action(function(array $data) {
