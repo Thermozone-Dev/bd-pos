@@ -189,10 +189,13 @@ trait TransactionSummary
 
                 //get all packages
                 $index = $packages->search(fn ($test) => $test['id'] === $basketItem->item->package->id);
+
+                $price = ($basketItem->item->package_base_price < 1) ? $basketItem->item->package->base_price : $basketItem->item->package_base_price; // check first if has base price on transaction basket item if not use package base price
+
                 if ($index !== false) {
                     $item = $packages->get($index);
                     $item['quantity'] += $basketItem->quantity;
-                    $item['gross_income'] += $basketItem->total_value;
+                    $item['gross_income'] += ($price * $basketItem->quantity);
                     $item['income'] += $basketItem->total_value + ($basketItem->total_value * .12);
                     $packages->put($index, $item);
                 } else {
@@ -200,8 +203,8 @@ trait TransactionSummary
                         'id' => $basketItem->item->package->id,
                         'name' => $basketItem->item->package->name,
                         'quantity' => $basketItem->quantity,
-                        'price' => $basketItem->item->package->base_price,
-                        'gross_income' => $basketItem->total_value,
+                        'price' =>  $price,
+                        'gross_income' => $price * $basketItem->quantity,
                         'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0
                     ]);
                 }
