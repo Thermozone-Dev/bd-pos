@@ -273,7 +273,7 @@ class TransactionController extends Controller
                 'quantity' => $item['item_quantity'],
                 'discount_value' => $item['discount_value'],
                 'total_value' => $item['total_value'],
-                'package_base_price' => null,
+                'package_base_price' =>  0.0,
             ];
 
             $test = Item::find($item['item_id']);
