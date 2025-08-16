@@ -291,8 +291,8 @@ trait TransactionSummary
             'transactions_query' => $transaction,
             'sold_products' => $products->sortByDesc('quantity'),
             'product_trends' => $products->sortByDesc('quantity')->take(8),
-            'detailed_products' => $detailed_products,
-            'detailed_packages' => $detailed_packages,
+            // 'detailed_products' => $detailed_products,
+            // 'detailed_packages' => $detailed_packages,
         ];
         return $data;
     }
