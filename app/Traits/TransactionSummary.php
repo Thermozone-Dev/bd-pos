@@ -308,7 +308,7 @@ trait TransactionSummary
             DB::raw("SUM(total_sales) as total_amount")
         )
         ->with('processedBy')
-        ->where('is_valid', true)
+        // ->where('is_valid', true)
         ->whereDate('created_at', $date)
         ->groupBy('hour_block')
         ->pluck('total_amount', 'hour_block'); // returns associative array [block => total]
