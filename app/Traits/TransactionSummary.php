@@ -192,24 +192,24 @@ trait TransactionSummary
             if($basketItem->item->package){
 
                 // get products in package
-                $basketItem->item->package->productsJunction
-                    ->map(function($item) use ($basketItem,$products) {
-                        $quantity = ($basketItem->quantity ?? 1) * ($item->quantity ?? 1); //mutiply by number of products in the package.
-                        $index = $products->search(fn ($test) => $test['product_id'] === $item->product_id);
+                // $basketItem->item->package->productsJunction
+                //     ->map(function($item) use ($basketItem,$products) {
+                //         $quantity = ($basketItem->quantity ?? 1) * ($item->quantity ?? 1); //mutiply by number of products in the package.
+                //         $index = $products->search(fn ($test) => $test['product_id'] === $item->product_id);
 
-                        if ($index !== false) {
-                            $item = $products->get($index);
-                            $item['quantity'] += $quantity;
-                            $products->put($index, $item);
-                        } else {
-                            $products->push([
-                                'product_id' => $item->product->id,
-                                'image_path' => $item->product->getMedia()?->first()?->getUrl() ?? asset('images/pos-default.jpg'),
-                                'name' => $item->product->name,
-                                'quantity' => $quantity,
-                            ]);
-                        }
-                    });
+                //         if ($index !== false) {
+                //             $item = $products->get($index);
+                //             $item['quantity'] += $quantity;
+                //             $products->put($index, $item);
+                //         } else {
+                //             $products->push([
+                //                 'product_id' => $item->product->id,
+                //                 'image_path' => $item->product->getMedia()?->first()?->getUrl() ?? asset('images/pos-default.jpg'),
+                //                 'name' => $item->product->name,
+                //                 'quantity' => $quantity,
+                //             ]);
+                //         }
+                //     });
 
                 // get category income (per package)
                 $index = $categories->search(fn ($test) => $test['name'] === 'Packages');
