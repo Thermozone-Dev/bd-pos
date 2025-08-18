@@ -249,7 +249,7 @@ trait TransactionSummary
                     ]);
                 }
 
-                $index = $detailed_packages->search(fn ($item) => $item['id'] === $basketItem->item->product->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
+                $index = $detailed_packages->search(fn ($item) => $item['id'] === $basketItem->item->packages->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
                 if ($index !== false){
                     $item = $detailed_packages->get($index);
                     $item['quantity'] += $basketItem->quantity;
