@@ -6,6 +6,7 @@ use App\Filament\Resources\VoidTransactionResource\Pages;
 use App\Filament\Resources\VoidTransactionResource\RelationManagers;
 use App\Models\Transaction;
 use App\Models\VoidTransaction;
+use Dom\Text;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
@@ -33,7 +34,7 @@ class VoidTransactionResource extends Resource
                         ->get()
                         ->mapWithKeys(fn ($transaction) => [$transaction->id => $transaction->name])
                         ->toArray(),
-                    )
+                    ),
             ]);
     }
 
@@ -42,7 +43,10 @@ class VoidTransactionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('transaction_id')
-                ->label('Transaction ID'),
+                    ->label('Transaction ID'),
+                TextColumn::make('created_at')
+                    ->label('Void Date & Time')
+                    ->dateTime('M d, Y - h:i A'),
             ])
             ->filters([
                 //

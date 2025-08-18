@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -114,6 +115,7 @@ class TransactionResource extends Resource
                     ->dateTime('M d, Y - h:i A')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('barcode')
+                    ->searchable()
                     ->label('Barcode')
                     ->formatStateUsing(fn ($state) => str_pad($state, 6, '0', STR_PAD_LEFT)),
                 TextColumn::make('or_number')
@@ -162,12 +164,9 @@ class TransactionResource extends Resource
                 TextColumn::make('total_sales')
                     ->label('Total Sales')
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
-                IconColumn::make('is_valid')
+                ToggleColumn::make('is_valid')
                     ->label('Valid')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->alignCenter(),
+                    ->hidden(auth()->user()->hasRole('Cashier')),
                 IconColumn::make('is_zero_rated')
                     ->label('Zero Rated')
                     ->boolean()
