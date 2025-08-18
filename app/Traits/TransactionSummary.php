@@ -166,26 +166,25 @@ trait TransactionSummary
                     ]);
                 }
 
-                $index = $detailed_products->search(fn ($item) => $item['product_id'] === $basketItem->item->product->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
+                // $index = $detailed_products->search(fn ($item) => $item['product_id'] === $basketItem->item->product->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
+                // if ($index !== false){
+                //     $item = $detailed_products->get($index);
+                //     $item['quantity'] += $quantity;
+                //     $item['gross_income'] += $basketItem->total_value;
+                //     $detailed_products->put($index, $item);
+                // } else{
 
-                if ($index !== false){
-                    $item = $detailed_products->get($index);
-                    $item['quantity'] += $quantity;
-                    $item['gross_income'] += $basketItem->total_value;
-                    $detailed_products->put($index, $item);
-                } else{
-
-                    $detailed_products->push([
-                        'product_id' => $basketItem->item->product->id,
-                        'user' => $basketUser,
-                        'date' => $basketDate,
-                        'name' => $basketItem->item->product->name,
-                        'price' => $basketItem->item->product->price,
-                        'quantity' => $quantity,
-                        'gross_income' => $basketItem->total_value,
-                        'income' => $basketItem->total_value + ($basketItem->total_value*.12) ?? 0,
-                    ]);
-                }
+                //     $detailed_products->push([
+                //         'product_id' => $basketItem->item->product->id,
+                //         'user' => $basketUser,
+                //         'date' => $basketDate,
+                //         'name' => $basketItem->item->product->name,
+                //         'price' => $basketItem->item->product->price,
+                //         'quantity' => $quantity,
+                //         'gross_income' => $basketItem->total_value,
+                //         'income' => $basketItem->total_value + ($basketItem->total_value*.12) ?? 0,
+                //     ]);
+                // }
             }
 
 
@@ -249,24 +248,24 @@ trait TransactionSummary
                     ]);
                 }
 
-                $index = $detailed_packages->search(fn ($item) => $item['id'] === $basketItem->item->packages->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
-                if ($index !== false){
-                    $item = $detailed_packages->get($index);
-                    $item['quantity'] += $basketItem->quantity;
-                    $item['gross_income'] += $basketItem->total_value;
-                    $detailed_packages->put($index, $item);
-                } else {
-                    $detailed_packages->push([
-                        'id' => $basketItem->item->package->id,
-                        'user' => $basketUser,
-                        'date' => $basketDate,
-                        'name' => $basketItem->item->package->name,
-                        'price' => $basketItem->item->package->base_price,
-                        'quantity' => $basketItem->quantity,
-                        'gross_income' => $basketItem->total_value,
-                        'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0,
-                    ]);
-                }
+                // $index = $detailed_packages->search(fn ($item) => $item['id'] === $basketItem->item->packages->id && $item['user'] === $basketUser && $item['date'] === $basketDate);
+                // if ($index !== false){
+                //     $item = $detailed_packages->get($index);
+                //     $item['quantity'] += $basketItem->quantity;
+                //     $item['gross_income'] += $basketItem->total_value;
+                //     $detailed_packages->put($index, $item);
+                // } else {
+                //     $detailed_packages->push([
+                //         'id' => $basketItem->item->package->id,
+                //         'user' => $basketUser,
+                //         'date' => $basketDate,
+                //         'name' => $basketItem->item->package->name,
+                //         'price' => $basketItem->item->package->base_price,
+                //         'quantity' => $basketItem->quantity,
+                //         'gross_income' => $basketItem->total_value,
+                //         'income' => $basketItem->total_value + ($basketItem->total_value * .12) ?? 0,
+                //     ]);
+                // }
             }
         }
 
