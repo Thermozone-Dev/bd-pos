@@ -67,7 +67,7 @@ class ProductResource extends Resource
                     ->numeric(),
                 TextInput::make('sku')
                     ->label('SKU')
-                    ->required(),
+                    ->default(' '),
                 SpatieMediaLibraryFileUpload::make('image')
                     ->label('Product Image')
                     ->downloadable(),
