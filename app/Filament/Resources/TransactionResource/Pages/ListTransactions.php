@@ -34,9 +34,6 @@ class ListTransactions extends ListRecords
                             $url = Storage::url(Journal::getJournalPath());
                             return Storage::download($url, 'journal.log');
                         }
-                        else {
-                            dd('NO FILE');
-                        }
                     }
                 ),
 
