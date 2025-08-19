@@ -63,6 +63,7 @@
             </tr>
         </thead>
         @foreach ($transactions as $transaction)
+        @dd($accumulatedBalance)
         @php
             $transactionRelationData = $dailyRelationalData[\Carbon\Carbon::parse($transaction->date)->format('Y-m-d')];
         @endphp

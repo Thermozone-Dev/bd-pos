@@ -103,8 +103,7 @@ class ListTransactions extends ListRecords
                             ];
                         });
 
-                    $_transactions_query = Transaction::query()
-                        ->selectRaw('DATE(created_at) as date')
+                    $_total_transactions_query = Transaction::query()
                         ->selectRaw('MIN(id) as beginningOR')
                         ->selectRaw('MAX(id) as endingOR')
                         // ->selectRaw('MAX(id) as grandBeginningBal')
@@ -120,12 +119,29 @@ class ListTransactions extends ListRecords
                         ->groupByRaw('DATE(created_at)')
                         ->orderByRaw('DATE(created_at)');
 
+                    $_transactions_query = $_total_transactions_query
+                        ->selectRaw('DATE(created_at) as date');
+
                     $transactions = $_transactions_query->get();
+
+                    $grandAccumulated = 0;
+
+                    $_accumulated_balance = $_total_transactions_query->get()
+                        ->map(function ($transaction) use (&$grandAccumulated) {
+                            $grandAccumulatedBeginning = $grandAccumulated;
+                            $grandAccumulated += $transaction->totalSales;
+                            $grandAccumulatedEnding = $grandAccumulated + $transaction->totalSales;
+                            return [
+                                'grandBeginningBal' => $grandAccumulatedBeginning,
+                                'grandEndingBal' => $grandAccumulatedEnding,
+                            ];
+                        });
 
 
                     $pdf = SnappyPdf::loadView('reports.bir-summary', [
                         'transactions' => $transactions,
                         'dailyRelationalData' => $dailyRelationalData,
+                        'accumulatedBalance' => $_accumulated_balance,
                     ])->setPaper('folio', 'landscape');
 
                     return $pdf->stream('BIR Summary Report.pdf');
