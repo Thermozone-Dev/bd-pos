@@ -32,7 +32,7 @@ class ListTransactions extends ListRecords
                     function () {
                         if (Storage::disk('public')->exists(Journal::getJournalPath())){
                             $url = Storage::url(Journal::getJournalPath());
-                            return response()->download($url);
+                            return response()->streamDownload($url);
                             // return Storage::download($url, 'journal.log');
                         }
                     }
