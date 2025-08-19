@@ -63,16 +63,16 @@
             </tr>
         </thead>
         @foreach ($transactions as $transaction)
-        @dd($accumulatedBalance)
         @php
             $transactionRelationData = $dailyRelationalData[\Carbon\Carbon::parse($transaction->date)->format('Y-m-d')];
+            $accummulatedData = $accumulatedBalance[\Carbon\Carbon::parse($transaction->date)->format('Y-m-d')];
         @endphp
                 <tr style="background-color: white;">
                     <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($transaction->date)->format('m/d/Y') }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->beginningOR, 6, '0', STR_PAD_LEFT) }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->endingOR, 6, '0', STR_PAD_LEFT) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;"></td>
-                    <td style="border: 1px solid black; padding: 8px;"></td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($accumulatedData['grandEndingBal']) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($accumulatedData['grandBeginningBal']) }}</td>
                     <td style="border: 1px solid black; padding: 8px;"></td>
                     <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->grossSales, 2) }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vatableSales, 2) }}</td>
