@@ -46,8 +46,8 @@ class ViewActivityLog extends ListActivities
         $filters = $this->getFilters();
 
         // Export To PDF using Snappy
-        $activities = Activity::query()
-            ->orderByDesc('created_at');
+        $activities = Activity::query();
+
         foreach ($filters as $column => $filter)
         {
             if ($column === 'date_range') {
@@ -83,7 +83,7 @@ class ViewActivityLog extends ListActivities
             }
         }
 
-        $activities = $activities->get();
+        $activities = $activities->orderByDesc('created_at')->get();
 
         $exportData = [];
         foreach($activities as $activity){
