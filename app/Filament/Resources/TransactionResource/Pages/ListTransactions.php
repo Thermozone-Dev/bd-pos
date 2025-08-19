@@ -31,7 +31,7 @@ class ListTransactions extends ListRecords
                 ->action(
                     function () {
                         if (Storage::disk('public')->exists(Journal::getJournalPath())){
-                            Storage::disk('public')->download(Journal::getJournalPath(), 'eJournal.txt');
+                            Storage::download(Storage::disk('public')->path(Journal::getJournalPath()), 'eJournal.txt');
                         }
                         else {
                             dd('NO FILE');
