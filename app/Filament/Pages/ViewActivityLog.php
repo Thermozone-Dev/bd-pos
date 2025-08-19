@@ -92,6 +92,6 @@ class ViewActivityLog extends ListActivities
             'activities' => $exportData,
         ]);
 
-        return $pdf->stream('activity_log.pdf');
+        return $pdf->download('activity_log.pdf');
     }
 }
