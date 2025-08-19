@@ -50,7 +50,18 @@ class ListTransactions extends ListRecords
                                 'pwd' => 0,
                                 'nac' => 0,
                                 'solo_parent' => 0,
+                                'others' => 0,
+                                'returns' => 0,
                                 'voids' => 0,
+                                'day_total' => 0,
+                            ];
+
+                            $adjustments = [
+                                'sc' => 0,
+                                'pwd' => 0,
+                                'other_discounts' => 0,
+                                'returns' => 0,
+                                'others' => 0,
                                 'day_total' => 0,
                             ];
 
@@ -58,25 +69,38 @@ class ListTransactions extends ListRecords
                                 if ($transaction->basket) {
                                     if ($transaction->is_sc) {
                                         $deductions['sc'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['sc'] += $transaction->sum('vat_adjustment');
                                     }
-                                    if ($transaction->is_pwd) {
+                                    else if ($transaction->is_pwd) {
                                         $deductions['pwd'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['pwd'] += $transaction->sum('vat_adjustment');
                                     }
-                                    if ($transaction->is_nac) {
+                                    else if ($transaction->is_nac) {
                                         $deductions['nac'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['other_discounts'] += $transaction->sum('vat_adjustment');
                                     }
-                                    if ($transaction->is_soloparent) {
+                                    else if ($transaction->is_soloparent) {
                                         $deductions['solo_parent'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['other_discounts'] += $transaction->sum('vat_adjustment');
                                     }
-
-                                    if(!$transaction->is_valid) {
+                                    else if(!$transaction->is_valid) {
                                         $deductions['voids'] += $transaction->total_sales;
+                                        $adjustments['others'] += $transaction->sum('vat_adjustment');
+                                    }
+                                    else if ($transaction->basket->items->sum('discount_value') > 0) {
+                                        $deductions['others'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['other_discounts'] += $transaction->sum('vat_adjustment');
                                     }
 
                                     $deductions['day_total'] += $transaction->basket->items->sum('discount_value');
+                                    $adjustments['day_total'] += $transaction->sum('vat_adjustment');
                                 }
                             }
-                            return $deductions;
+                            return collect([
+                                'date' => $transactionsOfDay->first()->created_at->toDateString(),
+                                'deductions' => $deductions,
+                                'adjustments' => $adjustments,
+                            ]);
                         });
 
                     dd($dailyRelationalData);
