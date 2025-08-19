@@ -126,11 +126,12 @@ class ListTransactions extends ListRecords
 
                     $grandAccumulated = 0;
 
-                    $_accumulated_balance = $_total_transactions_query->get()
+                    $_accumulated_balance = $_transactions_query->get()
                         ->map(function ($transaction) use (&$grandAccumulated) {
                             $grandAccumulatedBeginning = $grandAccumulated;
                             $grandAccumulated += $transaction->totalSales;
                             $grandAccumulatedEnding = $grandAccumulated + $transaction->totalSales;
+
                             return [
                                 'grandBeginningBal' => $grandAccumulatedBeginning,
                                 'grandEndingBal' => $grandAccumulatedEnding,
