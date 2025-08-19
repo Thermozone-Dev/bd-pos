@@ -130,7 +130,7 @@ class ListTransactions extends ListRecords
                         ->map(function ($transaction) use (&$grandAccumulated) {
                             $grandAccumulatedBeginning = $grandAccumulated;
                             $grandAccumulated += $transaction->totalSales;
-                            $grandAccumulatedEnding = $grandAccumulated + $transaction->totalSales;
+                            $grandAccumulatedEnding = $grandAccumulated;
 
                             return [
                                 'grandBeginningBal' => $grandAccumulatedBeginning,
