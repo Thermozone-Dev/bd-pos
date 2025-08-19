@@ -131,7 +131,7 @@ class ListTransactions extends ListRecords
                         ->groupBy( fn($transaction) => Carbon::parse($transaction->date)->format('Y-m-d') )
                         ->map(function ($transaction) use (&$grandAccumulated) {
                             $grandAccumulatedBeginning = $grandAccumulated;
-                            $grandAccumulated += $transaction->totalSales;
+                            $grandAccumulated += $transaction->total_sales;
                             $grandAccumulatedEnding = $grandAccumulated;
 
                             return [
