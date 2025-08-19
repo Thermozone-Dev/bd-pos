@@ -52,8 +52,8 @@ class ViewActivityLog extends ListActivities
         {
             if ($column === 'date_range') {
                 $dates = explode(' - ', $filter);
-                $startDate = Carbon::parse($dates[0])->startOfDay();
-                $endDate = Carbon::parse($dates[1])->endOfDay();
+                $startDate = Carbon::createFromFormat('d/m/Y', $dates[0])->startOfDay();
+                $endDate = Carbon::createFromFormat('d/m/Y', $dates[1])->endOfDay();
                 $activities = $activities->whereBetween('created_at', [$startDate, $endDate]);
             } elseif ($column === 'causer') {
                 $activities = $activities->whereHas('causer', function ($q) use ($filter) {
