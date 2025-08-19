@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Journal\Journal;
 use App\Models\Discount;
 use App\Models\Item;
 use App\Models\NacInfo;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\PwdInfo;
 use App\Models\ScInfo;
@@ -26,6 +28,7 @@ use App\Traits\TransactionSummary;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Carbon\Carbon;
 use Illuminate\Container\Attributes\Auth;
+use PHPUnit\Event\Runtime\PHP;
 
 class TransactionController extends Controller
 {
@@ -98,6 +101,7 @@ class TransactionController extends Controller
                 'is_soloparent' => false,
             ];
 
+
             //Create Basket
             $_basket = TransactionBasket::create();
             $_data['transaction_basket_id'] = $_basket->id;
@@ -158,12 +162,64 @@ class TransactionController extends Controller
 
             $_transaction->update();
 
+            //Create Journal List
+            $_journal_transaction_details = [
+                '-----       INVOICE       ----',
+                'Machine No : ' . 'XXXXXXXXXX',
+                'Hardware Serial : ' . 'XXXXXXXXXX',
+                '----- TRANSACTION DETAILS ----',
+                'Issued By : ' . auth()->user()->name,
+                'Invoice NO : ' . $_transaction->id,
+                'Date : ' . $_transaction->created_at->format('Y-m-d'),
+                'Payment Method : ' . PaymentMethod::find($request->transaction_method)->name,
+
+                '------   ITEM DETAILS   ------',
+            ];
+
+            $_journal_item_details = [];
+            $_discount_value = 0.0;
+            foreach ($_basket_items as $_basket_item) {
+                $_item = Item::find($_basket_item->item_id);
+                array_push($_journal_item_details,
+                    'Item Name : ' . $_item->name .
+                    ' | Qty : ' . $_basket_item->quantity .
+                    ' | Price : ' . $_basket_item->total_value);
+                $_discount_value += $_basket_item->discount_value;
+            }
+            $_journal_customer_details = [
+                '------ CUSTOMER DETAILS ------',
+                'Customer Name : ' . $request->customer_name ?? '********************',
+                'Customer Address : ' . $request->customer_address ?? '********************',
+                'Customer TIN : ' . $request->customer_tin ?? 'XXXXXXXXXXXXX',
+                'Custome Busi : ' . $request->customer_business ?? '********************',
+            ];
+            $_journal_sales_details = [
+                '------   SALES DETAILS   -----',
+                'Discount : ' . $_discount_value,
+                'Transaction Fee :  ' . $_transaction->transaction_fee,
+                'Cash Tendered : ' . $_transaction->cash_tendered,
+                'VATable Sales : ' . $_transaction->vatable_sales,
+                'Change : ' . $_transaction->change,
+                'VAT : ' . $_transaction->vat,
+                'VAT Exempt Sales : ' . $_transaction->vat_exempt_sales,
+                'Zero Rated Sales : ' . $_transaction->zero_rated_sales,
+                'Total Sales : ' . $_transaction->total_sales . PHP_EOL,
+            ];
+
+            $_journal_list = array_merge(
+                $_journal_transaction_details,
+                $_journal_customer_details,
+                $_journal_item_details,
+                $_journal_sales_details
+            );
+
+            Journal::appendList($_journal_list);
+
             //Process Data Formatting for json
             $_return_data = [
                 'transaction details' => $_transaction,
                 'transaction basket' => $_basket_items,
                 'stub_details' => $this->generate_stub($_transaction->id),
-
             ];
 
             return response()->json($_return_data, 201);
