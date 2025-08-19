@@ -23,71 +23,138 @@ class ListTransactions extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Action::make('downloadPdf')
-            //     ->label('Generate BIR Summary Report PDF')
-            //     ->icon('heroicon-o-arrow-down-tray')
-            //     ->form([
-            //         DatePicker::make('start_date')
-            //             ->label('Start Date')
-            //             ->required(),
-            //         DatePicker::make('end_date')
-            //             ->label('End Date')
-            //             ->required()
-            //             ->default(now()),
-            //     ])
-            //     ->action(function (array $data) {
+            Action::make('downloadPdf')
+                ->label('Generate BIR Summary Report PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->form([
+                    DatePicker::make('start_date')
+                        ->label('Start Date')
+                        ->required()
+                        ->default(now()),
+                    DatePicker::make('end_date')
+                        ->label('End Date')
+                        ->required()
+                        ->default(now()),
+                ])
+                ->action(function (array $data) {
 
-            //         $filteredTransactions = Transaction::with('basket.items')
-            //             ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
-            //             ->get();
+                    $filteredTransactions = Transaction::with('basket.items')
+                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+                        ->get();
 
-            //         $dailyDiscounts = $filteredTransactions
-            //             ->groupBy(fn($transaction) => $transaction->created_at->toDateString())
-            //             ->map(function ($transactionsOfDay) {
-            //                 $dayTotal = 0;
+                    $dailyRelationalData = $filteredTransactions
+                        ->groupBy(fn($transaction) => $transaction->created_at->toDateString())
+                        ->map(function ($transactionsOfDay) {
+                            $deductions = [
+                                'sc' => 0,
+                                'pwd' => 0,
+                                'nac' => 0,
+                                'solo_parent' => 0,
+                                'others' => 0,
+                                'returns' => 0,
+                                'voids' => 0,
+                                'day_total' => 0,
+                            ];
 
-            //                 foreach ($transactionsOfDay as $transaction) {
-            //                     if ($transaction->basket) {
-            //                         $dayTotal += $transaction->basket->items->sum('discount_value');
-            //                     }
-            //                 }
+                            $adjustments = [
+                                'sc' => 0,
+                                'pwd' => 0,
+                                'other_discounts' => 0,
+                                'returns' => 0,
+                                'others' => 0,
+                                'day_total' => 0,
+                            ];
 
-            //                 return $dayTotal;
-            //             });
+                            foreach ($transactionsOfDay as $transaction) {
+                                if ($transaction->basket) {
+                                    if ($transaction->is_sc) {
+                                        $deductions['sc'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['sc'] += $transaction->sum('vat_adjustment');
+                                    }
+                                    else if ($transaction->is_pwd) {
+                                        $deductions['pwd'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['pwd'] += $transaction->sum('vat_adjustment');
+                                    }
+                                    else if ($transaction->is_nac) {
+                                        $deductions['nac'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['other_discounts'] += $transaction->sum('vat_adjustment');
+                                    }
+                                    else if ($transaction->is_soloparent) {
+                                        $deductions['solo_parent'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['other_discounts'] += $transaction->sum('vat_adjustment');
+                                    }
+                                    else if(!$transaction->is_valid) {
+                                        $deductions['voids'] += $transaction->total_sales;
+                                        $adjustments['others'] += $transaction->sum('vat_adjustment');
+                                    }
+                                    else if ($transaction->basket->items->sum('discount_value') > 0) {
+                                        $deductions['others'] += $transaction->basket->items->sum('discount_value');
+                                        $adjustments['other_discounts'] += $transaction->sum('vat_adjustment');
+                                    }
+                                }
+                            }
 
-            //         $transactions = Transaction::query()
-            //             ->selectRaw('DATE(created_at) as date')
-            //             ->selectRaw('MIN(id) as beginningOR')
-            //             ->selectRaw('MAX(id) as endingOR')
-            //             // ->selectRaw('MAX(id) as grandBeginningBal')
-            //             // ->selectRaw('MAX(id) as grandEndingBal')
-            //             ->selectRaw('SUM(gross_sales) as grossSales')
-            //             ->selectRaw('SUM(total_sales) as totalSales')
-            //             ->selectRaw('SUM(vatable_sales) as vatableSales')
-            //             ->selectRaw('SUM(vat) as vat')
-            //             ->selectRaw('SUM(vat_exempt_sales) as vatExemptSales')
-            //             ->selectRaw('SUM(vat_exempt) as vatExempt')
-            //             ->selectRaw('SUM(zero_rated_sales) as zeroRatedSales')
-            //             ->where('is_valid', true)
-            //             ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
-            //             ->groupByRaw('DATE(created_at)')
-            //             ->orderByRaw('DATE(created_at)')
-            //             ->get();
+                            $deductions['day_total'] += $deductions['sc'] + $deductions['pwd'] + $deductions['nac'] + $deductions['solo_parent'] + $deductions['others'] + $deductions['returns'] + $deductions['voids'];
+                            $adjustments['day_total'] += $adjustments['sc'] + $adjustments['pwd'] + $adjustments['other_discounts'] + $adjustments['returns'] + $adjustments['others'];
 
-            //         // dd($transactions);
+                            return [
+                                'deductions' => $deductions,
+                                'adjustments' => $adjustments,
+                            ];
+                        });
 
-            //         $pdf = SnappyPdf::loadView('reports.bir-summary', [
-            //             'transactions' => $transactions,
-            //             'discounts' => $dailyDiscounts,
-            //         ])->setPaper('folio', 'landscape');
+                    $_total_transactions_query = Transaction::query()
+                        ->selectRaw('DATE(created_at) as date')
+                        ->selectRaw('MIN(id) as beginningOR')
+                        ->selectRaw('MAX(id) as endingOR')
+                        // ->selectRaw('MAX(id) as grandBeginningBal')
+                        // ->selectRaw('MAX(id) as grandEndingBal')
+                        ->selectRaw('SUM(gross_sales) as grossSales')
+                        ->selectRaw('SUM(total_sales) as totalSales')
+                        ->selectRaw('SUM(vatable_sales) as vatableSales')
+                        ->selectRaw('SUM(vat) as vat')
+                        ->selectRaw('SUM(vat_exempt_sales) as vatExemptSales')
+                        ->selectRaw('SUM(zero_rated_sales) as zeroRatedSales')
+                        ->where('is_valid', true)
+                        ->groupByRaw('DATE(created_at)')
+                        ->orderByRaw('DATE(created_at)');
 
-            //         return $pdf->stream('BIR Summary Report.pdf');
+                    $_transactions_query = $_total_transactions_query
+                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']]);
 
-            //         // return response()->streamDownload(
-            //         //     fn () => print($pdf->output()),
-            //         //     'document.pdf'
-            //         // );
-            //     }),
+                    $transactions = $_transactions_query->get();
+
+                    $grandAccumulated = 0;
+
+                    $_accumulated_balance = $_transactions_query
+                        ->get()
+                        ->groupBy( fn($transaction) => Carbon::parse($transaction->date)->format('Y-m-d') )
+                        ->map(function ($transaction) use (&$grandAccumulated) {
+                            $grandAccumulatedBeginning = $grandAccumulated;
+                            $grandAccumulated += $transaction->first()->totalSales;
+                            $grandAccumulatedEnding = $grandAccumulated;
+
+                            return [
+                                'grandBeginningBal' => $grandAccumulatedBeginning,
+                                'grandEndingBal' => $grandAccumulatedEnding,
+                            ];
+                        });
+
+
+                    $pdf = SnappyPdf::loadView('reports.bir-summary', [
+                        'transactions' => $transactions,
+                        'dailyRelationalData' => $dailyRelationalData,
+                        'accumulatedBalance' => $_accumulated_balance,
+                    ])->setPaper('folio', 'landscape');
+
+                    return $pdf->stream('BIR Summary Report.pdf');
+
+                    // return response()->streamDownload(
+                    //     fn () => print($pdf->output()),
+                    //     'document.pdf'
+                    // );
+                }),
+
             Action::make('downloadGeneral')
                 ->label('General Transaction Summary Report')
                 ->icon('heroicon-o-arrow-down-tray')
@@ -99,7 +166,6 @@ class ListTransactions extends ListRecords
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
-                        // ->default('10-06-2025'),
                         ->default(now()),
                 ])
                 ->action(function(array $data) {
