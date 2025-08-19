@@ -30,7 +30,6 @@ class ListTransactions extends ListRecords
                 ->icon('heroicon-o-arrow-down-tray')
                 ->action(
                     function () {
-                            dd('NO FILE');
                         if (Storage::exists(Journal::getJournalPath())){
                             Storage::download(Journal::getJournalPath(), 'eJournal.txt');
                         }
