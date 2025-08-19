@@ -99,8 +99,6 @@ class ViewActivityLog extends ListActivities
             ]);
         };
 
-        dd($exportData);
-
         $pdf = SnappyPdf::loadView('reports.activity-log', [
             'activities' => $exportData,
         ])->setPaper('folio', 'landscape');
