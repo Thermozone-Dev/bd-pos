@@ -61,7 +61,7 @@ class ListTransactions extends ListRecords
                                         $transaction->is_pwd => $deductions['pwd'] += $transaction->basket->items->sum('discount_value'),
                                         $transaction->is_nac => $deductions['naac'] += $transaction->basket->items->sum('discount_value'),
                                         $transaction->is_soloparent => $deductions['solo_parent'] += $transaction->basket->items->sum('discount_value'),
-                                        !$transaction->is_valid => $deductions['voids'] += $transaction->total_sales,
+                                        (!$transaction->is_valid) => $deductions['voids'] += $transaction->total_sales,
                                     };
 
                                     $deductions['day_total'] += $transaction->basket->items->sum('discount_value');
@@ -92,14 +92,6 @@ class ListTransactions extends ListRecords
 
                     $transactions = $_transactions_query->get();
 
-                    $transaction_deductions = [
-                        'sc' => $_transactions_query->selectRaw('SUM(CASE WHEN is_sc = 1 THEN discount_value ELSE 0 END) as scDiscount'),
-                        'pwd' => $_transactions_query->selectRaw('SUM(CASE WHEN is_pwd = 1 THEN discount_value ELSE 0 END) as pwdDiscount'),
-                        'naac' => $_transactions_query->selectRaw('SUM(CASE WHEN is_nac = 1 THEN discount_value ELSE 0 END) as nacDiscount'),
-                        'solo_parent' => $_transactions_query->selectRaw('SUM(CASE WHEN is_soloparent = 1 THEN discount_value ELSE 0 END) as soloParentDiscount'),
-                        'other_discounts' => $_transactions_query->selectRaw('SUM(CASE WHEN vat_exempt NOT IN (1, 2, 3, 4) THEN discount_value ELSE 0 END) as otherDiscounts'),
-                        'voids' => $_transactions_query->selectRaw('SUM(CASE WHEN is_voided = 1 THEN total_sales ELSE 0 END) as voids'),
-                    ];
                     $transaction_adjustments = [
                         'sc' => $_transactions_query->selectRaw('SUM(CASE WHEN discount_id = 1 THEN vat_adjustment ELSE 0 END) as scAdjustment'),
                         'pwd' => $_transactions_query->selectRaw('SUM(CASE WHEN discount_id = 2 THEN vat_adjustment ELSE 0 END) as pwdAdjustment'),
