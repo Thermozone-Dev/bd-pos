@@ -61,8 +61,11 @@ class ListTransactions extends ListRecords
                                         $transaction->is_pwd => $deductions['pwd'] += $transaction->basket->items->sum('discount_value'),
                                         $transaction->is_nac => $deductions['naac'] += $transaction->basket->items->sum('discount_value'),
                                         $transaction->is_soloparent => $deductions['solo_parent'] += $transaction->basket->items->sum('discount_value'),
-                                        (!$transaction->is_valid) => $deductions['voids'] += $transaction->total_sales,
                                     };
+
+                                    if(!$transaction->is_valid) {
+                                        $deductions['voids'] += $transaction->total_sales;
+                                    }
 
                                     $deductions['day_total'] += $transaction->basket->items->sum('discount_value');
                                 }
