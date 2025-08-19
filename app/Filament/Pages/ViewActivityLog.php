@@ -71,10 +71,10 @@ class ViewActivityLog extends ListActivities
                     }
                 }
             })
-            ->orderByDesc('created_at');
+            ->orderByDesc('created_at')
+            ->get();
 
         $exportData = [];
-        dd($activities);
         foreach($activities as $activity){
             array_push($exportData, [
                 'id' => $activity->id,
