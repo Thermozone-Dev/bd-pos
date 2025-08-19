@@ -64,8 +64,7 @@
         </thead>
         @foreach ($transactions as $transaction)
         @php
-            dd($dailyRelationalData);
-            $transactionRelationData = $dailyRelationalData[$transaction->created_at->toDateString];
+            $transactionRelationData = $dailyRelationalData[\Carbon\Carbon::parse($transaction->date)->format('Y-m-d')];
         @endphp
                 <tr style="background-color: white;">
                     <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($transaction->date)->format('m/d/Y') }}</td>
