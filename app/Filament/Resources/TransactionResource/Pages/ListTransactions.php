@@ -128,7 +128,7 @@ class ListTransactions extends ListRecords
 
                     $_accumulated_balance = $_transactions_query
                         ->get()
-                        ->groupBy(fn($transaction) => $transaction->created_at->toDateString())
+                        ->groupBy( fn($transaction) => Carbon::parse($transaction->date)->format('Y-m-d') )
                         ->map(function ($transaction) use (&$grandAccumulated) {
                             $grandAccumulatedBeginning = $grandAccumulated;
                             $grandAccumulated += $transaction->totalSales;
