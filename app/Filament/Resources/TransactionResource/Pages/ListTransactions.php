@@ -126,7 +126,9 @@ class ListTransactions extends ListRecords
 
                     $grandAccumulated = 0;
 
-                    $_accumulated_balance = $_transactions_query->get()
+                    $_accumulated_balance = $_transactions_query
+                        ->groupBy(fn($transaction) => $transaction->created_at->toDateString())
+                        ->get()
                         ->map(function ($transaction) use (&$grandAccumulated) {
                             $grandAccumulatedBeginning = $grandAccumulated;
                             $grandAccumulated += $transaction->totalSales;
