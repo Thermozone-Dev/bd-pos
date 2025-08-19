@@ -30,7 +30,7 @@ class ListTransactions extends ListRecords
                 ->icon('heroicon-o-arrow-down-tray')
                 ->action(
                     function () {
-                        Storage::disk('local_private')->download(Journal::getJournalPath(), 'eJournal.txt');
+                        Storage::disk('private')->download(Journal::getJournalPath(), 'eJournal.txt');
                     }
                 ),
             Action::make('downloadPdf')
