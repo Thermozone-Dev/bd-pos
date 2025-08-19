@@ -43,7 +43,16 @@ class VoidTransactionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('transaction_id')
-                    ->label('Transaction ID'),
+                    ->label('Transaction ID')
+                    ->formatStateUsing(fn ($state) => str_pad($state, 6, '0', STR_PAD_LEFT)),
+                TextColumn::make('transaction.total_sales')
+                    ->label('Total Sales')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2)),
+                TextColumn::make('transaction.paymentMethod.name')
+                    ->label('Payment Method'),
+                TextColumn::make('transaction.created_at')
+                    ->label('Transaction Date & Time')
+                    ->dateTime('M d, Y - h:i A'),
                 TextColumn::make('created_at')
                     ->label('Void Date & Time')
                     ->dateTime('M d, Y - h:i A'),
