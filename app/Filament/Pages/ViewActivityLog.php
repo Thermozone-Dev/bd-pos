@@ -88,10 +88,12 @@ class ViewActivityLog extends ListActivities
             ]);
         };
 
+        dd($exportData);
+
         $pdf = SnappyPdf::loadView('reports.activity-log', [
             'activities' => $exportData,
         ]);
 
-        return $pdf->download('activity_log.pdf');
+        return $pdf->stream('activity_log.pdf');
     }
 }
