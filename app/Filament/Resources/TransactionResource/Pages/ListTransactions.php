@@ -56,8 +56,7 @@ class ListTransactions extends ListRecords
 
                             foreach ($transactionsOfDay as $transaction) {
                                 if ($transaction->basket) {
-                                    dd($transaction);
-                                    match (true) {
+                                    match (1) {
                                         $transaction->is_sc => $deductions['sc'] += $transaction->basket->items->sum('discount_value'),
                                         $transaction->is_pwd => $deductions['pwd'] += $transaction->basket->items->sum('discount_value'),
                                         $transaction->is_nac => $deductions['naac'] += $transaction->basket->items->sum('discount_value'),
