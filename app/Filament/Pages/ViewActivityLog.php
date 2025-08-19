@@ -76,6 +76,7 @@ class ViewActivityLog extends ListActivities
 
         $exportData = [];
         foreach($activities as $activity){
+            dd($activity);
             array_push($exportData, [
                 'id' => $activity->id,
                 'event' => $activity->event,
