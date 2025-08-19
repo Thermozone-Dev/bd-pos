@@ -23,71 +23,88 @@ class ListTransactions extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Action::make('downloadPdf')
-            //     ->label('Generate BIR Summary Report PDF')
-            //     ->icon('heroicon-o-arrow-down-tray')
-            //     ->form([
-            //         DatePicker::make('start_date')
-            //             ->label('Start Date')
-            //             ->required(),
-            //         DatePicker::make('end_date')
-            //             ->label('End Date')
-            //             ->required()
-            //             ->default(now()),
-            //     ])
-            //     ->action(function (array $data) {
+            Action::make('downloadPdf')
+                ->label('Generate BIR Summary Report PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->form([
+                    DatePicker::make('start_date')
+                        ->label('Start Date')
+                        ->required(),
+                    DatePicker::make('end_date')
+                        ->label('End Date')
+                        ->required()
+                        ->default(now()),
+                ])
+                ->action(function (array $data) {
 
-            //         $filteredTransactions = Transaction::with('basket.items')
-            //             ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
-            //             ->get();
+                    $filteredTransactions = Transaction::with('basket.items')
+                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+                        ->get();
 
-            //         $dailyDiscounts = $filteredTransactions
-            //             ->groupBy(fn($transaction) => $transaction->created_at->toDateString())
-            //             ->map(function ($transactionsOfDay) {
-            //                 $dayTotal = 0;
+                    $dailyDiscounts = $filteredTransactions
+                        ->groupBy(fn($transaction) => $transaction->created_at->toDateString())
+                        ->map(function ($transactionsOfDay) {
+                            $dayTotal = 0;
 
-            //                 foreach ($transactionsOfDay as $transaction) {
-            //                     if ($transaction->basket) {
-            //                         $dayTotal += $transaction->basket->items->sum('discount_value');
-            //                     }
-            //                 }
+                            foreach ($transactionsOfDay as $transaction) {
+                                if ($transaction->basket) {
+                                    $dayTotal += $transaction->basket->items->sum('discount_value');
+                                }
+                            }
 
-            //                 return $dayTotal;
-            //             });
+                            return $dayTotal;
+                        });
 
-            //         $transactions = Transaction::query()
-            //             ->selectRaw('DATE(created_at) as date')
-            //             ->selectRaw('MIN(id) as beginningOR')
-            //             ->selectRaw('MAX(id) as endingOR')
-            //             // ->selectRaw('MAX(id) as grandBeginningBal')
-            //             // ->selectRaw('MAX(id) as grandEndingBal')
-            //             ->selectRaw('SUM(gross_sales) as grossSales')
-            //             ->selectRaw('SUM(total_sales) as totalSales')
-            //             ->selectRaw('SUM(vatable_sales) as vatableSales')
-            //             ->selectRaw('SUM(vat) as vat')
-            //             ->selectRaw('SUM(vat_exempt_sales) as vatExemptSales')
-            //             ->selectRaw('SUM(vat_exempt) as vatExempt')
-            //             ->selectRaw('SUM(zero_rated_sales) as zeroRatedSales')
-            //             ->where('is_valid', true)
-            //             ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
-            //             ->groupByRaw('DATE(created_at)')
-            //             ->orderByRaw('DATE(created_at)')
-            //             ->get();
+                    dd($dailyDiscounts);
 
-            //         // dd($transactions);
+                    $_transactions_query = Transaction::query()
+                        ->selectRaw('DATE(created_at) as date')
+                        ->selectRaw('MIN(id) as beginningOR')
+                        ->selectRaw('MAX(id) as endingOR')
+                        // ->selectRaw('MAX(id) as grandBeginningBal')
+                        // ->selectRaw('MAX(id) as grandEndingBal')
+                        ->selectRaw('SUM(gross_sales) as grossSales')
+                        ->selectRaw('SUM(total_sales) as totalSales')
+                        ->selectRaw('SUM(vatable_sales) as vatableSales')
+                        ->selectRaw('SUM(vat) as vat')
+                        ->selectRaw('SUM(vat_exempt_sales) as vatExemptSales')
+                        ->selectRaw('SUM(vat_exempt) as vatExempt')
+                        ->selectRaw('SUM(zero_rated_sales) as zeroRatedSales')
+                        ->where('is_valid', true)
+                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+                        ->groupByRaw('DATE(created_at)')
+                        ->orderByRaw('DATE(created_at)');
 
-            //         $pdf = SnappyPdf::loadView('reports.bir-summary', [
-            //             'transactions' => $transactions,
-            //             'discounts' => $dailyDiscounts,
-            //         ])->setPaper('folio', 'landscape');
+                    $transactions = $_transactions_query->get();
 
-            //         return $pdf->stream('BIR Summary Report.pdf');
+                    $transaction_deductions = [
+                        'sc' => $_transactions_query->selectRaw('SUM(CASE WHEN is_sc = 1 THEN discount_value ELSE 0 END) as scDiscount'),
+                        'pwd' => $_transactions_query->selectRaw('SUM(CASE WHEN is_pwd = 1 THEN discount_value ELSE 0 END) as pwdDiscount'),
+                        'naac' => $_transactions_query->selectRaw('SUM(CASE WHEN is_nac = 1 THEN discount_value ELSE 0 END) as nacDiscount'),
+                        'solo_parent' => $_transactions_query->selectRaw('SUM(CASE WHEN is_soloparent = 1 THEN discount_value ELSE 0 END) as soloParentDiscount'),
+                        'other_discounts' => $_transactions_query->selectRaw('SUM(CASE WHEN vat_exempt NOT IN (1, 2, 3, 4) THEN discount_value ELSE 0 END) as otherDiscounts'),
+                        'voids' => $_transactions_query->selectRaw('SUM(CASE WHEN is_voided = 1 THEN total_sales ELSE 0 END) as voids'),
+                    ];
+                    $transaction_adjustments = [
+                        'sc' => $_transactions_query->selectRaw('SUM(CASE WHEN discount_id = 1 THEN vat_adjustment ELSE 0 END) as scAdjustment'),
+                        'pwd' => $_transactions_query->selectRaw('SUM(CASE WHEN discount_id = 2 THEN vat_adjustment ELSE 0 END) as pwdAdjustment'),
+                        'other_discounts' => $_transactions_query->selectRaw('SUM(CASE WHEN discount_id NOT IN (1, 2) THEN vat_adjustment ELSE 0 END) as otherAdjustments'),
+                        ''
+                    ];
 
-            //         // return response()->streamDownload(
-            //         //     fn () => print($pdf->output()),
-            //         //     'document.pdf'
-            //         // );
-            //     }),
+
+                    $pdf = SnappyPdf::loadView('reports.bir-summary', [
+                        'transactions' => $transactions,
+                        'discounts' => $dailyDiscounts,
+                    ])->setPaper('folio', 'landscape');
+
+                    return $pdf->stream('BIR Summary Report.pdf');
+
+                    // return response()->streamDownload(
+                    //     fn () => print($pdf->output()),
+                    //     'document.pdf'
+                    // );
+                }),
             Action::make('downloadGeneral')
                 ->label('General Transaction Summary Report')
                 ->icon('heroicon-o-arrow-down-tray')
