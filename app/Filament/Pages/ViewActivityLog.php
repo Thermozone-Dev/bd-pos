@@ -44,6 +44,7 @@ class ViewActivityLog extends ListActivities
     public function exportLogs()
     {
         $filters = $this->getFilters();
+        dd($filters);
 
         // Export To PDF using Snappy
         $activities = Activity::query();
@@ -62,8 +63,9 @@ class ViewActivityLog extends ListActivities
                 if ( $filter == null ) {
                     continue;
                 }
-                $activities = $activities->whereHas('causer', function ($q) use ($filter) {
-                    $q->where('name', 'like', "%{$filter}%");
+                $id = $filter[-1];
+                $activities = $activities->whereHas('causer', function ($q) use ($id) {
+                    $q->where('name', 'like', "%{$id}%");
                 });
             } elseif ($column === 'subject_type') {
                 if ( $filter == null ) {
