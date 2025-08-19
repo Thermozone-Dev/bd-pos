@@ -44,32 +44,31 @@ class ViewActivityLog extends ListActivities
     public function exportLogs()
     {
         $filters = $this->getFilters();
-        dd($this->isFiltersBlank($filters));
+
         // Export To PDF using Snappy
         $activities = Activity::query()
-            ->when(!$this->isFiltersBlank(), function ($query) use ($filters) {
-                foreach ($filters as $column => $filter)
-                {
-                    if ($column === 'date_range') {
-                        $dates = explode(' - ', $filter);
-                        $startDate = Carbon::parse($dates[0])->startOfDay();
-                        $endDate = Carbon::parse($dates[1])->endOfDay();
-                        $query->whereBetween('created_at', [$startDate, $endDate]);
-                    } elseif ($column === 'causer') {
-                        $query->whereHas('causer', function ($q) use ($filter) {
-                            $q->where('name', 'like', "%{$filter}%");
-                        });
-                    } elseif ($column === 'subject_type') {
-                        $query->where('subject_type', $filter);
-                    } elseif ($column === 'subject_id') {
-                        $query->where('subject_id', $filter);
-                    } elseif ($column === 'event') {
-                        $query->where('event', $filter);
-                    }
-                }
-            })
-            ->orderByDesc('created_at')
-            ->get();
+            ->orderByDesc('created_at');
+        foreach ($filters as $column => $filter)
+        {
+            if ($column === 'date_range') {
+                $dates = explode(' - ', $filter);
+                $startDate = Carbon::parse($dates[0])->startOfDay();
+                $endDate = Carbon::parse($dates[1])->endOfDay();
+                $activities = $activities->whereBetween('created_at', [$startDate, $endDate]);
+            } elseif ($column === 'causer') {
+                $activities = $activities->whereHas('causer', function ($q) use ($filter) {
+                    $q->where('name', 'like', "%{$filter}%");
+                });
+            } elseif ($column === 'subject_type') {
+                $activities = $activities->where('subject_type', $filter);
+            } elseif ($column === 'subject_id') {
+                $activities = $activities->where('subject_id', $filter);
+            } elseif ($column === 'event') {
+                $activities = $activities->where('event', $filter);
+            }
+        }
+
+        $activities = $activities->get();
 
         $exportData = [];
         foreach($activities as $activity){
