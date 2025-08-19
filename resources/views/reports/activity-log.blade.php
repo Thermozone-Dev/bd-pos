@@ -36,7 +36,7 @@
                     <td style="border: 1px solid black; padding: 8px;">{{ $activity['event'] }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ $activity['subject_type'] }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ $activity['subject_id'] }}</td>
-                    <td style="border: 1px solid black; padding: 8px; word-wrap: break-words; max-width: 500px">{{ $activity['properties'] }}</td>
+                    <td style="border: 1px solid black; padding: 8px; word-wrap: break-all; max-width: 500px">{{ $activity['properties'] }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($activity['created_at'])->format('F j, Y h:i A') }} </td>
                 </tr>
         @endforeach
