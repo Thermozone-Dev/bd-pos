@@ -49,10 +49,6 @@ class ViewActivityLog extends ListActivities
             ->when(!$this->isFiltersBlank(), function ($query) use ($filters) {
                 foreach ($filters as $column => $filter)
                 {
-                    if (isEmpty($filter)) {
-                        continue;
-                    }
-
                     if ($column === 'date_range') {
                         $dates = explode(' - ', $filter);
                         $startDate = Carbon::parse($dates[0])->startOfDay();
