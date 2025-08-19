@@ -91,11 +91,12 @@ class ListTransactions extends ListRecords
                                         $deductions['others'] += $transaction->basket->items->sum('discount_value');
                                         $adjustments['other_discounts'] += $transaction->sum('vat_adjustment');
                                     }
-
-                                    $deductions['day_total'] += $deductions['sc'] + $deductions['pwd'] + $deductions['nac'] + $deductions['solo_parent'] + $deductions['others'] + $deductions['returns'] + $deductions['voids'];
-                                    $adjustments['day_total'] += $adjustments['sc'] + $adjustments['pwd'] + $adjustments['other_discounts'] + $adjustments['returns'] + $adjustments['others'];
                                 }
                             }
+
+                            $deductions['day_total'] += $deductions['sc'] + $deductions['pwd'] + $deductions['nac'] + $deductions['solo_parent'] + $deductions['others'] + $deductions['returns'] + $deductions['voids'];
+                            $adjustments['day_total'] += $adjustments['sc'] + $adjustments['pwd'] + $adjustments['other_discounts'] + $adjustments['returns'] + $adjustments['others'];
+
                             return [
                                 'deductions' => $deductions,
                                 'adjustments' => $adjustments,
