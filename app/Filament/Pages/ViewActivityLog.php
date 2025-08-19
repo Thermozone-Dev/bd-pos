@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\User;
 use Barryvdh\Snappy\Facades\SnappyPdf;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Noxo\FilamentActivityLog\Pages\ListActivities;
 use Spatie\Activitylog\Models\Activity;
@@ -42,16 +43,39 @@ class ViewActivityLog extends ListActivities
 
     public function exportLogs()
     {
+        $filters = $this->getFilters();
         // Export To PDF using Snappy
         $activities = Activity::query()
-            ->when(! $this->isFiltersBlank(), function ($query) {
-                $query->filter($this->getFilters());
+            ->when(!$this->isFiltersBlank(), function ($query) use ($filters) {
+                foreach ($filters as $column => $filter)
+                {
+                    if (isEmpty($filter)) {
+                        continue;
+                    }
+
+                    if ($column === 'date_range') {
+                        $dates = explode(' - ', $filter);
+                        $startDate = Carbon::parse($dates[0])->startOfDay();
+                        $endDate = Carbon::parse($dates[1])->endOfDay();
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    } elseif ($column === 'causer') {
+                        $query->whereHas('causer', function ($q) use ($filter) {
+                            $q->where('name', 'like', "%{$filter}%");
+                        });
+                    } elseif ($column === 'subject_type') {
+                        $query->where('subject_type', $filter);
+                    } elseif ($column === 'subject_id') {
+                        $query->where('subject_id', $filter);
+                    } elseif ($column === 'event') {
+                        $query->where('event', $filter);
+                    }
+                }
             })
             ->orderByDesc('created_at');
 
         $exportData = [];
+        dd($activities);
         foreach($activities as $activity){
-            dd($activity);
             array_push($exportData, [
                 'id' => $activity->id,
                 'event' => $activity->event,
