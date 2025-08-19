@@ -76,7 +76,6 @@ class ViewActivityLog extends ListActivities
 
         $exportData = [];
         foreach($activities as $activity){
-            dd(User::find($activity->causer_id)->name);
             array_push($exportData, [
                 'id' => $activity->id,
                 'event' => $activity->event,
