@@ -1,4 +1,4 @@
-<section style="padding: 5px; font-family: Arial, sans-serif;">
+<div style="padding: 5px; font-family: Arial, sans-serif;">
     <div style="text-align: center; line-height: 0.55em;">
         <h1>Clark Nature Park, Inc.</h1>
         <p>Gil Puyat Avenue, Clark Civil Aviation Complex, Clark Freeport Zone, Pampanga, Philippines</p>
@@ -41,5 +41,5 @@
                 </tr>
         @endforeach
     </table>
-</section>
+</div>
 
