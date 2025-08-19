@@ -47,6 +47,7 @@ class ViewActivityLog extends ListActivities
                                 continue;
                             }
                             $id = $filter[-1];
+                            dd($id);
                             $activities = $activities->whereHas('causer', function ($q) use ($id) {
                                 $q->where('name', 'like', "%{$id}%");
                             });
