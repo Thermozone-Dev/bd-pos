@@ -30,8 +30,8 @@ class ListTransactions extends ListRecords
                 ->icon('heroicon-o-arrow-down-tray')
                 ->action(
                     function () {
-                        if (Storage::exists(Journal::getJournalPath())){
-                            Storage::download('https://uat.pos-sikat.com/storage/app/private/'.Journal::getJournalPath(), 'eJournal.txt');
+                        if (Storage::disk('public')->exists(Journal::getJournalPath())){
+                            Storage::disk('public')->download(Journal::getJournalPath(), 'eJournal.txt');
                         }
                         else {
                             dd('NO FILE');
