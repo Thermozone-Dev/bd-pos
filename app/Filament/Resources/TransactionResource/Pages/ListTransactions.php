@@ -29,7 +29,8 @@ class ListTransactions extends ListRecords
                 ->form([
                     DatePicker::make('start_date')
                         ->label('Start Date')
-                        ->required(),
+                        ->required()
+                        ->default(now()),
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
@@ -41,21 +42,35 @@ class ListTransactions extends ListRecords
                         ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
                         ->get();
 
-                    $dailyDiscounts = $filteredTransactions
+                    $dailyRelationalData = $filteredTransactions
                         ->groupBy(fn($transaction) => $transaction->created_at->toDateString())
                         ->map(function ($transactionsOfDay) {
-                            $dayTotal = 0;
+                            $deductions = [
+                                'sc' => 0,
+                                'pwd' => 0,
+                                'nac' => 0,
+                                'solo_parent' => 0,
+                                'voids' => 0,
+                                'day_total' => 0,
+                            ];
 
                             foreach ($transactionsOfDay as $transaction) {
                                 if ($transaction->basket) {
-                                    $dayTotal += $transaction->basket->items->sum('discount_value');
+                                    match (true) {
+                                        $transaction->is_sc => $deductions['sc'] += $transaction->basket->items->sum('discount_value'),
+                                        $transaction->is_pwd => $deductions['pwd'] += $transaction->basket->items->sum('discount_value'),
+                                        $transaction->is_nac => $deductions['naac'] += $transaction->basket->items->sum('discount_value'),
+                                        $transaction->is_soloparent => $deductions['solo_parent'] += $transaction->basket->items->sum('discount_value'),
+                                        !$transaction->is_valid => $deductions['voids'] += $transaction->total_sales,
+                                    };
+
+                                    $deductions['day_total'] += $transaction->basket->items->sum('discount_value');
                                 }
                             }
-
-                            return $dayTotal;
+                            return $deductions;
                         });
 
-                    dd($dailyDiscounts);
+                    dd($dailyRelationalData);
 
                     $_transactions_query = Transaction::query()
                         ->selectRaw('DATE(created_at) as date')
@@ -105,6 +120,7 @@ class ListTransactions extends ListRecords
                     //     'document.pdf'
                     // );
                 }),
+
             Action::make('downloadGeneral')
                 ->label('General Transaction Summary Report')
                 ->icon('heroicon-o-arrow-down-tray')
@@ -116,7 +132,6 @@ class ListTransactions extends ListRecords
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
-                        // ->default('10-06-2025'),
                         ->default(now()),
                 ])
                 ->action(function(array $data) {
