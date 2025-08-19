@@ -64,6 +64,7 @@
         </thead>
         @foreach ($transactions as $transaction)
         @php
+            dd($dailyRelationalData);
             $transactionRelationData = $dailyRelationalData[$transaction->created_at->toDateString];
         @endphp
                 <tr style="background-color: white;">
