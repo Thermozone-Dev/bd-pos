@@ -46,10 +46,8 @@ class ViewActivityLog extends ListActivities
                             if ( $filter == null ) {
                                 continue;
                             }
-                            $id = $filter[-1];
-                            dd($id);
-                            $activities = $activities->whereHas('causer', function ($q) use ($id) {
-                                $q->where('name', 'like', "%{$id}%");
+                            $activities = $activities->whereHas('causer', function ($q) use ($filter) {
+                                $q->where('causer_id', $filter[-1]);
                             });
                         } elseif ($column === 'subject_type') {
                             if ( $filter == null ) {
