@@ -39,7 +39,7 @@ class Journal
     public static function append(string $message): void
     {
         $filePath = self::$directory . self::$filename;
-        Storage::append($filePath, Date::now()->toDateTimeString() . ' - ' . $message);
+        Storage::disk('public')->append($filePath, Date::now()->toDateTimeString() . ' - ' . $message);
     }
 
     public static function appendList(array $messages): void
