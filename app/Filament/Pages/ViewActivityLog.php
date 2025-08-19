@@ -49,8 +49,9 @@ class ViewActivityLog extends ListActivities
             })
             ->orderByDesc('created_at');
 
-        $exportData = $activities->map(function (Activity $activity) {
-            return [
+        $exportData = [];
+        foreach($activities as $activity){
+            array_push($exportData, [
                 'id' => $activity->id,
                 'event' => $activity->event,
                 'causer_id' => $activity->causer_id,
@@ -59,8 +60,8 @@ class ViewActivityLog extends ListActivities
                 'subject_id' => $activity->subject_id,
                 'properties' => json_encode($activity->properties),
                 'created_at' => $activity->created_at,
-            ];
-        });
+            ]);
+        };
 
         $pdf = SnappyPdf::loadView('activity-log.export', [
             'activities' => $exportData,
