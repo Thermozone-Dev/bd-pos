@@ -23,7 +23,7 @@ class ViewActivityLog extends ListActivities
         return [
             Action::make('export-logs')
                 ->label('Export Logs')
-                ->icon('heroicon-o-download')
+                ->icon('heroicon-o-arrow-down-tray')
                 ->color('primary')
                 ->action(function () {
                     $this->exportLogs();
@@ -53,7 +53,6 @@ class ViewActivityLog extends ListActivities
             return [
                 'id' => $activity->id,
                 'event' => $activity->event,
-                'description' => $activity->event,
                 'causer_id' => $activity->causer_id,
                 'causer' => User::find($activity->causer_id)->name,
                 'subject_type' => class_basename($activity->subject_type),
