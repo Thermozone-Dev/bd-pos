@@ -44,7 +44,6 @@ class ViewActivityLog extends ListActivities
     public function exportLogs()
     {
         $filters = $this->getFilters();
-        dd($filters);
 
         // Export To PDF using Snappy
         $activities = Activity::query();
