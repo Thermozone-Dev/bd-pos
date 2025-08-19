@@ -96,14 +96,11 @@ class ListTransactions extends ListRecords
                                     $adjustments['day_total'] += $transaction->sum('vat_adjustment');
                                 }
                             }
-                            return collect([
-                                'date' => $transactionsOfDay->first()->created_at->toDateString(),
+                            return [
                                 'deductions' => $deductions,
                                 'adjustments' => $adjustments,
-                            ]);
+                            ];
                         });
-
-                    dd($dailyRelationalData);
 
                     $_transactions_query = Transaction::query()
                         ->selectRaw('DATE(created_at) as date')
@@ -125,17 +122,10 @@ class ListTransactions extends ListRecords
 
                     $transactions = $_transactions_query->get();
 
-                    $transaction_adjustments = [
-                        'sc' => $_transactions_query->selectRaw('SUM(CASE WHEN discount_id = 1 THEN vat_adjustment ELSE 0 END) as scAdjustment'),
-                        'pwd' => $_transactions_query->selectRaw('SUM(CASE WHEN discount_id = 2 THEN vat_adjustment ELSE 0 END) as pwdAdjustment'),
-                        'other_discounts' => $_transactions_query->selectRaw('SUM(CASE WHEN discount_id NOT IN (1, 2) THEN vat_adjustment ELSE 0 END) as otherAdjustments'),
-                        ''
-                    ];
-
 
                     $pdf = SnappyPdf::loadView('reports.bir-summary', [
                         'transactions' => $transactions,
-                        'discounts' => $dailyDiscounts,
+                        'dailyRelationalData' => $dailyRelationalData,
                     ])->setPaper('folio', 'landscape');
 
                     return $pdf->stream('BIR Summary Report.pdf');
