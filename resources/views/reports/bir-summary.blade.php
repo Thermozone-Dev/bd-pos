@@ -70,7 +70,7 @@
                     <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($transaction->date)->format('m/d/Y') }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->beginningOR, 6, '0', STR_PAD_LEFT) }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->endingOR, 6, '0', STR_PAD_LEFT) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ $discount }}</td>
+                    <td style="border: 1px solid black; padding: 8px;"></td>
                     <td style="border: 1px solid black; padding: 8px;"></td>
                     <td style="border: 1px solid black; padding: 8px;"></td>
                     <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->grossSales, 2) }}</td>
