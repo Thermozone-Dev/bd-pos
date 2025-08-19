@@ -103,7 +103,7 @@ class ViewActivityLog extends ListActivities
 
         $pdf = SnappyPdf::loadView('reports.activity-log', [
             'activities' => $exportData,
-        ]);
+        ])->setPaper('folio', 'landscape');
 
         return $pdf->stream('activity_log.pdf');
     }
