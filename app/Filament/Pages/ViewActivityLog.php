@@ -80,7 +80,7 @@ class ViewActivityLog extends ListActivities
                 'id' => $activity->id,
                 'event' => $activity->event,
                 'causer_id' => $activity->causer_id,
-                'causer' => User::find($activity->causer_id)->name,
+                'causer' => $activity->causer_id == null ? ' ' : User::find($activity->causer_id)->name,
                 'subject_type' => class_basename($activity->subject_type),
                 'subject_id' => $activity->subject_id,
                 'properties' => json_encode($activity->properties),
