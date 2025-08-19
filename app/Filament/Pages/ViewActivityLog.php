@@ -78,7 +78,7 @@ class ViewActivityLog extends ListActivities
                             'causer' => $activity->causer_id == null ? 'N/A' : User::find($activity->causer_id)->name,
                             'subject_type' => class_basename($activity->subject_type) ?? 'N/A',
                             'subject_id' => $activity->subject_id ?? 'N/A',
-                            'properties' => json_encode($activity->properties) ?? 'N/A',
+                            'properties' => json_encode($activity->properties['attributes']) ?? 'N/A',
                             'created_at' => $activity->created_at ?? 'N/A',
                         ]);
                     };
