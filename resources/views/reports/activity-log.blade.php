@@ -21,7 +21,7 @@
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Activity ID</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">User ID</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">User</th>
-                <th colspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align :center;">Event</th>
+                <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align :center;">Event</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Subject Type</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Subject ID</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Properties</th>
