@@ -19,11 +19,11 @@ class Journal
 
     public static function createJournal(): void
     {
-        if (!Storage::exists(self::$directory)) {
-            Storage::makeDirectory(self::$directory);
+        if (!Storage::disk('public')->exists(self::$directory)) {
+            Storage::disk('public')->makeDirectory(self::$directory);
         }
-        if (!Storage::exists(self::$directory . self::$filename)) {
-            Storage::put(self::$directory . self::$filename, '');
+        if (!Storage::disk('public')->exists(self::$directory . self::$filename)) {
+            Storage::disk('public')->put(self::$directory . self::$filename, '');
         }
     }
 
@@ -31,7 +31,7 @@ class Journal
     {
         $filePath = self::$directory . self::$filename;
         if (self::checkIfJournalExists()) {
-            return Storage::get($filePath);
+            return Storage::disk('public')->get($filePath);
         }
         return 'No journal entries found.';
     }
@@ -51,13 +51,13 @@ class Journal
 
     public static function checkIfJournalExists(): bool
     {
-        return Storage::exists(self::$directory . self::$filename);
+        return Storage::disk('public')->exists(self::$directory . self::$filename);
     }
 
     public static function deleteJournal(): void
     {
         if (self::checkIfJournalExists()) {
-            Storage::delete(self::$directory . self::$filename);
+            Storage::disk('public')->delete(self::$directory . self::$filename);
         }
     }
 }
