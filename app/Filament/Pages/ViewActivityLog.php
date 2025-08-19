@@ -77,14 +77,14 @@ class ViewActivityLog extends ListActivities
         $exportData = [];
         foreach($activities as $activity){
             array_push($exportData, [
-                'id' => $activity->id,
-                'event' => $activity->event,
-                'causer_id' => $activity->causer_id,
-                'causer' => $activity->causer_id == null ? ' ' : User::find($activity->causer_id)->name,
-                'subject_type' => class_basename($activity->subject_type),
-                'subject_id' => $activity->subject_id,
-                'properties' => json_encode($activity->properties),
-                'created_at' => $activity->created_at,
+                'id' => $activity->id ?? 'N/A',
+                'event' => $activity->event ?? 'N/A',
+                'causer_id' => $activity->causer_id ?? 'N/A',
+                'causer' => $activity->causer_id == null ? 'N/A' : User::find($activity->causer_id)->name,
+                'subject_type' => class_basename($activity->subject_type) ?? 'N/A',
+                'subject_id' => $activity->subject_id ?? 'N/A',
+                'properties' => json_encode($activity->properties) ?? 'N/A',
+                'created_at' => $activity->created_at ?? 'N/A',
             ]);
         };
 
