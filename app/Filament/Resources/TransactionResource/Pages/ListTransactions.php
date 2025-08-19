@@ -40,6 +40,7 @@ class ListTransactions extends ListRecords
                             header('Pragma: public');
                             header('Content-Length: ' . filesize($url));
                             readfile($url);
+                            exit;
                             // return Storage::download($url, 'journal.log');
                         }
                     }
