@@ -4,6 +4,7 @@ namespace App\Filament\Resources\TransactionResource\Pages;
 
 use App\Exports\TransactionExport;
 use App\Filament\Resources\TransactionResource;
+use App\Journal\Journal;
 use App\Models\Transaction;
 use Barryvdh\Snappy\Facades\SnappyPdf;
 use Carbon\Carbon;
@@ -12,6 +13,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 use function Laravel\Prompts\form;
@@ -23,6 +25,14 @@ class ListTransactions extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('downloadJournal')
+                ->label('Download E Journal')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->action(
+                    function () {
+                        Storage::download(Journal::getJournalPath());
+                    }
+                ),
             Action::make('downloadPdf')
                 ->label('Generate BIR Summary Report PDF')
                 ->icon('heroicon-o-arrow-down-tray')

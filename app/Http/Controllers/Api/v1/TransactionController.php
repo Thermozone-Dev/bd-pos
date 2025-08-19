@@ -7,6 +7,7 @@ use App\Journal\Journal;
 use App\Models\Discount;
 use App\Models\Item;
 use App\Models\NacInfo;
+use App\Models\Package;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\PwdInfo;
@@ -180,8 +181,14 @@ class TransactionController extends Controller
             $_discount_value = 0.0;
             foreach ($_basket_items as $_basket_item) {
                 $_item = Item::find($_basket_item->item_id);
+                if($_item->package){
+                    $_item_data = Package::find($_item->package_id);
+                }
+                if($_item->product){
+                    $_item_data = Package::find($_item->product_id);
+                }
                 array_push($_journal_item_details,
-                    'Item Name : ' . $_item->name .
+                    'Item Name : ' . $_item_data->name .
                     ' | Qty : ' . $_basket_item->quantity .
                     ' | Price : ' . $_basket_item->total_value);
                 $_discount_value += $_basket_item->discount_value;
