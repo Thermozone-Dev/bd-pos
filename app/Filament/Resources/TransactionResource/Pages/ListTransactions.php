@@ -104,6 +104,7 @@ class ListTransactions extends ListRecords
                         });
 
                     $_total_transactions_query = Transaction::query()
+                        ->selectRaw('DATE(created_at) as date')
                         ->selectRaw('MIN(id) as beginningOR')
                         ->selectRaw('MAX(id) as endingOR')
                         // ->selectRaw('MAX(id) as grandBeginningBal')
@@ -115,12 +116,11 @@ class ListTransactions extends ListRecords
                         ->selectRaw('SUM(vat_exempt_sales) as vatExemptSales')
                         ->selectRaw('SUM(zero_rated_sales) as zeroRatedSales')
                         ->where('is_valid', true)
-                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
                         ->groupByRaw('DATE(created_at)')
                         ->orderByRaw('DATE(created_at)');
 
                     $_transactions_query = $_total_transactions_query
-                        ->selectRaw('DATE(created_at) as date');
+                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']]);
 
                     $transactions = $_transactions_query->get();
 
