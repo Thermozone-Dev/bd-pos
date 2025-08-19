@@ -51,19 +51,34 @@ class ViewActivityLog extends ListActivities
         foreach ($filters as $column => $filter)
         {
             if ($column === 'date_range') {
+                if ( $filter == null ) {
+                    continue;
+                }
                 $dates = explode(' - ', $filter);
                 $startDate = Carbon::createFromFormat('d/m/Y', $dates[0])->startOfDay();
                 $endDate = Carbon::createFromFormat('d/m/Y', $dates[1])->endOfDay();
                 $activities = $activities->whereBetween('created_at', [$startDate, $endDate]);
             } elseif ($column === 'causer') {
+                if ( $filter == null ) {
+                    continue;
+                }
                 $activities = $activities->whereHas('causer', function ($q) use ($filter) {
                     $q->where('name', 'like', "%{$filter}%");
                 });
             } elseif ($column === 'subject_type') {
+                if ( $filter == null ) {
+                    continue;
+                }
                 $activities = $activities->where('subject_type', $filter);
             } elseif ($column === 'subject_id') {
+                if ( $filter == null ) {
+                    continue;
+                }
                 $activities = $activities->where('subject_id', $filter);
             } elseif ($column === 'event') {
+                if ( $filter == null ) {
+                    continue;
+                }
                 $activities = $activities->where('event', $filter);
             }
         }
