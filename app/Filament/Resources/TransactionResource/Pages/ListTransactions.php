@@ -27,7 +27,7 @@ class ListTransactions extends ListRecords
     {
         return [
             Action::make('downloadJournal')
-                ->label('Download E Journal')
+                ->label('E Journal')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->action(
                     function () {
