@@ -173,8 +173,6 @@ class TransactionController extends Controller
                 'Invoice NO : ' . $_transaction->id,
                 'Date : ' . $_transaction->created_at->format('Y-m-d'),
                 'Payment Method : ' . PaymentMethod::find($request->transaction_method)->name,
-
-                '------   ITEM DETAILS   ------',
             ];
 
             $_journal_item_details = [];
@@ -185,7 +183,7 @@ class TransactionController extends Controller
                     $_item_data = Package::find($_item->package_id);
                 }
                 if($_item->product){
-                    $_item_data = Package::find($_item->product_id);
+                    $_item_data = Product::find($_item->product_id);
                 }
                 array_push($_journal_item_details,
                     'Item Name : ' . $_item_data->name .
@@ -199,6 +197,7 @@ class TransactionController extends Controller
                 'Customer Address : ' . $request->customer_address ?? '********************',
                 'Customer TIN : ' . $request->customer_tin ?? 'XXXXXXXXXXXXX',
                 'Custome Busi : ' . $request->customer_business ?? '********************',
+                '------   ITEM DETAILS   ------',
             ];
             $_journal_sales_details = [
                 '------   SALES DETAILS   -----',
