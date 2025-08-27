@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
     {
         User::factory()->create([
             'name' => 'Super Admin',
-            'email' => 'super_admin@possikat.com',
+            'email' => 'super_admin@pos-sikat.com',
             'password' => Hash::make('pass12345678word'),
         ]);
     }
