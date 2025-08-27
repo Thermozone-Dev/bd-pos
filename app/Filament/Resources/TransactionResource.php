@@ -117,7 +117,7 @@ class TransactionResource extends Resource
                 TextColumn::make('barcode')
                     ->searchable()
                     ->label('Barcode')
-                    ->formatStateUsing(fn ($state) => str_pad($state, 6, '0', STR_PAD_LEFT)),
+                    ->formatStateUsing(fn ($state) => str_pad($state, 12, '0', STR_PAD_LEFT)),
                 TextColumn::make('or_number')
                     ->label('OR Number')
                     ->toggleable(isToggledHiddenByDefault: true),

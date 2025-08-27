@@ -1,7 +1,7 @@
 <div style="text-align: center; line-height: 0.55em;">
-    <h1>Clark Nature Park, Inc.</h1>
-    <p>Gil Puyat Avenue, Clark Civil Aviation Complex, Clark Freeport Zone, Pampanga, Philippines</p>
-    <p>TIN: 007 287 877 000</p>
+    <h1>Thermozone Philippines Corporation</h1>
+    <p>2286 Marconi St. San Isidro Makati City</p>
+    <p>VAT REG. TIN: 223-661-818-00000</p>
 </div><br>
 <div style="text-align: left; line-height: 0.55em;">
     <p>Software Name: <b>POS Sikat v1.0</b></p>

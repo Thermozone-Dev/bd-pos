@@ -31,7 +31,7 @@
     <tbody>
         @foreach ($transactions as $transaction)
             <tr style="background-color: white;">
-                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->id, 6, '0', STR_PAD_LEFT) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->id, 12, '0', STR_PAD_LEFT) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ $transaction->processedBy()->first()->name }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ date_format($transaction->created_at, 'm/d/Y') }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->cash_tendered, 2) }}</td>
