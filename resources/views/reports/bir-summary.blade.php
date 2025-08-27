@@ -6,8 +6,8 @@
     </div><br>
     <div style="text-align: left; line-height: 0.55em;">
         <p>Software Name: <b>POS Sikat v1.0</b></p>
-        <p>Serial Number: <b>XXXXXXXXXX</b></p>
-        <p>Machine Identification Number: <b>XXXXXXXXXX</b></p>
+        <p>Serial No: <b>XXXXXXXXXX</b></p>
+        <p>MIN: <b>XXXXXXXXXX</b></p>
         <p>POS Terminal Number: <b>XXX</b></p>
         <p>Date & Time Generated: <b>
             @php
