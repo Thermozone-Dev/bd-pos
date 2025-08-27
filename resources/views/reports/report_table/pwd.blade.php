@@ -31,7 +31,7 @@
             <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->gross_sales, 2) }}</td>
             <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat, 2) }}</td>
             <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat_exempt, 2) }}</td>
-            <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">&#x2715;</td>
+            <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">0</td>
             <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">&#x2713;</td>
             <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->total_sales, 2) }}</td>
         </tr>
