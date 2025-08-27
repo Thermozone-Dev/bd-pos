@@ -21,8 +21,8 @@
         <thead>
             <tr>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Date</th>
-                <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Beginning OR No.</th>
-                <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Ending OR No.</th>
+                <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Beginning Invoice No.</th>
+                <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Ending Invoice No.</th>
                 <th rowspan="3" style="background-color: #08b4f4; border: 1px solid black; padding: 8px; text-align: center;">Grand Accum. Sales Ending Balance</th>
                 <th rowspan="3" style="background-color: #08b4f4; border: 1px solid black; padding: 8px; text-align: center;">Grand Accum. Beg. Balance</th>
                 <th rowspan="3" style="background-color: #08b4f4; border: 1px solid black; padding: 8px; text-align: center;">Sales Issued w/ Manual OR</th>
