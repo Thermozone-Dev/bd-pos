@@ -57,7 +57,9 @@ class ScInfoResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('transaction_id')->label('Transaction ID'),
+                TextColumn::make('transaction_id')
+                    ->label('Transaction ID')
+                    ->formatStateUsing(fn ($state) => str_pad($state, 12, '0', STR_PAD_LEFT)),
                 TextColumn::make('name')->label('SC Name'),
                 TextColumn::make('sc_id')->label('SC ID'),
                 TextColumn::make('sc_tin')->label('SC TIN'),

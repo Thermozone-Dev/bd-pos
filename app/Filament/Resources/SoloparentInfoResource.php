@@ -76,7 +76,7 @@ class SoloparentInfoResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('transaction_id')->label('Transaction ID'),
+                TextColumn::make('transaction_id')->label('Transaction ID')->formatStateUsing(fn ($state) => str_pad($state, 12, '0', STR_PAD_LEFT)),
                 TextColumn::make('name')->label('Solo Parent Name'),
                 TextColumn::make('spic_id')->label('SPIC ID'),
                 TextColumn::make('child_name')->label('Child\'s Name'),

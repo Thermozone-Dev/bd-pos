@@ -57,7 +57,9 @@ class NacInfoResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('transaction_id')->label('Transaction ID'),
+                TextColumn::make('transaction_id')
+                    ->label('Transaction ID')
+                    ->formatStateUsing(fn ($state) => str_pad($state, 12, '0', STR_PAD_LEFT)),
                 TextColumn::make('name')->label('NAC Name'),
                 TextColumn::make('pnstm_id')->label('PNSTM ID'),
                 TextColumn::make('created_at')
