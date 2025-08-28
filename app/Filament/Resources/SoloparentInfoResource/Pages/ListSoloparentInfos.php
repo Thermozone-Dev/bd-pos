@@ -98,10 +98,8 @@ class ListSoloparentInfos extends ListRecords
         foreach ($spTransactions as $transaction) {
             $totalDiscount = 0;
 
-            foreach ($transaction->basket() as $basket) {
-                foreach ($basket->items as $item) {
-                    $totalDiscount += $item->discount_value ?? 0;
-                }
+            foreach ($transaction->basket->items as $item) {
+                $totalDiscount += $item->discount_value ?? 0;
             }
 
             $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount;
