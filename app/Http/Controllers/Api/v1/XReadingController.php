@@ -37,7 +37,7 @@ class XReadingController extends Controller
         $time_in = Carbon::parse($shift->time_in)->format('h:i A');
         $time_out = Carbon::now()->format('h:i A');
 
-        $transactions = Transaction::where('created_at', '>=', $inTime)->where->get();
+        $transactions = Transaction::where('created_at', '>=', $inTime)->where('processed_by', $user->id)->get();
 
         $startOR = $transactions->first()?->id ?? null;
         $beginningOR = str_pad($startOR, 12, '0', STR_PAD_LEFT);
