@@ -18,6 +18,7 @@
         <caption style="border: 1px solid black; width: 100%; padding: 1em 0; background-color: white; color: black;"><b>POS-Sikat Activity Log</b></caption>
         <thead>
             <tr>
+                <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Date & Time</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Activity ID</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">User ID</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">User</th>
@@ -25,7 +26,6 @@
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Subject Type</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Subject ID</th>
                 <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Properties</th>
-                <th rowspan="3" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Date & Time</th>
             </tr>
         </thead>
         @foreach ($activities as $activity)
