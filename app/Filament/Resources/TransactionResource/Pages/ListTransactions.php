@@ -131,7 +131,6 @@ class ListTransactions extends ListRecords
                         ->selectRaw('SUM(vat) as vat')
                         ->selectRaw('SUM(vat_exempt_sales) as vatExemptSales')
                         ->selectRaw('SUM(zero_rated_sales) as zeroRatedSales')
-                        ->where('is_valid', true)
                         ->groupByRaw('DATE(created_at)')
                         ->orderByRaw('DATE(created_at)');
 
