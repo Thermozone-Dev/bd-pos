@@ -101,7 +101,7 @@ class ListNacInfos extends ListRecords
                 $totalDiscount += $item->discount_value ?? 0;
             }
 
-            $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount;
+            $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount + $transaction->vat_adjustment;
         }
 
         return [
