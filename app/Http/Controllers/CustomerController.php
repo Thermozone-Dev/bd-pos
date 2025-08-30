@@ -60,7 +60,11 @@ class CustomerController extends Controller
             ];
         }
 
-        return response()->json($data);
+        else {
+            return response()->json(['message' => 'No government discount found'], 400);
+        }
+
+        return response()->json($data, 200);
 
     }
 }
