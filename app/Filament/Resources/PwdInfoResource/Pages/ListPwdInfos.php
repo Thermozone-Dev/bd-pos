@@ -41,6 +41,7 @@ class ListPwdInfos extends ListRecords
                     $pdf = SnappyPdf::loadView('reports.pwd-summary', [
                         'pwdInfos' => $report['pwdInfos'],
                         'pwdTransactions' => $report['pwdTransactions'],
+                        'transactionDiscounts' => $report['transactionDiscounts'],
                     ])->setPaper('folio', 'landscape');
 
                     return $pdf->stream('E-3 - Persons with Disabilities Report.pdf');
@@ -89,9 +90,22 @@ class ListPwdInfos extends ListRecords
                 })
                 ->get()->keyBy('id');
 
+        $transactionDiscounts = [];
+
+        foreach ($pwdTransactions as $transaction) {
+            $totalDiscount = 0;
+
+            foreach ($transaction->basket->items as $item) {
+                $totalDiscount += $item->discount_value ?? 0;
+            }
+
+            $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount;
+        }
+
         return [
             'pwdInfos' => $pwdInfos,
             'pwdTransactions' => $pwdTransactions,
+            'transactionDiscounts' => $transactionDiscounts,
         ];
     }
 

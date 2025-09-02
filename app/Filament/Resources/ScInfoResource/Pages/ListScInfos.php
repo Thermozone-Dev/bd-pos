@@ -43,6 +43,7 @@ class ListScInfos extends ListRecords
                     $pdf = SnappyPdf::loadView('reports.sc-summary', [
                         'scInfos' => $report['scInfos'],
                         'scTransactions' => $report['scTransactions'],
+                        'transactionDiscounts' => $report['transactionDiscounts'],
                     ])->setPaper('folio', 'landscape');
 
                     return $pdf->stream('E-2 - Senior Citizen Report.pdf');
@@ -95,9 +96,22 @@ class ListScInfos extends ListRecords
                 })
                 ->get()->keyBy('id');
 
+        $transactionDiscounts = [];
+
+        foreach ($scTransactions as $transaction) {
+            $totalDiscount = 0;
+
+            foreach ($transaction->basket->items as $item) {
+                $totalDiscount += $item->discount_value ?? 0;
+            }
+
+            $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount;
+        }
+
         return [
             'scInfos' => $scInfos,
             'scTransactions' => $scTransactions,
+            'transactionDiscounts' => $transactionDiscounts,
         ];
     }
 
