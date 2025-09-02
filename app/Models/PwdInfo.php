@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PwdInfo extends Model
 {
@@ -12,4 +13,9 @@ class PwdInfo extends Model
         'pwd_id',
         'pwd_tin',
     ];
+
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class, 'transaction_id', 'id');
+    }
 }

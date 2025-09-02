@@ -63,7 +63,9 @@ class PackageResource extends Resource
 
                         Select::make('product_tax_category')
                             ->label('Product Tax Category')
-                            ->options(ProductTaxCategory::class),
+                            ->options(ProductTaxCategory::class)
+                            ->default(ProductTaxCategory::OTHER)
+                            ->required(),
 
                         TextInput::make('pax')
                             ->label('PAX')

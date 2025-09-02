@@ -59,7 +59,7 @@ class PwdInfoResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('transaction_id')->label('Transaction ID'),
+                TextColumn::make('transaction_id')->label('Transaction ID')->formatStateUsing(fn ($state) => str_pad($state, 12, '0', STR_PAD_LEFT)),
                 TextColumn::make('name')->label('PWD Name'),
                 TextColumn::make('pwd_id')->label('PWD ID'),
                 TextColumn::make('pwd_tin')->label('PWD TIN'),

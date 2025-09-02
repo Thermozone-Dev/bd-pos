@@ -93,6 +93,7 @@ class UserResource extends Resource
                             ->preload()
                             ->searchable()
                             ->disableOptionWhen(fn(string $value): bool => auth()->user()->hasRole('super_admin') ? false : $value == 1),
+
                     ])
             ]);
     }

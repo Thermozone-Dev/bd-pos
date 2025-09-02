@@ -29,11 +29,11 @@ class ListSoloparentInfos extends ListRecords
                     DatePicker::make('start_date')
                         ->label('Start Date')
                         ->required()
-                        ->default(now()->endOfDay()),
+                        ->default(now()),
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
-                        ->default(now()->endOfWeek()),
+                        ->default(now()),
                 ])
                 ->action(function (array $data) {
                     $report = $this->export_value($data);
@@ -54,6 +54,7 @@ class ListSoloparentInfos extends ListRecords
                 ->form([
                     DatePicker::make('start_date')
                         ->label('Start Date')
+                        ->default(now())
                         ->required(),
                     DatePicker::make('end_date')
                         ->label('End Date')
@@ -78,6 +79,9 @@ class ListSoloparentInfos extends ListRecords
 
         $spInfos = SoloparentInfo::query()
             ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+            ->whereHas('transaction', function ($query) {
+                $query->where('is_valid', true);
+            })
             ->get();
 
         $transactionIds = $spInfos->pluck('transaction_id')->unique();
@@ -94,10 +98,8 @@ class ListSoloparentInfos extends ListRecords
         foreach ($spTransactions as $transaction) {
             $totalDiscount = 0;
 
-            foreach ($transaction->basket() as $basket) {
-                foreach ($basket->items as $item) {
-                    $totalDiscount += $item->discount_value ?? 0;
-                }
+            foreach ($transaction->basket->items as $item) {
+                $totalDiscount += $item->discount_value ?? 0;
             }
 
             $transactionDiscounts[$transaction->transaction_basket_id] = $totalDiscount;

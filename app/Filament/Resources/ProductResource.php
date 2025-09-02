@@ -58,14 +58,16 @@ class ProductResource extends Resource
                     ->required(),
                 Select::make('product_tax_category')
                     ->label('Product Tax Category')
-                    ->options(ProductTaxCategory::class),
+                    ->options(ProductTaxCategory::class)
+                    ->default(ProductTaxCategory::OTHER)
+                    ->required(),
                 TextInput::make('pax')
                     ->label('PAX')
                     ->default(0)
                     ->numeric(),
                 TextInput::make('sku')
                     ->label('SKU')
-                    ->required(),
+                    ->default('0'),
                 SpatieMediaLibraryFileUpload::make('image')
                     ->label('Product Image')
                     ->downloadable(),

@@ -19,7 +19,7 @@ class CashierAndManagerSeeder extends Seeder
 
         $cashier = User::factory()->create([
             'name' => 'Cashiers Account',
-            'email' => 'cashier@possikat.com',
+            'email' => 'cashier@pos-sikat.com',
             'password' => Hash::make('password123'),
         ]);
         $role = Utils::getRoleModel()::where('name', 'Cashier')->first();
@@ -32,7 +32,7 @@ class CashierAndManagerSeeder extends Seeder
 
         $manager = User::factory()->create([
             'name' => 'Managers Account',
-            'email' => 'manager@possikat.com',
+            'email' => 'manager@pos-sikat.com',
             'password' => Hash::make('password123'),
         ]);
 

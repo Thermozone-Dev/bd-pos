@@ -28,11 +28,11 @@ class ListPwdInfos extends ListRecords
                     DatePicker::make('start_date')
                         ->label('Start Date')
                         ->required()
-                        ->default(now()->endOfDay()),
+                        ->default(now()),
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
-                        ->default(now()->endOfWeek()),
+                        ->default(now()),
                 ])
                 ->action(function (array $data) {
 
@@ -52,6 +52,7 @@ class ListPwdInfos extends ListRecords
                     ->form([
                         DatePicker::make('start_date')
                             ->label('Start Date')
+                            ->default(now())
                             ->required(),
                         DatePicker::make('end_date')
                             ->label('End Date')
@@ -76,6 +77,9 @@ class ListPwdInfos extends ListRecords
 
         $pwdInfos = PwdInfo::query()
             ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+            ->whereHas('transaction', function ($query) {
+                $query->where('is_valid', true);
+            })
             ->get();
 
         $transactionIds = $pwdInfos->pluck('transaction_id')->unique();

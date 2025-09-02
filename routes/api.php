@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\v1\ProductController;
 use App\Http\Controllers\Api\v1\ShiftController;
 use App\Http\Controllers\Api\v1\TransactionController;
 use App\Http\Controllers\Api\v1\XReadingController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ZReadingController;
 use App\Http\Middleware\EnsureSecretKeyIsValid;
 use Illuminate\Http\Request;
@@ -47,6 +48,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
 
     // ZReading Routes
     Route::post('/zreading', [ZReadingController::class, 'show']);
+
+    Route::post('/customerDetails', [CustomerController::class, 'retrieveCustomerData']);
 
     // Voiding Routes
     Route::post('/void/{id}', [TransactionController::class, 'voidTransaction']);
@@ -103,4 +106,4 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     Route::delete('/paymentMethods/{id}', [PaymentMethodController::class, 'destroy']);
 });
 
-    Route::put('/verify-claim-stub', [TransactionController::class, 'claim_stub']);
+    Route::post('/verify-claim-stub', [TransactionController::class, 'claim_stub']);

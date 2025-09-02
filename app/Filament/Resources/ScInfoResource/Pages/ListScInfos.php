@@ -29,11 +29,11 @@ class ListScInfos extends ListRecords
                     DatePicker::make('start_date')
                         ->label('Start Date')
                         ->required()
-                        ->default(now()->endOfDay()),
+                        ->default(now()),
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
-                        ->default(now()->endOfWeek()),
+                        ->default(now()),
                 ])
                 ->action(function (array $data) {
 
@@ -55,7 +55,8 @@ class ListScInfos extends ListRecords
                 ->form([
                     DatePicker::make('start_date')
                         ->label('Start Date')
-                        ->required(),
+                        ->required()
+                        ->default(now()),
                     DatePicker::make('end_date')
                         ->label('End Date')
                         ->required()
@@ -77,9 +78,14 @@ class ListScInfos extends ListRecords
 
     public function export_value($data): array
     {
-
         $scInfos = ScInfo::query()
-            ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay() , Carbon::parse($data['end_date'])->endOfDay()])
+            ->whereBetween('created_at', [
+                Carbon::parse($data['start_date'])->startOfDay(),
+                Carbon::parse($data['end_date'])->endOfDay(),
+            ])
+            ->whereHas('transaction', function ($query) {
+                $query->where('is_valid', true);
+            })
             ->get();
 
         $transactionIds = $scInfos->pluck('transaction_id')->unique();

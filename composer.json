@@ -9,6 +9,7 @@
         "php": "^8.2",
         "barryvdh/laravel-snappy": "^1.0",
         "bezhansalleh/filament-shield": "^3.3",
+        "calebporzio/sushi": "^2.5",
         "filament/filament": "^3.2.0",
         "filament/spatie-laravel-media-library-plugin": "^3.3",
         "filament/spatie-laravel-settings-plugin": "^3.2",

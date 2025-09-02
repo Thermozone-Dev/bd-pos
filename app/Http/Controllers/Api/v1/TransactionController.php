@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Journal\Journal;
 use App\Models\Discount;
 use App\Models\Item;
 use App\Models\NacInfo;
+use App\Models\Package;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\PwdInfo;
 use App\Models\ScInfo;
@@ -26,6 +29,7 @@ use App\Traits\TransactionSummary;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Carbon\Carbon;
 use Illuminate\Container\Attributes\Auth;
+use PHPUnit\Event\Runtime\PHP;
 
 class TransactionController extends Controller
 {
@@ -98,6 +102,7 @@ class TransactionController extends Controller
                 'is_soloparent' => false,
             ];
 
+
             //Create Basket
             $_basket = TransactionBasket::create();
             $_data['transaction_basket_id'] = $_basket->id;
@@ -158,12 +163,69 @@ class TransactionController extends Controller
 
             $_transaction->update();
 
+            //Create Journal List
+            $_journal_transaction_details = [
+                '-----       INVOICE       ----',
+                'Machine No : ' . 'XXXXXXXXXX',
+                'Hardware Serial : ' . 'XXXXXXXXXX',
+                '----- TRANSACTION DETAILS ----',
+                'Issued By : ' . auth()->user()->name,
+                'Invoice NO : ' . $_transaction->id,
+                'Date : ' . $_transaction->created_at->format('Y-m-d'),
+                'Payment Method : ' . PaymentMethod::find($request->transaction_method)->name,
+            ];
+
+            $_journal_item_details = [];
+            $_discount_value = 0.0;
+            foreach ($_basket_items as $_basket_item) {
+                $_item = Item::find($_basket_item->item_id);
+                if($_item->package){
+                    $_item_data = Package::find($_item->package_id);
+                }
+                if($_item->product){
+                    $_item_data = Product::find($_item->product_id);
+                }
+                array_push($_journal_item_details,
+                    'Item Name : ' . $_item_data->name .
+                    ' | Qty : ' . $_basket_item->quantity .
+                    ' | Price : ' . $_basket_item->total_value);
+                $_discount_value += $_basket_item->discount_value;
+            }
+            $_journal_customer_details = [
+                '------ CUSTOMER DETAILS ------',
+                'Customer Name : ' . $request->customer_name ?? '********************',
+                'Customer Address : ' . $request->customer_address ?? '********************',
+                'Customer TIN : ' . $request->customer_tin ?? 'XXXXXXXXXXXXX',
+                'Custome Busi : ' . $request->customer_business ?? '********************',
+                '------   ITEM DETAILS   ------',
+            ];
+            $_journal_sales_details = [
+                '------   SALES DETAILS   -----',
+                'Discount : ' . $_discount_value,
+                'Transaction Fee :  ' . $_transaction->transaction_fee,
+                'Cash Tendered : ' . $_transaction->cash_tendered,
+                'VATable Sales : ' . $_transaction->vatable_sales,
+                'Change : ' . $_transaction->change,
+                'VAT : ' . $_transaction->vat,
+                'VAT Exempt Sales : ' . $_transaction->vat_exempt_sales,
+                'Zero Rated Sales : ' . $_transaction->zero_rated_sales,
+                'Total Sales : ' . $_transaction->total_sales . PHP_EOL,
+            ];
+
+            $_journal_list = array_merge(
+                $_journal_transaction_details,
+                $_journal_customer_details,
+                $_journal_item_details,
+                $_journal_sales_details
+            );
+
+            Journal::appendList($_journal_list);
+
             //Process Data Formatting for json
             $_return_data = [
                 'transaction details' => $_transaction,
                 'transaction basket' => $_basket_items,
-                'stub_detals' => $this->generate_stub($_transaction->id),
-
+                'stub_details' => $this->generate_stub($_transaction->id),
             ];
 
             return response()->json($_return_data, 201);
@@ -206,7 +268,7 @@ class TransactionController extends Controller
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
             'pwd_id' => $details['id'],
-            'pwd_tin' => $details['tin'],
+            'pwd_tin' => $details['tin'] ?? null,
         ];
 
         PwdInfo::create($_data);
@@ -217,7 +279,7 @@ class TransactionController extends Controller
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
             'sc_id' => $details['id'],
-            'sc_tin' => $details['tin'],
+            'sc_tin' => $details['tin'] ?? null,
         ];
 
         ScInfo::create($_data);
@@ -238,9 +300,9 @@ class TransactionController extends Controller
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
             'spic_id' => $details['id'],
-            'child_name' => $details['child_name'],
-            'child_age' => $details['child_age'],
-            'child_birthday' => Carbon::parse($details['child_birthday'])->format('Y-m-d'),
+            'child_name' => $details['child_name'] ?? null,
+            'child_age' => $details['child_age'] ?? null,
+            'child_birthday' => Carbon::parse($details['child_birthday'])->format('Y-m-d') ?? null,
         ];
 
         SoloparentInfo::create($_data);
@@ -273,7 +335,14 @@ class TransactionController extends Controller
                 'quantity' => $item['item_quantity'],
                 'discount_value' => $item['discount_value'],
                 'total_value' => $item['total_value'],
+                'package_base_price' =>  0.0,
             ];
+
+            $test = Item::find($item['item_id']);
+            $test = $test?->package;
+            if($test){
+                $_item_data['package_base_price'] = $test->base_price;
+            }
 
             $_basket_item = TransactionBasketItem::create($_item_data);
 
@@ -365,7 +434,7 @@ class TransactionController extends Controller
                             'name' => $item['name'],
                             'price' =>$item['price'],
                             'qty' => $item['quantity'],
-                            'total' => $item['quantity'] * $item['price'],
+                            'total' => $item['gross_income'],
                         ]);
                         return;
                     });
@@ -374,7 +443,7 @@ class TransactionController extends Controller
                             'name' => $item['name'],
                             'price' =>$item['price'],
                             'qty' => $item['quantity'],
-                            'total' => $item['quantity'] * $item['price'],
+                            'total' => $item['gross_income'],
                         ]);
                         return;
                     });
@@ -400,9 +469,10 @@ class TransactionController extends Controller
             $response = $this->dailySummary();
             $_user = auth()->user();
 
-            if(!$_user->hasRole('Cashier')){
+            if($_user->hasRole('Cashier')){
 
                 $transaction = Transaction::withoutGlobalScopes()
+                    ->where('is_valid', true)
                     ->whereDate('created_at', Carbon::today())
                     ->where('processed_by', $_user->id);
 
@@ -415,7 +485,7 @@ class TransactionController extends Controller
                                 'name' => $item['name'],
                                 'price' =>$item['price'],
                                 'qty' => $item['quantity'],
-                                'total' => $item['quantity'] * $item['price'],
+                                'total' => $item['gross_income'],
                             ]);
                             return;
                         });
@@ -424,7 +494,7 @@ class TransactionController extends Controller
                                 'name' => $item['name'],
                                 'price' =>$item['price'],
                                 'qty' => $item['quantity'],
-                                'total' => $item['quantity'] * $item['price'],
+                                'total' => $item['gross_income'],
                             ]);
                             return;
                         });
@@ -459,6 +529,7 @@ class TransactionController extends Controller
                     'time' => $stub->transaction->created_at->format('h:i:s A'),
                     'transaction_no' => $stub->transaction->id,
                     'stub' => $stub->stub_no,
+                    'quantity' => $stub->quantity,
                     'price' => $stub->packageInclusive->price,
                     'pack_inclusive_name' => $stub->packageInclusive->name,
                     'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
@@ -483,16 +554,20 @@ class TransactionController extends Controller
             $_transaction = Transaction::find($transaction_id);
             //add has inclusion if has Item
             if ($_transaction) {
-                $items = Item::whereIn('id', $_transaction->basket->items->pluck('id'))
+                $items = Item::whereIn('id', $_transaction->basket->items->pluck('item_id'))
                     ->where('package_id', '!=', null)
                     ->get();
 
+                $_basket_item_quantity = $_transaction->basket->items->pluck('quantity', 'item_id');
+
                 foreach ($items as $item) {
+                    $qty = $_basket_item_quantity[$item->id];
                     if(!empty($item->package->packageHasPackageInclusive)){
-                        $inclusions = $item->package->packageHasPackageInclusive->map(function ($packageInclusion){
+                        $inclusions = $item->package->packageHasPackageInclusive->map(function ($packageInclusion) use ($qty){
                             return [
                                 'id' => $packageInclusion->id,
                                 'name' => $packageInclusion->packageInclusive->name,
+                                'quantity' => $qty,
                                 'price' => $packageInclusion->packageInclusive->price,
                                 'description' => $packageInclusion->packageInclusive->description,
                                 'items' => $packageInclusion->packageInclusive->packageInclusiveProducts->map(function ($product) {
@@ -504,34 +579,74 @@ class TransactionController extends Controller
                         });
                     }
                 }
-
                 foreach ($inclusions as $inclusion){
-                    $stub_no = null;
-                    while (true) {
-                        // Check if the stub number already exists
-                        $stub_no = now()->format('mdY-Hisv');
-                        if (!Stub::where('stub_no', $stub_no)->first()) {
-                            break;
-                        }
-                    }
+                    $stub_no = $this->generateDailyCounter();
+
                     $stub_details = [
                         'transaction_id' => $_transaction->id,
                         'package_inclusive_id' => $inclusion['id'],
+                        'quantity' => $inclusion['quantity'],
                         'stub_no' =>  $stub_no,
-                        'created_by' => auth()->user()->id,
+                        'created_by' => auth()->user()->id ?? null,
                     ];
-                    Stub::create($stub_details);
+                    $stub = Stub::create($stub_details);
                 }
-                $_stubs= Stub::where('transaction_id', $_transaction->id)
+                $_stubs = Stub::where('transaction_id', $_transaction->id)
                     ->where('status', 0)
                     ->get();
+                $_stubs = $_stubs->map(function ($stub){
+                        return [
+                            'stub_no'=> $stub->stub_no,
+                            'name' => $stub->packageInclusive->name,
+                            'quantity' => $stub->quantity,
+                            'price' => $stub->packageInclusive->price,
+                            'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
+                                return [
+                                    'name' => $product->product->name,
+                                    'qty' => $product->qty,
+                                ];
+                            }),
+                        ];
+                    });
 
-                return $_stubs;
+                return [
+                    'has_inclusive' => true,
+                    'stubs' =>  $_stubs
+                ];
             }
         } catch (Exception $err) {
-            return [];
+            return [
+                'has_inclusive' => false,
+                'stubs' =>  []
+            ];
         }
     }
+
+    function generateDailyCounter(): string
+    {
+
+        do {
+            $latestStub = Stub::whereDate('created_at', Carbon::today())
+                ->orderBy('stub_no', 'desc')
+                ->first();
+
+            if ($latestStub) {
+                $newCount = intval($latestStub->stub_no) + 1;
+            } else {
+                $newCount = 1;
+            }
+
+            $stubNo = str_pad($newCount, 6, '0', STR_PAD_LEFT);
+
+            $exists = Stub::whereDate('created_at', Carbon::today())
+                ->where('stub_no', $stubNo)
+                ->exists();
+
+        } while ($exists);
+
+        return $stubNo;
+    }
+
 
 }
 

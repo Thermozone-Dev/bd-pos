@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -46,18 +47,9 @@ class TransactionResource extends Resource
                             ->toArray(),
                     )
                     ->required(),
-                Select::make('transaction_basket_id')
-                    ->label('Transaction Basket ID')
-                    ->options(
-                        TransactionBasket::query()
-                            ->get()
-                            ->mapWithKeys(fn ($transactionBasket) => [$transactionBasket->id => $transactionBasket->name])
-                            ->toArray(),
-                    )
-                    ->required(),
                 TextInput::make('barcode')
                     ->required(),
-                Select::make('transaction_method')
+                Select::make('transaction_method_id')
                     ->label('Transaction Method')
                     ->options([
                         'cash' => 'Cash',
@@ -123,8 +115,9 @@ class TransactionResource extends Resource
                     ->dateTime('M d, Y - h:i A')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('barcode')
+                    ->searchable()
                     ->label('Barcode')
-                    ->formatStateUsing(fn ($state) => str_pad($state, 6, '0', STR_PAD_LEFT)),
+                    ->formatStateUsing(fn ($state) => str_pad($state, 12, '0', STR_PAD_LEFT)),
                 TextColumn::make('or_number')
                     ->label('OR Number')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -171,12 +164,9 @@ class TransactionResource extends Resource
                 TextColumn::make('total_sales')
                     ->label('Total Sales')
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
-                IconColumn::make('is_valid')
+                ToggleColumn::make('is_valid')
                     ->label('Valid')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->alignCenter(),
+                    ->hidden(auth()->user()->hasRole('Cashier')),
                 IconColumn::make('is_zero_rated')
                     ->label('Zero Rated')
                     ->boolean()
@@ -248,6 +238,13 @@ class TransactionResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->when(auth()->user()->hasRole('Cashier'), function (Builder $query) {
+                $query->where('processed_by', auth()->user()->id);
+            });
     }
 
     public static function getPages(): array

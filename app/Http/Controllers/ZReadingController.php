@@ -214,14 +214,14 @@ class ZReadingController extends Controller
         $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
 
         $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
+        $totalGcashPayment = $transactions->where('transaction_method_id', 2)->where('is_valid', true)->sum('total_sales');
+        $totalMayaPayment = $transactions->where('transaction_method_id', 3)->where('is_valid', true)->sum('total_sales');
+        $totalDebitPayment = $transactions->where('transaction_method_id', 4)->where('is_valid', true)->sum('total_sales');
+        $totalCreditPayment = $transactions->whereNotIn('transaction_method_id', [1, 5])->where('is_valid', true)->sum('total_sales');
+
 
         $totalDigitalPayment = $transactions
             ->whereNotIn('transaction_method_id', [1, 5])
-            ->where('is_valid', true)
-            ->sum('total_sales');
-
-        $totalCreditPayment = $transactions
-            ->where('transaction_method_id', 5)
             ->where('is_valid', true)
             ->sum('total_sales');
 
@@ -243,14 +243,14 @@ class ZReadingController extends Controller
             'reportTime' => $reportTime,
             'startTime' => $shift['startTime'],
             'endTime' => $shift['endTime'],
-            'beginningOR' => is_null($beginningOR) ? 'N/A' : str_pad($beginningOR, 6, '0', STR_PAD_LEFT),
-            'endingOR' => is_null($endingOR) ? 'N/A' : str_pad($endingOR, 6, '0', STR_PAD_LEFT),
-            'beginningVoid' => is_null($beginningVoid) ? 'N/A' : str_pad($beginningVoid, 6, '0', STR_PAD_LEFT),
-            'endingVoid' => is_null($endingVoid) ? 'N/A' : str_pad($endingVoid, 6, '0', STR_PAD_LEFT),
-            'beginningReturn' => is_null($beginningReturn) ? 'N/A' : str_pad($beginningReturn, 6, '0', STR_PAD_LEFT),
-            'endingReturn' => is_null($endingReturn) ? 'N/A' : str_pad($endingReturn, 6, '0', STR_PAD_LEFT),
+            'beginningOR' => is_null($beginningOR) ? 'N/A' : str_pad($beginningOR, 12, '0', STR_PAD_LEFT),
+            'endingOR' => is_null($endingOR) ? 'N/A' : str_pad($endingOR, 12, '0', STR_PAD_LEFT),
+            'beginningVoid' => is_null($beginningVoid) ? 'N/A' : str_pad($beginningVoid, 12, '0', STR_PAD_LEFT),
+            'endingVoid' => is_null($endingVoid) ? 'N/A' : str_pad($endingVoid, 12, '0', STR_PAD_LEFT),
+            'beginningReturn' => is_null($beginningReturn) ? 'N/A' : str_pad($beginningReturn, 12, '0', STR_PAD_LEFT),
+            'endingReturn' => is_null($endingReturn) ? 'N/A' : str_pad($endingReturn, 12, '0', STR_PAD_LEFT),
             'resetCounter' => $resetCounter,
-            'zCounter' => str_pad($zCounter, 6, '0', STR_PAD_LEFT),
+            'zCounter' => str_pad($zCounter, 12, '0', STR_PAD_LEFT),
             'presentAccumulated' => number_format($presentAccumulated, 2, '.', ''),
             'previousAccumulated' => number_format($previousAccumulated, 2, '.', ''),
             'salesForTheDay' => number_format($salesForTheDay, 2, '.', ''),
@@ -279,6 +279,10 @@ class ZReadingController extends Controller
             'otherVATAdjust' => number_format($otherVATAdjust, 2, '.', ''),
             'cashInDrawer' => number_format($cashInDrawer, 2, '.', ''),
             'digitalPayments' => number_format($totalDigitalPayment, 2, '.', ''),
+            'cashPayments' => number_format($totalCashPayment, 2, '.', ''),
+            'gcashPayments' => number_format($totalGcashPayment, 2, '.', ''),
+            'mayaPayments' => number_format($totalMayaPayment, 2, '.', ''),
+            'debitPayments' => number_format($totalDebitPayment, 2, '.', ''),
             'creditPayments' => number_format($totalCreditPayment, 2, '.', ''),
             'openingBalance' => number_format($openingBalance, 2, '.', ''),
             'withdrawal' => number_format($withdrawal, 2, '.', ''),
