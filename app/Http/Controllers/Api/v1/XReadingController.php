@@ -50,14 +50,19 @@ class XReadingController extends Controller
         $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
 
         $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
-
-        $totalDigitalPayment = $transactions
-            ->whereNotIn('transaction_method_id', [1, 5])
+        $totalGcashPayment = $transactions->where('transaction_method_id', 2)->where('is_valid', true)->sum('total_sales');
+        $totalMayaPayment = $transactions->where('transaction_method_id', 3)->where('is_valid', true)->sum('total_sales');
+        $totalDebitPayment = $transactions
+            ->where('transaction_method_id', 4)
+            ->where('is_valid', true)
+            ->sum('total_sales');
+        $totalCreditPayment = $transactions
+            ->where('transaction_method_id', 5)
             ->where('is_valid', true)
             ->sum('total_sales');
 
-        $totalCreditPayment = $transactions
-            ->where('transaction_method_id', 5)
+        $totalDigitalPayment = $transactions
+            ->whereNotIn('transaction_method_id', [1, 5])
             ->where('is_valid', true)
             ->sum('total_sales');
 
@@ -87,6 +92,10 @@ class XReadingController extends Controller
             'opening_fund' => $openingFund,
             'ending_fund' => $endingFund,
             'total_cash_payment' => $totalCashPayment,
+            'total_gcash_payment' => $totalGcashPayment,
+            'total_maya_payment' => $totalMayaPayment,
+            'total_debit_payment' => $totalDebitPayment,
+            'total_credit_payment' => $totalCreditPayment,
             'total_digital_payment' => $totalDigitalPayment,
             'total_credit_payment' => $totalCreditPayment,
             'total_payments' => $totalPayments,
