@@ -74,7 +74,7 @@
                     <td style="border: 1px solid black; padding: 8px;">{{ number_format($accumulatedData['grandEndingBal'], 2) }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ number_format($accumulatedData['grandBeginningBal'], 2) }}</td>
                     <td style="border: 1px solid black; padding: 8px;"></td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->grossSales * 1.12, 2) }}</td>
+                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->grossSales, 2) }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vatableSales, 2) }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vat, 2) }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vatExemptSales, 2) }}</td>
