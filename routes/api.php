@@ -55,6 +55,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     Route::post('/void/{id}', [TransactionController::class, 'voidTransaction']);
     Route::post('/restore/{id}', [TransactionController::class, 'restoreTransaction']);
 
+    // Reprinting Routes
+    Route::post('print/{id}', [TransactionController::class, 'print']);
+    Route::post('void-print/{id}', [TransactionController::class, 'reprintVoidTransaction']);
+
     // Item Routes
     Route::get('/items', [ItemController::class, 'index']);
     Route::get('/items/{id}', [ItemController::class, 'show']);

@@ -377,14 +377,188 @@ class TransactionController extends Controller
         try {
             $_transaction = Transaction::find($id);
             if ($_transaction) {
-                $_transaction->is_valid = false;
-                $_transaction->update();
+                if (!$_transaction->is_valid) {
+                    return response()->json(['error' => 'Transaction is already voided.'], 400);
+                } else {
+                    $_transaction->is_valid = false;
+                    $_transaction->update();
 
-                VoidTransaction::create([
-                    'transaction_id' => $_transaction->id,
-                ]);
+                    $void = VoidTransaction::create([
+                        'transaction_id' => $_transaction->id,
+                    ]);
 
-                return response()->json(['message' => 'Transaction voided successfully.'], 200);
+                    $_transaction = Transaction::with([
+                        'basket.items.item.product',
+                        'basket.items.item.package'
+                    ])->find($id);
+
+                    if (!$_transaction) {
+                        return response()->json(['error' => 'Transaction not found.'], 404);
+                    }
+
+                    $transactionDetails = [
+                        'id' => $_transaction->id,
+                        'void_id' => str_pad($void->id, 12, '0', STR_PAD_LEFT),
+                        'void_date' => $void->created_at->format('F j, Y'),
+                        'void_time' => $void->created_at->format('h:i A'),
+                        'processed_by' => $_transaction->processedBy->name,
+                        'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                        'date' => $_transaction->created_at->format('F j, Y'),
+                        'time' => $_transaction->created_at->format('h:i A'),
+                        'payment_method' => $_transaction->paymentMethod->name,
+
+                        'is_sc' => $_transaction->is_sc,
+                        'is_pwd' => $_transaction->is_pwd,
+                        'is_nac' => $_transaction->is_nac,
+                        'is_soloparent' => $_transaction->is_soloparent,
+
+                        'cash_tendered' => number_format($_transaction->cash_tendered, 2),
+                        'vatable_sales' => number_format($_transaction->vatable_sales, 2),
+                        'change' => number_format($_transaction->change, 2),
+                        'vat' => number_format($_transaction->vat, 2),
+                        'vat_exempt_sales' => number_format($_transaction->vat_exempt_sales, 2),
+                        'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
+                        'total_sales' => number_format($_transaction->total_sales, 2),
+                    ];
+
+                    $basketItems = $_transaction->basket->items
+                        ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
+                        ->map(function ($basketItem) {
+                            return [
+                                'id' => $basketItem->item->id,
+                                'type' => $basketItem->item->type,
+                                'name' => $basketItem->item->type === 'product'
+                                    ? $basketItem->item->product?->name
+                                    : $basketItem->item->package?->name,
+                                'quantity' => $basketItem->quantity,
+                                'price' => $basketItem->item->type === 'product'
+                                    ? $basketItem->item->product?->price
+                                    : $basketItem->item->package?->price,
+                            ];
+                        })->values();
+
+                    $discountedBasketItems = $_transaction->basket->items
+                        ->filter(fn($basketItem) => $basketItem->discount_value > 0)
+                        ->map(function ($basketItem) {
+                            return [
+                                'id' => $basketItem->item->id,
+                                'type' => $basketItem->item->type,
+                                'name' => $basketItem->item->type === 'product'
+                                    ? $basketItem->item->product?->name
+                                    : $basketItem->item->package?->name,
+                                'quantity' => $basketItem->quantity,
+                                'price' => $basketItem->item->type === 'product'
+                                    ? $basketItem->total_value
+                                    : $basketItem->total_value,
+                                'discount_value' => number_format($basketItem->discount_value, 2),
+                            ];
+                        })->values();
+
+                    $response = [
+                        'message' => 'Transaction voided successfully.',
+                        'transaction_details' => $transactionDetails,
+                        'items' => $basketItems,              // only items WITHOUT discounts
+                        'discounted_items' => $discountedBasketItems, // only items WITH discounts
+                    ];
+
+                    return response()->json($response, 200);
+                }
+
+            } else {
+                return response()->json(['error' => 'Transaction not found.'], 404);
+            }
+        } catch (Exception $err) {
+            return response()->json(['error' => $err->getMessage()], 500);
+        }
+    }
+
+    public function reprintVoidTransaction(Request $request, string $id)
+    {
+        try {
+            $_void = VoidTransaction::where('id', $id)->first();
+            if (!$_void) {
+                return response()->json(['error' => 'Void Transaction not found.'], 404);
+            }
+
+            $_id = $_void->transaction_id;
+            $_transaction = Transaction::find($_id);
+            if ($_transaction) {
+                $_transaction = Transaction::with([
+                    'basket.items.item.product',
+                    'basket.items.item.package'
+                ])->find($_id);
+
+                if (!$_transaction) {
+                    return response()->json(['error' => 'Transaction not found.'], 404);
+                }
+
+                $transactionDetails = [
+                    'id' => $_transaction->id,
+                    'void_id' => str_pad($_void->id, 12, '0', STR_PAD_LEFT),
+                    'void_date' => $_void->created_at->format('F j, Y'),
+                    'void_time' => $_void->created_at->format('h:i A'),
+                    'processed_by' => $_transaction->processedBy->name,
+                    'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                    'date' => $_transaction->created_at->format('F j, Y'),
+                    'time' => $_transaction->created_at->format('h:i A'),
+                    'payment_method' => $_transaction->paymentMethod->name,
+
+                    'is_sc' => $_transaction->is_sc,
+                    'is_pwd' => $_transaction->is_pwd,
+                    'is_nac' => $_transaction->is_nac,
+                    'is_soloparent' => $_transaction->is_soloparent,
+
+                    'cash_tendered' => number_format($_transaction->cash_tendered, 2),
+                    'vatable_sales' => number_format($_transaction->vatable_sales, 2),
+                    'change' => number_format($_transaction->change, 2),
+                    'vat' => number_format($_transaction->vat, 2),
+                    'vat_exempt_sales' => number_format($_transaction->vat_exempt_sales, 2),
+                    'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
+                    'total_sales' => number_format($_transaction->total_sales, 2),
+                ];
+
+                $basketItems = $_transaction->basket->items
+                    ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
+                    ->map(function ($basketItem) {
+                        return [
+                            'id' => $basketItem->item->id,
+                            'type' => $basketItem->item->type,
+                            'name' => $basketItem->item->type === 'product'
+                                ? $basketItem->item->product?->name
+                                : $basketItem->item->package?->name,
+                            'quantity' => $basketItem->quantity,
+                            'price' => $basketItem->item->type === 'product'
+                                ? $basketItem->item->product?->price
+                                : $basketItem->item->package?->price,
+                        ];
+                    })->values();
+
+                $discountedBasketItems = $_transaction->basket->items
+                    ->filter(fn($basketItem) => $basketItem->discount_value > 0)
+                    ->map(function ($basketItem) {
+                        return [
+                            'id' => $basketItem->item->id,
+                            'type' => $basketItem->item->type,
+                            'name' => $basketItem->item->type === 'product'
+                                ? $basketItem->item->product?->name
+                                : $basketItem->item->package?->name,
+                            'quantity' => $basketItem->quantity,
+                            'price' => $basketItem->item->type === 'product'
+                                ? $basketItem->total_value
+                                : $basketItem->total_value,
+                            'discount_value' => number_format($basketItem->discount_value, 2),
+                        ];
+                    })->values();
+
+                $response = [
+                    'message' => 'Transaction voided successfully.',
+                    'transaction_details' => $transactionDetails,
+                    'items' => $basketItems,              // only items WITHOUT discounts
+                    'discounted_items' => $discountedBasketItems, // only items WITH discounts
+                ];
+
+                return response()->json($response, 200);
+
 
             } else {
                 return response()->json(['error' => 'Transaction not found.'], 404);
@@ -646,7 +820,84 @@ class TransactionController extends Controller
 
         return $stubNo;
     }
+    public function print($id) {
+        try {
+            $_transaction = Transaction::with([
+                'basket.items.item.product',
+                'basket.items.item.package'
+            ])->find($id);
+
+            if (!$_transaction) {
+                return response()->json(['error' => 'Transaction not found.'], 404);
+            }
+
+            $transactionDetails = [
+                'id' => $_transaction->id,
+                'processed_by' => $_transaction->processedBy->name,
+                'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                'date' => $_transaction->created_at->format('F j, Y'),
+                'time' => $_transaction->created_at->format('h:i A'),
+                'payment_method' => $_transaction->paymentMethod->name,
+
+                'is_sc' => $_transaction->is_sc,
+                'is_pwd' => $_transaction->is_pwd,
+                'is_nac' => $_transaction->is_nac,
+                'is_soloparent' => $_transaction->is_soloparent,
+
+                'cash_tendered' => number_format($_transaction->cash_tendered, 2),
+                'vatable_sales' => number_format($_transaction->vatable_sales, 2),
+                'change' => number_format($_transaction->change, 2),
+                'vat' => number_format($_transaction->vat, 2),
+                'vat_exempt_sales' => number_format($_transaction->vat_exempt_sales, 2),
+                'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
+                'total_sales' => number_format($_transaction->total_sales, 2),
+            ];
+
+            $basketItems = $_transaction->basket->items
+                ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
+                ->map(function ($basketItem) {
+                    return [
+                        'id' => $basketItem->item->id,
+                        'type' => $basketItem->item->type,
+                        'name' => $basketItem->item->type === 'product'
+                            ? $basketItem->item->product?->name
+                            : $basketItem->item->package?->name,
+                        'quantity' => $basketItem->quantity,
+                        'price' => $basketItem->item->type === 'product'
+                            ? $basketItem->item->product?->price
+                            : $basketItem->item->package?->price,
+                    ];
+                })->values();
+
+            $discountedBasketItems = $_transaction->basket->items
+                ->filter(fn($basketItem) => $basketItem->discount_value > 0)
+                ->map(function ($basketItem) {
+                    return [
+                        'id' => $basketItem->item->id,
+                        'type' => $basketItem->item->type,
+                        'name' => $basketItem->item->type === 'product'
+                            ? $basketItem->item->product?->name
+                            : $basketItem->item->package?->name,
+                        'quantity' => $basketItem->quantity,
+                        'price' => $basketItem->item->type === 'product'
+                            ? $basketItem->total_value
+                            : $basketItem->total_value,
+                        'discount_value' => number_format($basketItem->discount_value, 2),
+                    ];
+                })->values();
+
+            $response = [
+                'transaction_details' => $transactionDetails,
+                'items' => $basketItems,              // only items WITHOUT discounts
+                'discounted_items' => $discountedBasketItems, // only items WITH discounts
+            ];
 
 
+
+            return response()->json($response, 200);
+        } catch (Exception $err) {
+            return response()->json(['error' => $err->getMessage()], 500);
+        }
+    }
 }
 
