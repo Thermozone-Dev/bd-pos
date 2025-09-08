@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TransactionResource\Pages;
 
+use App\Exports\BirSummaryExport;
 use App\Exports\TransactionExport;
 use App\Filament\Resources\TransactionResource;
 use App\Journal\Journal;
@@ -10,12 +11,16 @@ use Barryvdh\Snappy\Facades\SnappyPdf;
 use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use Filament\Support\Enums\ActionSize;
 
 use function Laravel\Prompts\form;
 
@@ -26,21 +31,8 @@ class ListTransactions extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('downloadJournal')
-                ->label('E Journal')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->action(
-                    function () {
-                        if (Storage::disk('public')->exists(Journal::getJournalPath())){
-                            $url = Storage::url(Journal::getJournalPath());
-                            return redirect($url);
-                            // return Storage::download($url, 'journal.log');
-                        }
-                    }
-                ),
-
-            Action::make('downloadPdf')
-                ->label('Generate BIR Summary Report PDF')
+             Action::make('downloadPdf')
+                ->label('Generate BIR Summary Report')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->form([
                     DatePicker::make('start_date')
@@ -51,6 +43,15 @@ class ListTransactions extends ListRecords
                         ->label('End Date')
                         ->required()
                         ->default(now()),
+                    Select::make('export_type')
+                        ->options([
+                            'pdf' => 'PDF',
+                            'excel' => 'Excel',
+                        ])
+                        ->required()
+
+                        //add export type select csv, pdf
+
                 ])
                 ->action(function (array $data) {
 
@@ -155,51 +156,65 @@ class ListTransactions extends ListRecords
                             ];
                         });
 
+                    // add if else based on export type
+                    if ($data['export_type'] === 'excel') {
 
-                    $pdf = SnappyPdf::loadView('reports.bir-summary', [
-                        'transactions' => $transactions,
-                        'dailyRelationalData' => $dailyRelationalData,
-                        'accumulatedBalance' => $_accumulated_balance,
-                    ])->setPaper('folio', 'landscape');
+                        $export = new BirSummaryExport(
+                            [
+                                'transactions' => $transactions,
+                                'dailyRelationalData' => $dailyRelationalData,
+                                'accumulatedBalance' => $_accumulated_balance,
+                            ], //variable
+                        );
+                         return Excel::download($export, 'BIR Summary Report.xlsx');
+                    }
+                    else {
 
-                    return $pdf->stream('BIR Summary Report.pdf');
+                        $pdf = SnappyPdf::loadView('reports.bir-summary', [
+                            'transactions' => $transactions,
+                            'dailyRelationalData' => $dailyRelationalData,
+                            'accumulatedBalance' => $_accumulated_balance,
+                        ])->setPaper('folio', 'landscape');
+
+                        return $pdf->stream('BIR Summary Report.pdf');
+                    }
+                    // pdf
+
+
+
+                    //excel
+                    // export excel class in terminal
+
 
                     // return response()->streamDownload(
                     //     fn () => print($pdf->output()),
                     //     'document.pdf'
                     // );
                 }),
+            ActionGroup::make([
+                Action::make('downloadJournal')
+                    ->label('E Journal')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(
+                        function () {
+                            if (Storage::disk('public')->exists(Journal::getJournalPath())){
+                                $url = Storage::url(Journal::getJournalPath());
+                                return redirect($url);
+                                // return Storage::download($url, 'journal.log');
+                            }
+                            Notification::make()
+                                ->title('E-Journal file not found.')
+                                ->warning()
+                                ->send();
 
-            Action::make('downloadGeneral')
-                ->label('General Transaction Summary Report')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->form([
-                    DatePicker::make('start_date')
-                        ->label('Start Date')
-                        ->required()
-                        ->default(now()),
-                    DatePicker::make('end_date')
-                        ->label('End Date')
-                        ->required()
-                        ->default(now()),
-                ])
-                ->action(function(array $data) {
+                        }
+                    ),
 
-                    $report = $this->export_value($data);
 
-                    $pdf = SnappyPdf::loadView('reports.general-transaction-summary', [
-                        'transactions' => $report['transactions'],
-                        'discountSummary' => $report['discountSummary'],
-                    ])->setPaper('folio', 'landscape');
 
-                    return $pdf->stream('General Transaction Summary Report.pdf');
-
-                }),
-
-                Action::make('export_record_to_excel')
-                    ->label('Export Record to Excel')
-                    ->icon('fas-file-export')
-                    ->color('success')
+                Action::make('downloadGeneral')
+                    ->label('General Transaction Summary Report')
+                    ->icon('heroicon-o-arrow-down-tray')
                     ->form([
                         DatePicker::make('start_date')
                             ->label('Start Date')
@@ -211,15 +226,48 @@ class ListTransactions extends ListRecords
                             ->default(now()),
                     ])
                     ->action(function(array $data) {
+
                         $report = $this->export_value($data);
 
-                        $export = new TransactionExport(
-                            $report, //variable
-                            'general_transaction' // blade path of export table
-                        );
-                        return Excel::download($export, 'General Transaction Summary Report.xlsx');
+                        $pdf = SnappyPdf::loadView('reports.general-transaction-summary', [
+                            'transactions' => $report['transactions'],
+                            'discountSummary' => $report['discountSummary'],
+                        ])->setPaper('folio', 'landscape');
+
+                        return $pdf->stream('General Transaction Summary Report.pdf');
 
                     }),
+
+                    Action::make('export_record_to_excel')
+                        ->label('Export Record to Excel')
+                        ->icon('fas-file-export')
+                        ->color('success')
+                        ->form([
+                            DatePicker::make('start_date')
+                                ->label('Start Date')
+                                ->required()
+                                ->default(now()),
+                            DatePicker::make('end_date')
+                                ->label('End Date')
+                                ->required()
+                                ->default(now()),
+                        ])
+                        ->action(function(array $data) {
+                            $report = $this->export_value($data);
+
+                            $export = new TransactionExport(
+                                $report, //variable
+                                'general_transaction' // blade path of export table
+                            );
+                            return Excel::download($export, 'General Transaction Summary Report.xlsx');
+
+                        }),
+            ])
+            ->label('More actions')
+            ->icon('heroicon-m-ellipsis-vertical')
+            ->size(ActionSize::Small)
+            ->color('primary')
+            ->button()
         ];
     }
 
