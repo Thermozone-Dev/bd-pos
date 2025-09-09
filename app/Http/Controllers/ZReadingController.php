@@ -250,8 +250,8 @@ class ZReadingController extends Controller
             'ending_si' => is_null($endingOR) ? 'N/A' : str_pad($endingOR, 12, '0', STR_PAD_LEFT),
             'beginning_void' => is_null($beginningVoid) ? 'N/A' : str_pad($beginningVoid, 12, '0', STR_PAD_LEFT),
             'ending_void' => is_null($endingVoid) ? 'N/A' : str_pad($endingVoid, 12, '0', STR_PAD_LEFT),
-            'reset_counter' => $resetCounter,
-            'counter' => $zCounter,
+            'reset_counter' => str_pad($resetCounter, 12, '0', STR_PAD_LEFT),
+            'counter' => str_pad($zCounter, 12, '0', STR_PAD_LEFT),
             'present_accumulated_sales' => $presentAccumulated,
             'previous_accumulated_sales' => $previousAccumulated,
             'sales_for_the_day' => $salesForTheDay,
@@ -300,7 +300,7 @@ class ZReadingController extends Controller
             'endingVoid' => is_null($endingVoid) ? 'N/A' : str_pad($endingVoid, 12, '0', STR_PAD_LEFT),
             'beginningReturn' => is_null($beginningReturn) ? 'N/A' : str_pad($beginningReturn, 12, '0', STR_PAD_LEFT),
             'endingReturn' => is_null($endingReturn) ? 'N/A' : str_pad($endingReturn, 12, '0', STR_PAD_LEFT),
-            'resetCounter' => $resetCounter,
+            'resetCounter' => str_pad($resetCounter, 12, '0', STR_PAD_LEFT),
             'zCounter' => str_pad($zCounter, 12, '0', STR_PAD_LEFT),
             'presentAccumulated' => number_format($presentAccumulated, 2, '.', ''),
             'previousAccumulated' => number_format($previousAccumulated, 2, '.', ''),
@@ -341,5 +341,26 @@ class ZReadingController extends Controller
             'totalPayments' => number_format($totalPayments, 2, '.', ''),
             'shortOrOver' => number_format($shortOrOver, 2, '.', ''),
         ], 200);
+    }
+
+    public function reprint(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|date',
+        ]);
+
+        $date = Carbon::parse($request->date);
+
+        $latestZ = z_record::whereDate('created_at', $date->toDateString())
+            ->latest()
+            ->first();
+
+        if (!$latestZ) {
+            return response()->json([
+                'message' => "No Z Reading record found for {$date->toDateString()}."
+            ], 404);
+        }
+
+        return response()->json($latestZ, 200);
     }
 }
