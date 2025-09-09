@@ -217,7 +217,7 @@ class ZReadingController extends Controller
         $totalGcashPayment = $transactions->where('transaction_method_id', 2)->where('is_valid', true)->sum('total_sales');
         $totalMayaPayment = $transactions->where('transaction_method_id', 3)->where('is_valid', true)->sum('total_sales');
         $totalDebitPayment = $transactions->where('transaction_method_id', 4)->where('is_valid', true)->sum('total_sales');
-        $totalCreditPayment = $transactions->whereNotIn('transaction_method_id', [1, 5])->where('is_valid', true)->sum('total_sales');
+        $totalCreditPayment = $transactions->where('transaction_method_id', 5)->where('is_valid', true)->sum('total_sales');
 
 
         $totalDigitalPayment = $transactions
@@ -237,6 +237,57 @@ class ZReadingController extends Controller
         $lessWithdrawal = $cashInDrawer - $totalChange;
 
         $shortOrOver = $request->currentCash - $cashInDrawer;
+
+        $reportDate = Carbon::now()->format('M d, Y');
+        $reportTime = Carbon::now()->format('h:i A');
+
+        $z->update([
+            'report_date' => $reportDate ?? 'N/A',
+            'report_time' => $reportTime ?? 'N/A',
+            'start_time' => $shift['startTime'] ?? 'N/A',
+            'end_time' => $shift['endTime'] ?? 'N/A',
+            'beginning_si' => is_null($beginningOR) ? 'N/A' : str_pad($beginningOR, 12, '0', STR_PAD_LEFT),
+            'ending_si' => is_null($endingOR) ? 'N/A' : str_pad($endingOR, 12, '0', STR_PAD_LEFT),
+            'beginning_void' => is_null($beginningVoid) ? 'N/A' : str_pad($beginningVoid, 12, '0', STR_PAD_LEFT),
+            'ending_void' => is_null($endingVoid) ? 'N/A' : str_pad($endingVoid, 12, '0', STR_PAD_LEFT),
+            'reset_counter' => $resetCounter,
+            'counter' => $zCounter,
+            'present_accumulated_sales' => $presentAccumulated,
+            'previous_accumulated_sales' => $previousAccumulated,
+            'sales_for_the_day' => $salesForTheDay,
+            'vatable_sales' => $vatableSales,
+            'vat' => $vatAmount,
+            'vat_exempt_sales' => $vatExemptSales,
+            'zero_rated_sales' => $zeroRatedSales,
+            'gross_amount' => $grossAmount,
+            'less_discount' => $lessDiscounts,
+            'less_void' => $lessVoids,
+            'less_vat_adjust' => $lessVATAdjustments,
+            'net_amount' => $netAmount,
+            'sc_discounts' => $scDiscounts,
+            'pwd_discounts' => $pwdDiscounts,
+            'naac_discounts' => $nacDiscounts,
+            'sp_discounts' => $soloparentDiscounts,
+            'other_discounts' => $otherDiscounts,
+            'void' => $totalVoids,
+            'returns' => $totalReturns,
+            'sc_adjustments' => $scTransactionsVATAdjust,
+            'pwd_adjustments' => $pwdTransactionsVATAdjust,
+            'reg_discount_adjustments' => $regDiscountsVATAdjust,
+            'zero_rated_adjustments' => $zeroRatedVATAdjust,
+            'vat_on_return' => $returnVATAdjust,
+            'other_vat_adjustments' => $otherVATAdjust,
+            'cash_in_drawer' => $cashInDrawer,
+            'gcash_payments' => $totalGcashPayment,
+            'maya_payments' => $totalMayaPayment,
+            'debit_payments' => $totalDebitPayment,
+            'credit_payments' => $totalCreditPayment,
+            'opening_fund' => $openingBalance,
+            'withdrawal' => $withdrawal,
+            'less_withdrawal' => $lessWithdrawal,
+            'payments_received' => $totalPayments,
+            'short_over' => $shortOrOver,
+        ]);
 
         return response()->json([
             'reportDate' => $reportDate,
