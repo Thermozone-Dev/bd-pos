@@ -7,6 +7,8 @@ use App\Filament\Loggers\TransactionLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\x_record;
+use App\Models\XReading;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -81,6 +83,29 @@ class XReadingController extends Controller
 
         $shortOrOver = $request->currentCash - $cashInDrawer;
 
+        x_record::create([
+            'generated_by' => $user->id,
+            'report_date' => $reportDate,
+            'report_time' => $reportTime,
+            'start_time' => $time_in,
+            'end_time' => $time_out,
+            'cashier_name' => $user->name,
+            'beginning_si' => $beginningOR,
+            'ending_si' => $endingOR,
+            'opening_fund' => $openingFund,
+            'cash_payments' => $totalCashPayment,
+            'gcash_payments' => $totalGcashPayment,
+            'maya_payments' => $totalMayaPayment,
+            'debit_payments' => $totalDebitPayment,
+            'credit_payments' => $totalCreditPayment,
+            'total_payments' => $totalPayments,
+            'void' => $voidValue,
+            'withdrawal' => $withdrawal,
+            'cash_in_drawer' => $cashInDrawer,
+            'less_withdrawal' => $lessWithdrawal,
+            'short_over' => $shortOrOver,
+        ]);
+
         return response()->json([
             'report_date' => $reportDate,
             'report_time' => $reportTime,
@@ -107,5 +132,35 @@ class XReadingController extends Controller
             'short_or_over' => $shortOrOver,
         ], 200);
     }
+
+    public function reprint(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'date' => 'required|string',
+        ]);
+
+        try {
+            $parsedDate = Carbon::parse($request->date)->toDateString();
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Invalid date format. Please provide a valid date.'
+            ], 422);
+        }
+
+        $latestXRecord = x_record::where('generated_by', $request->user_id)
+            ->whereDate('created_at', $parsedDate)
+            ->latest()
+            ->first();
+
+        if (!$latestXRecord) {
+            return response()->json([
+                'message' => 'No X Reading record found for the given user and date.'
+            ], 404);
+        }
+
+        return response()->json($latestXRecord, 200);
+    }
+
 
 }

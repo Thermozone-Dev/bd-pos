@@ -58,6 +58,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     // Reprinting Routes
     Route::post('print/{id}', [TransactionController::class, 'print']);
     Route::post('void-print/{id}', [TransactionController::class, 'reprintVoidTransaction']);
+    Route::post('/xreading/reprint', [XReadingController::class, 'reprint']);
     Route::post('/zreading/reprint', [ZReadingController::class, 'reprint']);
 
     // Item Routes
