@@ -19,6 +19,7 @@ use App\Models\TransactionBasket;
 use App\Models\TransactionBasketHasDiscount;
 use App\Models\TransactionBasketItem;
 use App\Models\TransactionBasketItemHasDiscount;
+use App\Models\TransactionHasPaymentMethod;
 use App\Models\VoidTransaction;
 use Exception;
 use Illuminate\Http\Request;
@@ -57,11 +58,12 @@ class TransactionController extends Controller
                 'items.*.item_quantity' => 'numeric',
                 'items.*.item_discounts.id' => 'numeric',
                 'transaction_discounts.id' => 'numeric',
-                'transaction_method' => 'required|numeric',
+                'transaction_methods.*.transaction_method_id' => 'required|numeric',
+                'transaction_methods.*.cash_tendered' => 'required|numeric',
                 'transaction_fee' => 'required|numeric',
                 'reference_number' => 'string',
+                'total_cash_tendered' => 'required|numeric',
                 'total_sales' => 'required|numeric',
-                'cash_tendered' => 'required|numeric',
                 'change' => 'required|numeric',
                 'gross_sales' => 'required|numeric',
                 'vatable_sales' => 'required|numeric',
@@ -82,10 +84,10 @@ class TransactionController extends Controller
                 'processed_by' => auth()->user()->id,
                 'transaction_basket_id' => null,
                 'barcode' =>  null,
-                'transaction_method_id' => $request->transaction_method,
+                'transaction_method_id' => 0,
                 'transaction_fee' => $request->transaction_fee,
                 'reference_number' => $request->reference_number,
-                'cash_tendered' => $request->cash_tendered,
+                'total_cash_tendered' => $request->total_cash_tendered,
                 'total_sales' => $request->total_sales,
                 'change' => $request->change,
                 'gross_sales' => $request->gross_sales,
@@ -161,6 +163,17 @@ class TransactionController extends Controller
                 }
             }
 
+            $_transaction_methods = [];
+            foreach ($request->transaction_methods as $method){
+                array_push($_transaction_methods, TransactionHasPaymentMethod::create(
+                    [
+                        'transaction_id' => $_transaction->id,
+                        'payment_method_id' => $method['transaction_method_id'],
+                        'cash_tendered' => $method['cash_tendered'],
+                    ]
+                ));
+            }
+
             $_transaction->update();
 
             //Create Journal List
@@ -172,7 +185,7 @@ class TransactionController extends Controller
                 'Issued By : ' . auth()->user()->name,
                 'Invoice NO : ' . $_transaction->id,
                 'Date : ' . $_transaction->created_at->format('Y-m-d'),
-                'Payment Method : ' . PaymentMethod::find($request->transaction_method)->name,
+                'Payment Method : ' ,
             ];
 
             $_journal_item_details = [];
@@ -225,6 +238,7 @@ class TransactionController extends Controller
             $_return_data = [
                 'transaction details' => $_transaction,
                 'transaction basket' => $_basket_items,
+                'payment methods' => $_transaction_methods,
                 'stub_details' => $this->generate_stub($_transaction->id),
             ];
 

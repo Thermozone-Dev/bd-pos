@@ -71,7 +71,7 @@ class TransactionResource extends Resource
                     ->numeric()
                     ->required()
                     ->default('0'),
-                TextInput::make('cash_tendered')
+                TextInput::make('total_cash_tendered')
                     ->label('Cash Tendered')
                     ->numeric()
                     ->required()
@@ -133,7 +133,7 @@ class TransactionResource extends Resource
                 TextColumn::make('gross_sales')
                     ->label('Gross Sales')
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
-                TextColumn::make('cash_tendered')
+                TextColumn::make('total_cash_tendered')
                     ->label('Cash Tendered')
                     ->formatStateUsing(fn ($state) => number_format($state, 2)),
                 TextColumn::make('change')
