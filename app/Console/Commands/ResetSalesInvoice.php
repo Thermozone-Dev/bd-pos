@@ -29,11 +29,12 @@ class ResetSalesInvoice extends Command
     {
         //
         try {
-            echo 'Resetting Sales Invoice...'. PHP_EOL;
             $last_transaction = Transaction::orderBy('id','desc')->first();
             if($last_transaction){
                 if($last_transaction->last_reseted){
-                    echo 'Duplicate Sales Invoice Resetting Detected'. PHP_EOL;
+
+                    $this->error('Duplicate Resetting Detected'. PHP_EOL);
+
                     return 1;
                 }
                 if(!$last_transaction->reset_si_batch){
@@ -41,22 +42,19 @@ class ResetSalesInvoice extends Command
                 }
                 $last_transaction->last_reseted = now()->format('Y-m-d H:i:s');
                 $last_transaction->update();
+                $this->info(PHP_EOL . 'Completed.' . PHP_EOL);
                 return 0;
             }
             else {
-                echo 'Nothing to reset'. PHP_EOL;
+                $this->error('Nothing to reset'. PHP_EOL);
                 return 1;
             }
         }
 
         catch (\Exception $e) {
-            echo 'An error occurred: ' . $e->getMessage() . PHP_EOL;
+            $this->error('An error occurred: ' . $e->getMessage() . PHP_EOL);
             return 1;
 
-        } finally {
-            echo PHP_EOL . 'Completed.' . PHP_EOL;
-
         }
-
     }
 }

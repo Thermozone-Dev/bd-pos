@@ -9,6 +9,7 @@ use App\Journal\Journal;
 use App\Models\Transaction;
 use Barryvdh\Snappy\Facades\SnappyPdf;
 use Carbon\Carbon;
+use Exception;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Filament\Support\Enums\ActionSize;
+use Illuminate\Support\Facades\Artisan;
 
 use function Laravel\Prompts\form;
 
@@ -267,7 +269,38 @@ class ListTransactions extends ListRecords
             ->icon('heroicon-m-ellipsis-vertical')
             ->size(ActionSize::Small)
             ->color('primary')
-            ->button()
+            ->button(),
+
+            Action::make('reset_si')
+                ->label('Reset Sales Invoice')
+                ->requiresConfirmation()
+                ->color('danger')
+                ->visible( fn () =>  auth()->user()->hasRole('super_admin'))
+                ->action( function (){
+
+                    $test = Artisan::call('app:reset-sales-invoice');
+
+                    if($test == 0){
+                        Notification::make()
+                            ->title(Artisan::output())
+                            ->icon('heroicon-o-check')
+                            ->iconColor('success')
+                            ->send();
+                        return;
+                    }
+
+                    if($test == 1){
+                        Notification::make()
+                            ->title('Error resetting sales invoice: ' . Artisan::output())
+                            ->icon('heroicon-o-exclamation-triangle')
+                            ->iconColor('danger')
+                            ->send();
+                        return;
+                    }
+
+
+                })
+                ->icon('heroicon-o-exclamation-triangle')
         ];
     }
 
