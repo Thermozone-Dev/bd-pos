@@ -11,12 +11,25 @@ class ShiftController extends Controller
     public function start(Request $request)
     {
         $request->validate([
-            'opening_balance' => 'required',
+            'opening_balance' => 'required|numeric',
         ]);
 
-        $user = auth()->user()->id;
+        $userId = auth()->id();
+
+        // Check if the user already has an open shift today
+        $activeShift = Shift::where('user_id', $userId)
+            ->whereDate('created_at', now()->toDateString())
+            ->whereNull('time_out')
+            ->first();
+
+        if ($activeShift) {
+            return response()->json([
+                'message' => 'You already have an active shift.'
+            ], 400);
+        }
+
         $shift = Shift::create([
-            'user_id' => $user,
+            'user_id' => $userId,
             'time_in' => now(),
             'opening_balance' => (float) $request->opening_balance,
         ]);
