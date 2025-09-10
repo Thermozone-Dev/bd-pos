@@ -67,9 +67,9 @@ class Transaction extends Model
         return $this->hasOne(TransactionBasket::class, 'id', 'transaction_basket_id');
     }
 
-    public function paymentMethod(): HasOne
+    public function paymentMethods(): HasMany
     {
-        return $this->hasOne(PaymentMethod::class, 'id', 'transaction_method_id');
+        return $this->hasMany(TransactionHasPaymentMethod::class, 'transaction_id', 'id');
     }
 
     public function void(): HasOne
