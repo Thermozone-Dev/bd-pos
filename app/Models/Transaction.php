@@ -30,7 +30,7 @@ class Transaction extends Model
         'transaction_method_id',
         'transaction_fee',
         'reference_number',
-        'cash_tendered',
+        'total_cash_tendered',
         'change',
         'gross_sales',
         'vatable_sales',
