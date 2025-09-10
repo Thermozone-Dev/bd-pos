@@ -105,7 +105,9 @@ return new class extends Migration
                 'withdrawal',
                 'less_withdrawal',
                 'payments_received',
-                'short_over'
+                'short_over',
+                'report_date',
+                'report_time'
             ]);
         });
     }
