@@ -30,6 +30,7 @@
         </thead>
         @foreach ($activities as $activity)
                 <tr style="background-color: white;">
+                    <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($activity['created_at'])->format('F j, Y h:i A') }} </td>
                     <td style="border: 1px solid black; padding: 8px;">{{ $activity['id'] }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ $activity['causer_id'] }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ $activity['causer'] }}</td>
@@ -37,7 +38,6 @@
                     <td style="border: 1px solid black; padding: 8px;">{{ $activity['subject_type'] }}</td>
                     <td style="border: 1px solid black; padding: 8px;">{{ $activity['subject_id'] }}</td>
                     <td style="border: 1px solid black; padding: 8px; word-wrap: break-word; max-width: 350px">{{ $activity['properties'] }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($activity['created_at'])->format('F j, Y h:i A') }} </td>
                 </tr>
         @endforeach
     </table>
