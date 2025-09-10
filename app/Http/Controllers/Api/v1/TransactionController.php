@@ -86,17 +86,17 @@ class TransactionController extends Controller
                 'transaction_basket_id' => null,
                 'barcode' =>  null,
                 'transaction_method_id' => 0,
-                'total_transaction_fee' => $request->total_transaction_fee,
-                'total_cash_tendered' => $request->total_cash_tendered,
-                'total_sales' => $request->total_sales,
-                'change' => $request->change,
-                'gross_sales' => $request->gross_sales,
-                'vatable_sales' => $request->vatable_sales,
-                'vat' => $request->vat,
-                'vat_exempt_sales' => $request->vat_exempt_sales,
-                'vat_deduction' => $request->vat_deduction,
-                'vat_adjustment' => $request->vat_adjustment,
-                'zero_rated_sales' => $request->zero_rated_sales,
+                'total_transaction_fee' => number_format($request->total_transaction_fee, 2),
+                'total_cash_tendered' => number_format($request->total_cash_tendered, 2),
+                'total_sales' => number_format($request->total_sales, 2),
+                'change' => number_format($request->change, 2),
+                'gross_sales' => number_format($request->gross_sales, 2),
+                'vatable_sales' => number_format($request->vatable_sales, 2),
+                'vat' => number_format($request->vat, 2),
+                'vat_exempt_sales' => number_format($request->vat_exempt_sales, 2),
+                'vat_deduction' => number_format($request->vat_deduction, 2),
+                'vat_adjustment' => number_format($request->vat_adjustment, 2),
+                'zero_rated_sales' => number_format($request->zero_rated_sales, 2),
                 'is_valid' => true,
                 'is_pwd' => false,
                 'is_sc' => false,
@@ -168,10 +168,10 @@ class TransactionController extends Controller
                 array_push($_transaction_methods, TransactionHasPaymentMethod::create(
                     [
                         'transaction_id' => $_transaction->id,
-                        'payment_method_id' => $method['transaction_method_id'],
-                        'cash_tendered' => $method['cash_tendered'],
-                        'transaction_fee' => $method['transaction_fee'] ?? 0,
-                        'reference_number' => $method['reference_number'] ?? '00000000',
+                        'payment_method_id' => number_format($method['transaction_method_id'], 2),
+                        'cash_tendered' => number_format($method['cash_tendered'], 2),
+                        'transaction_fee' => number_format($method['transaction_fee'] ?? 0, 2),
+                        'reference_number' => number_format($method['reference_number'] ?? '00000000', 2),
                     ]
                 ));
             }
@@ -348,9 +348,9 @@ class TransactionController extends Controller
             $_item_data = [
                 'transaction_basket_id' => $basket['id'],
                 'item_id' => $item['item_id'],
-                'quantity' => $item['item_quantity'],
-                'discount_value' => $item['discount_value'],
-                'total_value' => $item['total_value'],
+                'quantity' => number_format($item['item_quantity'], 2),
+                'discount_value' => number_format($item['discount_value'], 2),
+                'total_value' => number_format($item['total_value'], 2),
                 'package_base_price' =>  0.0,
             ];
 
