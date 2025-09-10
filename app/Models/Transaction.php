@@ -29,7 +29,7 @@ class Transaction extends Model
         'transaction_basket_id',
         'barcode',
         'transaction_method_id',
-        'transaction_fee',
+        'total_transaction_fee',
         'reference_number',
         'total_cash_tendered',
         'change',

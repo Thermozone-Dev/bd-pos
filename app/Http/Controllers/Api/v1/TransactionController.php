@@ -60,7 +60,8 @@ class TransactionController extends Controller
                 'transaction_discounts.id' => 'numeric',
                 'transaction_methods.*.transaction_method_id' => 'required|numeric',
                 'transaction_methods.*.cash_tendered' => 'required|numeric',
-                'transaction_fee' => 'required|numeric',
+                'transaction_methods.*.reference_number' => 'string|numeric',
+                'total_transaction_fee' => 'required|numeric',
                 'reference_number' => 'string',
                 'total_cash_tendered' => 'required|numeric',
                 'total_sales' => 'required|numeric',
@@ -85,8 +86,7 @@ class TransactionController extends Controller
                 'transaction_basket_id' => null,
                 'barcode' =>  null,
                 'transaction_method_id' => 0,
-                'transaction_fee' => $request->transaction_fee,
-                'reference_number' => $request->reference_number,
+                'total_transaction_fee' => $request->total_transaction_fee,
                 'total_cash_tendered' => $request->total_cash_tendered,
                 'total_sales' => $request->total_sales,
                 'change' => $request->change,
@@ -170,6 +170,8 @@ class TransactionController extends Controller
                         'transaction_id' => $_transaction->id,
                         'payment_method_id' => $method['transaction_method_id'],
                         'cash_tendered' => $method['cash_tendered'],
+                        'transaction_fee' => $method['transaction_fee'] ?? 0,
+                        'reference_number' => $method['reference_number'] ?? '00000000',
                     ]
                 ));
             }
