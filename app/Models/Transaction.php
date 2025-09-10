@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Artisan;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -55,6 +56,32 @@ class Transaction extends Model
         ->logOnly(['*'])
         ->logOnlyDirty()
         ->dontSubmitEmptyLogs();
+    }
+
+
+    protected static function booted()
+    {
+        static::creating(function (Transaction $model) {
+            $last_transaction = $model->orderBy('id','desc')->first();
+            $batch = $last_transaction?->reset_si_batch ?? 0;
+            if(!$last_transaction || $last_transaction->si_no == null){
+                $si_num = 1;
+            }
+            else{
+                $si_num = $last_transaction->si_no + 1;
+                if($last_transaction->last_reseted){
+                    $batch = $batch + 1;
+                    $si_num = 1;
+                }
+                if($si_num > 999999999999){
+                    Artisan::call('app:reset-sales-invoice');
+                    $batch = $batch + 1;
+                    $si_num = 1;
+                }
+            }
+            $model->si_no = sprintf('%012d', $si_num);
+            $model->reset_si_batch = $batch;
+        });
     }
 
     public function processedBy(): BelongsTo
