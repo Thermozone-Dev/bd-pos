@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\VoidTransaction;
 use App\Models\z_record;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use phpDocumentor\Reflection\Types\Void_;
@@ -363,4 +364,59 @@ class ZReadingController extends Controller
 
         return response()->json($latestZ, 200);
     }
+
+    public function zReading_summary(Request $request)
+    {
+
+        try {
+            $request->validate([
+                'date_from' => 'required|date',
+                'date_to' => 'required|date',
+            ]);
+
+            $start_date = Carbon::parse($request->date_from)->startOfDay();
+            $end_date = Carbon::parse($request->date_to)->endOfDay();
+
+            $z_Readings = z_record::whereBetween('created_at', [$start_date, $end_date]);
+
+            if (empty($z_Readings->get())) {
+                return response()->json([
+                    'message' => "No Z Reading record found on date {$start_date->toDateString()} - {$end_date->toDateString()}."
+                ], 404);
+            }
+
+            $first = $z_Readings->orderBy('created_at','asc')->first();
+            $last = $z_Readings->orderBy('created_at','desc')->first();
+
+            $beg_void = $z_Readings->where('beginning_void','!=','N/A')->orderBy('created_at','asc')->first();
+            $ending_void = $z_Readings->where('ending_void','!=','N/A')->orderBy('created_at','desc')->first();
+
+            $data = [];
+            $exclude = ['beginning_si', 'start_time', 'updated_at', 'created_at','end_time','ending_si','beginning_void','ending_void','id','counter','reset_counter'];
+
+            foreach ($z_Readings->first()->getAttributes() as $column => $value) {
+                if (!in_array($column, $exclude) && is_numeric($value)) {
+                    $data[$column] = number_format($z_Readings->sum($column), 2);
+                }
+            }
+
+            $data['beginningOR'] =  $first->beginning_si ? sprintf('%012d', $first->beginning_si) : 'N/A';
+            $data['endingOR'] = $last->ending_si ? sprintf('%012d', $last->ending_si) : 'N/A';
+            $data['beginningVoid'] = $beg_void->beginning_void ? sprintf('%012d', $beg_void->beginning_void) : 'N/A';
+            $data['endingVoid'] = $ending_void->ending_void ? sprintf('%012d', $ending_void->ending_void) : 'N/A';
+            $data['report_date'] = Carbon::now()->format('M d, Y');
+            $data['report_time'] = Carbon::now()->format('h:i A');
+            $data['total_invoices'] = $z_Readings->count();
+
+
+            return response()->json($data, 200);
+
+        } catch (Exception $err) {
+            return response()->json(['error' => $err->getMessage()], 500);
+
+        }
+
+
+    }
+
 }
