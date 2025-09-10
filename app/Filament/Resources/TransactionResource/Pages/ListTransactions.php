@@ -58,7 +58,7 @@ class ListTransactions extends ListRecords
                 ->action(function (array $data) {
 
                     $filteredTransactions = Transaction::with('basket.items')
-                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']])
+                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay(), Carbon::parse($data['end_date'])->endOfDay()])
                         ->get();
 
                     $dailyRelationalData = $filteredTransactions
@@ -138,7 +138,7 @@ class ListTransactions extends ListRecords
                         ->orderByRaw('DATE(created_at)');
 
                     $_transactions_query = $_total_transactions_query
-                        ->whereBetween('created_at', [$data['start_date'], $data['end_date']]);
+                        ->whereBetween('created_at', [Carbon::parse($data['start_date'])->startOfDay(), Carbon::parse($data['end_date'])->endOfDay()]);
 
                     $transactions = $_transactions_query->get();
 
