@@ -82,22 +82,22 @@ class ZReadingController extends Controller
         ]);
 
         if ($z->reset_counter == $resetCounter){
-            $salesForTheDay = Transaction::where('is_valid', true)
+            $salesForTheDay = Transaction::query()
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
                 ->sum('gross_sales');
-            $previousAccumulated = Transaction::where('is_valid', true)
+            $previousAccumulated = Transaction::query()
                 ->where('created_at', '<', Carbon::yesterday()->endOfDay())
                 ->sum('gross_sales');
             $presentAccumulated = $salesForTheDay + $previousAccumulated;
 
         } else {
-            $salesForTheDay = Transaction::where('is_valid', true)
+            $salesForTheDay = Transaction::query()
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
                 ->sum('gross_sales');
             $previousAccumulated = 0;
-            $presentAccumulated = Transaction::where('is_valid', true)
+            $presentAccumulated = Transaction::query()
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
                 ->sum('gross_sales');
