@@ -214,19 +214,52 @@ class ZReadingController extends Controller
 
         $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
 
-        $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
-        $totalGcashPayment = $transactions->where('transaction_method_id', 2)->where('is_valid', true)->sum('total_sales');
-        $totalMayaPayment = $transactions->where('transaction_method_id', 3)->where('is_valid', true)->sum('total_sales');
-        $totalDebitPayment = $transactions->where('transaction_method_id', 4)->where('is_valid', true)->sum('total_sales');
-        $totalCreditPayment = $transactions->where('transaction_method_id', 5)->where('is_valid', true)->sum('total_sales');
+        $totalCashPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 1);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
+        $totalGcashPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 2);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
-        $totalDigitalPayment = $transactions
-            ->whereNotIn('transaction_method_id', [1, 5])
-            ->where('is_valid', true)
-            ->sum('total_sales');
+        $totalMayaPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 3);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
-        $totalPayments = $transactions->sum('total_sales');
+        $totalDebitPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 4);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalCreditPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 5);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalDigitalPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->whereNotIn('payment_method_id', [1,2,3,4,5]);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalPayments = $transaction_query->where('is_valid', true)
+        ->withSum('paymentMethods','cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
         $openingBalance = Shift::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())

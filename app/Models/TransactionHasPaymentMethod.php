@@ -10,6 +10,8 @@ class TransactionHasPaymentMethod extends Model
         'transaction_id',
         'payment_method_id',
         'cash_tendered',
+        'transaction_fee',
+        'reference_number',
     ];
 
     public function transaction()
