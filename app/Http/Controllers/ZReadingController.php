@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Journal\Journal;
 use App\Models\ReturnTransaction;
 use App\Models\Shift;
 use App\Models\Transaction;
@@ -290,6 +291,83 @@ class ZReadingController extends Controller
             'short_over' => $shortOrOver,
         ]);
 
+
+        //Create Journal List
+        $_journal_z_reading = [
+            '   THERMOZONE PHILIPPINES CORP.   ',
+            ' 2286 Marconi St., Brgy. San Isid ',
+            '        ro City of Makati,        ',
+            '  VAT REG TIN: 223-661-818-00000  ',
+            '         MIN: '.'XXXXXXXXXX       ',
+            '         S/N: '.'XXXXXXXXXX       ',
+            '',
+            '          Z READING REPORT       ',
+            ' Report Date: '.str_pad($reportDate, 19, ' ', STR_PAD_LEFT),
+            ' Report Time: '.str_pad($reportTime, 19, ' ', STR_PAD_LEFT),
+            '',
+            ' Start Time: '.str_pad($shift['startTime'], 20, ' ', STR_PAD_LEFT),
+            ' End Time: '.str_pad($shift['endTime'], 22, ' ', STR_PAD_LEFT),
+            '',
+            ' Beg. SI #: '.str_pad(is_null($beginningOR) ? 'N/A' : str_pad($beginningOR, 12, '0', STR_PAD_LEFT), 21, ' ', STR_PAD_LEFT),
+            ' End SI #: '.str_pad(is_null($endingOR) ? 'N/A' : str_pad($endingOR, 12, '0', STR_PAD_LEFT), 22, ' ', STR_PAD_LEFT),
+            ' Beg. Void #:'.str_pad(is_null($beginningVoid) ? 'N/A' : str_pad($beginningVoid, 12, '0', STR_PAD_LEFT), 20, ' ', STR_PAD_LEFT),
+            ' End Void #:'.str_pad(is_null($endingVoid) ? 'N/A' : str_pad($endingVoid, 12, '0', STR_PAD_LEFT), 21, ' ', STR_PAD_LEFT),
+            '',
+            ' Reset Counter N'.str_pad(str_pad($resetCounter, 12, '0', STR_PAD_LEFT), 17, ' ', STR_PAD_LEFT),
+            ' Z Counter No:'.str_pad(str_pad($zCounter, 12, '0', STR_PAD_LEFT), 19, ' ', STR_PAD_LEFT),
+            ' -------------------------------- ',
+            ' Present Accumul'.str_pad(number_format($presentAccumulated, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Previous Accumu'.str_pad(number_format($previousAccumulated, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Sales for the D'.str_pad(number_format($salesForTheDay, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' -------------------------------- ',
+            '        BREAKDOWN OF SALES        ',
+            ' VATABLE SALES: '.str_pad(number_format($vatableSales, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' VAT AMOUNT: '.str_pad(number_format($vatAmount, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' VAT EXEMPT SALE'.str_pad(number_format($vatExemptSales, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' ZERO RATED SALE'.str_pad(number_format($zeroRatedSales, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' -------------------------------- ',
+            ' Gross Amount: '.str_pad(number_format($grossAmount, 2, '.', ''), 18, ' ', STR_PAD_LEFT),
+            ' Less Discount: '.str_pad(number_format($lessDiscounts, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Less Voids: '.str_pad(number_format($lessVoids, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' Less VAT Adjust'.str_pad(number_format($lessVATAdjustments, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Net Amount: '.str_pad(number_format($netAmount, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' -------------------------------- ',
+            '         DISCOUNT SUMMARY         ',
+            ' SC Disc. :'.str_pad(number_format($scDiscounts, 2, '.', ''), 22, ' ', STR_PAD_LEFT),
+            ' PWD Disc. :'.str_pad(number_format($pwdDiscounts, 2, '.', ''), 21, ' ', STR_PAD_LEFT),
+            ' NAAC Disc. :'.str_pad(number_format($nacDiscounts, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' Solo Parent Dis'.str_pad(number_format($soloparentDiscounts, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Other Disc. :'.str_pad(number_format($otherDiscounts, 2, '.', ''), 19, ' ', STR_PAD_LEFT),
+            ' -------------------------------- ',
+            '         SALES ADJUSTMENT         ',
+            ' VOID :'.str_pad(number_format($totalVoids, 2, '.', ''), 26, ' ', STR_PAD_LEFT),
+            ' RETURN :'.str_pad(number_format($totalReturns, 2, '.', ''), 24, ' ', STR_PAD_LEFT),
+            ' -------------------------------- ',
+            '          VAT ADJUSTMENT          ',
+            ' SC TRANS. :'.str_pad(number_format($scTransactionsVATAdjust, 2, '.', ''), 21, ' ', STR_PAD_LEFT),
+            ' PWD TRANS. :'.str_pad(number_format($pwdTransactionsVATAdjust, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' Reg.Disc. TRANS'.str_pad(number_format($regDiscountsVATAdjust, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' ZERO-RATED TRAN'.str_pad(number_format($zeroRatedVATAdjust, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' VAT on Return :'.str_pad(number_format($returnVATAdjust, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Other VAT Adjus'.str_pad(number_format($otherVATAdjust, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' -------------------------------- ',
+            '        TRANSACTION SUMMARY       ',
+            ' CASH IN DRAWER'.str_pad(number_format($cashInDrawer, 2, '.', ''), 18, ' ', STR_PAD_LEFT),
+            ' GCASH PAYMENTS'.str_pad(number_format($totalGcashPayment, 2, '.', ''), 18, ' ', STR_PAD_LEFT),
+            ' MAYA PAYMENTS'.str_pad(number_format($totalMayaPayment, 2, '.', ''), 19, ' ', STR_PAD_LEFT),
+            ' DEBIT CARD'.str_pad(number_format($totalDebitPayment, 2, '.', ''), 22, ' ', STR_PAD_LEFT),
+            ' CREDIT CARD'.str_pad(number_format($totalCreditPayment, 2, '.', ''), 21, ' ', STR_PAD_LEFT),
+            ' Opening Fund'.str_pad(number_format($openingBalance, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' WITHDRAWAL :'.str_pad(number_format($withdrawal, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' Less Withdrawal'.str_pad(number_format($lessWithdrawal, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Payments Receiv'.str_pad(number_format($totalPayments, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' -------------------------------- ',
+            ' SHORT/OVER :'.str_pad(number_format($shortOrOver, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' -------------------------------- '.PHP_EOL,
+        ];
+
+        Journal::appendList($_journal_z_reading, true);
+
         return response()->json([
             'reportDate' => $reportDate,
             'reportTime' => $reportTime,
@@ -407,6 +485,7 @@ class ZReadingController extends Controller
             $data['report_date'] = Carbon::now()->format('M d, Y');
             $data['report_time'] = Carbon::now()->format('h:i A');
             $data['total_invoices'] = $z_Readings->count();
+
 
 
             return response()->json($data, 200);

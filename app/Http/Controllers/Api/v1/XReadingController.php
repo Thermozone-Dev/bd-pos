@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Filament\Loggers\ShiftLogger;
 use App\Filament\Loggers\TransactionLogger;
 use App\Http\Controllers\Controller;
+use App\Journal\Journal;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\x_record;
@@ -105,6 +106,58 @@ class XReadingController extends Controller
             'less_withdrawal' => $lessWithdrawal,
             'short_over' => $shortOrOver,
         ]);
+
+        //Create Journal List
+        $_journal_x_reading = [
+            '   THERMOZONE PHILIPPINES CORP.   ',
+            ' 2286 Marconi St., Brgy. San Isid ',
+            '        ro City of Makati,        ',
+            '  VAT REG TIN: 223-661-818-00000  ',
+            '         MIN: '.'XXXXXXXXXX       ',
+            '         S/N: '.'XXXXXXXXXX       ',
+            '',
+            '          Z READING REPORT       ',
+            ' Report Date: '.str_pad($reportDate, 19, ' ', STR_PAD_LEFT),
+            ' Report Time: '.str_pad($reportTime, 19, ' ', STR_PAD_LEFT),
+            '',
+            ' Start Time: '.str_pad($shift['startTime'], 20, ' ', STR_PAD_LEFT),
+            ' End Time: '.str_pad($shift['endTime'], 22, ' ', STR_PAD_LEFT),
+            '',
+            ' Cashier: '.str_pad($user->name, 23, ' ', STR_PAD_LEFT),
+            '',
+            ' Beg. SI #: '.str_pad(is_null($beginningOR) ? 'N/A' : str_pad($beginningOR, 12, '0', STR_PAD_LEFT), 21, ' ', STR_PAD_LEFT),
+            ' End SI #: '.str_pad(is_null($endingOR) ? 'N/A' : str_pad($endingOR, 12, '0', STR_PAD_LEFT), 22, ' ', STR_PAD_LEFT),
+            '',
+            ' Opening Fund'.str_pad(number_format($openingFund, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' ================================ ',
+            'PAYMENTS RECIEVED                 ',
+            ' CASH IN DRAWER'.str_pad(number_format($cashInDrawer, 2, '.', ''), 18, ' ', STR_PAD_LEFT),
+            ' GCASH '.str_pad(number_format($totalGcashPayment, 2, '.', ''), 26, ' ', STR_PAD_LEFT),
+            ' MAYA '.str_pad(number_format($totalMayaPayment, 2, '.', ''), 27, ' ', STR_PAD_LEFT),
+            ' DEBIT CARD'.str_pad(number_format($totalDebitPayment, 2, '.', ''), 22, ' ', STR_PAD_LEFT),
+            ' CREDIT CARD'.str_pad(number_format($totalCreditPayment, 2, '.', ''), 21, ' ', STR_PAD_LEFT),
+            ' Total Payments:'.str_pad(number_format($totalPayments, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' ================================ ',
+            ' VOID: '.str_pad(number_format($voidValue, 2, '.', ''), 26, ' ', STR_PAD_LEFT),
+            ' ================================ ',
+            ' WITHDRAWAL: '.str_pad(number_format($withdrawal, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' ================================ ',
+            'TRANSACTION SUMMARY               ',
+            ' CASH IN DRAWER'.str_pad(number_format($cashInDrawer, 2, '.', ''), 18, ' ', STR_PAD_LEFT),
+            ' GCASH '.str_pad(number_format($totalGcashPayment, 2, '.', ''), 26, ' ', STR_PAD_LEFT),
+            ' MAYA '.str_pad(number_format($totalMayaPayment, 2, '.', ''), 27, ' ', STR_PAD_LEFT),
+            ' DEBIT CARD'.str_pad(number_format($totalDebitPayment, 2, '.', ''), 22, ' ', STR_PAD_LEFT),
+            ' CREDIT CARD'.str_pad(number_format($totalCreditPayment, 2, '.', ''), 21, ' ', STR_PAD_LEFT),
+            ' Opening Fund'.str_pad(number_format($openingFund, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' WITHDRAWAL :'.str_pad(number_format($withdrawal, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' Less Withdrawal'.str_pad(number_format($lessWithdrawal, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Payments Receiv'.str_pad(number_format($totalPayments, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' ================================ ',
+            ' SHORT/OVER :'.str_pad(number_format($shortOrOver, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' ================================ '.PHP_EOL,
+        ];
+
+        Journal::appendList($_journal_x_reading, true);
 
         return response()->json([
             'report_date' => $reportDate,
