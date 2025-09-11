@@ -85,22 +85,22 @@ class ZReadingController extends Controller
             $salesForTheDay = Transaction::where('is_valid', true)
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
-                ->sum('total_sales');
+                ->sum('gross_sales');
             $previousAccumulated = Transaction::where('is_valid', true)
                 ->where('created_at', '<', Carbon::yesterday()->endOfDay())
-                ->sum('total_sales');
+                ->sum('gross_sales');
             $presentAccumulated = $salesForTheDay + $previousAccumulated;
 
         } else {
             $salesForTheDay = Transaction::where('is_valid', true)
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
-                ->sum('total_sales');
+                ->sum('gross_sales');
             $previousAccumulated = 0;
             $presentAccumulated = Transaction::where('is_valid', true)
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
-                ->sum('total_sales');
+                ->sum('gross_sales');
         }
 
         $vatableSales = Transaction::where('is_valid', true)
@@ -165,7 +165,7 @@ class ZReadingController extends Controller
         $totalVoids = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->sum('total_sales');
+            ->sum('gross_sales');
         $totalVATAdjusts = Transaction::where('is_valid', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
@@ -377,6 +377,9 @@ class ZReadingController extends Controller
             $start_date = Carbon::parse($request->date_from)->startOfDay();
             $end_date = Carbon::parse($request->date_to)->endOfDay();
 
+            $startDate = Carbon::parse($request->date_from)->format('F d, Y');
+            $endDate = Carbon::parse($request->date_to)->format('F d, Y');
+
             $z_Readings = z_record::whereBetween('created_at', [$start_date, $end_date]);
 
             if (empty($z_Readings->get())) {
@@ -407,6 +410,8 @@ class ZReadingController extends Controller
             $data['report_date'] = Carbon::now()->format('M d, Y');
             $data['report_time'] = Carbon::now()->format('h:i A');
             $data['total_invoices'] = $z_Readings->count();
+            $data['start_date'] = $startDate;
+            $data['end_date'] = $endDate;
 
 
             return response()->json($data, 200);
