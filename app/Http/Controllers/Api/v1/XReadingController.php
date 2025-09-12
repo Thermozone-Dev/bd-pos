@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\x_record;
 use App\Models\XReading;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,7 +41,8 @@ class XReadingController extends Controller
         $time_in = Carbon::parse($shift->time_in)->format('h:i A');
         $time_out = Carbon::now()->format('h:i A');
 
-        $transactions = Transaction::where('created_at', '>=', $inTime)->where('processed_by', $user->id)->get();
+        $transactions_query = Transaction::where('created_at', '>=', $inTime)->where('processed_by', $user->id);
+        $transactions = $transactions_query->get();
 
         $startOR = $transactions->first()?->id ?? null;
         $beginningOR = str_pad($startOR, 12, '0', STR_PAD_LEFT);
@@ -51,25 +53,59 @@ class XReadingController extends Controller
         $endingFund = $shift->ending_balance;
 
         $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
+        // $totalChange = $transactions->with(['paymentMethods' => function ($query) {
+        //     $query->where('id', 1);
+        // }])->where('is_valid', 1)->sum(function ($transaction) {
+        //     return $transaction->paymentMethods->change() ? $transaction->change : 0;
+        // });
 
-        $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
-        $totalGcashPayment = $transactions->where('transaction_method_id', 2)->where('is_valid', true)->sum('total_sales');
-        $totalMayaPayment = $transactions->where('transaction_method_id', 3)->where('is_valid', true)->sum('total_sales');
-        $totalDebitPayment = $transactions
-            ->where('transaction_method_id', 4)
-            ->where('is_valid', true)
-            ->sum('total_sales');
-        $totalCreditPayment = $transactions
-            ->where('transaction_method_id', 5)
-            ->where('is_valid', true)
-            ->sum('total_sales');
+        // $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
+        $totalCashPayment = $transactions_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 1);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
-        $totalDigitalPayment = $transactions
-            ->whereNotIn('transaction_method_id', [1, 5])
-            ->where('is_valid', true)
-            ->sum('total_sales');
+        $totalGcashPayment = $transactions_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 2);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
-        $totalPayments = $transactions->sum('total_sales');
+        $totalMayaPayment = $transactions_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 3);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalDebitPayment = $transactions_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 4);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalCreditPayment = $transactions_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 5);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalDigitalPayment = $transactions_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->whereNotIn('payment_method_id', [1,2,3,4,5]);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalPayments = $transactions_query->where('is_valid', true)
+        ->withSum('paymentMethods','cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
         $voidValue = $transactions
             ->where('is_valid', false)

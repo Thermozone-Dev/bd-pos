@@ -62,45 +62,41 @@
                 <th style="background-color: #92d050; border: 1px solid black; padding: 8px; text-align: center;">Others</th>
             </tr>
         </thead>
-        @foreach ($transactions as $transaction)
-        @php
-            $transactionRelationData = $dailyRelationalData[\Carbon\Carbon::parse($transaction->date)->format('Y-m-d')];
-            $accumulatedData = $accumulatedBalance[\Carbon\Carbon::parse($transaction->date)->format('Y-m-d')];
-        @endphp
-                <tr style="background-color: white;">
-                    <td style="border: 1px solid black; padding: 8px;">{{ \Carbon\Carbon::parse($transaction->date)->format('m/d/Y') }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->beginningOR, 12, '0', STR_PAD_LEFT) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ str_pad($transaction->endingOR, 12, '0', STR_PAD_LEFT) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($accumulatedData['grandEndingBal'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($accumulatedData['grandBeginningBal'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;"></td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->grossSales, 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vatableSales, 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vat, 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vatExemptSales, 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->zeroRatedSales, 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['deductions']['sc'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['deductions']['pwd'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['deductions']['nac'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['deductions']['solo_parent'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['deductions']['others'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['deductions']['returns'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['deductions']['voids'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['deductions']['day_total'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['adjustments']['sc'], 2) }} </td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['adjustments']['pwd'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['adjustments']['other_discounts'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['adjustments']['returns'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['adjustments']['others'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionRelationData['adjustments']['day_total'], 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vat, 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->totalSales, 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;"></td>
-                    <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->totalSales, 2) }}</td>
-                    <td style="border: 1px solid black; padding: 8px;"></td>
-                    <td style="border: 1px solid black; padding: 8px;"></td>
-                    <td style="border: 1px solid black; padding: 8px;"></td>
-                </tr>
+        @foreach ($data as $datum)
+            <tr style="background-color: white;">
+                <td style="border: 1px solid black; padding: 8px;">{{ $datum['Date'] }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($datum['Beginning SI'], 12, '0', STR_PAD_LEFT) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ str_pad($datum['Ending SI'], 12, '0', STR_PAD_LEFT) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Accumulated End Bal'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Accumulated Beg Bal'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;"></td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Gross Sales'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Vatable Sales'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['VAT'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['VAT Exempt Sales'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Zero Rated Sales'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['SC Discounts'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['PWD Discounts'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['NAAC Discounts'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Solo Parent Discounts'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Other Discounts'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Returns'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Void'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Total Deductions'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['SC Adjustments'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['PWD Adjustments'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Reg Discount Adjustments'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['VAT on Return'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Other VAT Adjustments'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Total VAT Adjustments'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['VAT Payable'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['NET Sales'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Overflow'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Total Income'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Reset Counter'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Z Counter'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;"></td>
+            </tr>
         @endforeach
     </table>
 </section>

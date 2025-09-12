@@ -83,25 +83,25 @@ class ZReadingController extends Controller
         ]);
 
         if ($z->reset_counter == $resetCounter){
-            $salesForTheDay = Transaction::where('is_valid', true)
+            $salesForTheDay = Transaction::query()
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
-                ->sum('total_sales');
-            $previousAccumulated = Transaction::where('is_valid', true)
+                ->sum('gross_sales');
+            $previousAccumulated = Transaction::query()
                 ->where('created_at', '<', Carbon::yesterday()->endOfDay())
-                ->sum('total_sales');
+                ->sum('gross_sales');
             $presentAccumulated = $salesForTheDay + $previousAccumulated;
 
         } else {
-            $salesForTheDay = Transaction::where('is_valid', true)
+            $salesForTheDay = Transaction::query()
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
-                ->sum('total_sales');
+                ->sum('gross_sales');
             $previousAccumulated = 0;
-            $presentAccumulated = Transaction::where('is_valid', true)
+            $presentAccumulated = Transaction::query()
                 ->where('created_at', '>=', Carbon::now()->startOfDay())
                 ->where('created_at', '<=', Carbon::now()->endOfDay())
-                ->sum('total_sales');
+                ->sum('gross_sales');
         }
 
         $vatableSales = Transaction::where('is_valid', true)
@@ -166,7 +166,7 @@ class ZReadingController extends Controller
         $totalVoids = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->sum('total_sales');
+            ->sum('gross_sales');
         $totalVATAdjusts = Transaction::where('is_valid', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
@@ -215,19 +215,52 @@ class ZReadingController extends Controller
 
         $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
 
-        $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
-        $totalGcashPayment = $transactions->where('transaction_method_id', 2)->where('is_valid', true)->sum('total_sales');
-        $totalMayaPayment = $transactions->where('transaction_method_id', 3)->where('is_valid', true)->sum('total_sales');
-        $totalDebitPayment = $transactions->where('transaction_method_id', 4)->where('is_valid', true)->sum('total_sales');
-        $totalCreditPayment = $transactions->where('transaction_method_id', 5)->where('is_valid', true)->sum('total_sales');
+        $totalCashPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 1);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
+        $totalGcashPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 2);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
-        $totalDigitalPayment = $transactions
-            ->whereNotIn('transaction_method_id', [1, 5])
-            ->where('is_valid', true)
-            ->sum('total_sales');
+        $totalMayaPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 3);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
-        $totalPayments = $transactions->sum('total_sales');
+        $totalDebitPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 4);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalCreditPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->where('payment_method_id', 5);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalDigitalPayment = $transaction_query->where('is_valid', true)
+        ->withSum(['paymentMethods' => function($query) {
+            $query->whereNotIn('payment_method_id', [1,2,3,4,5]);
+        }],'cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
+
+        $totalPayments = $transaction_query->where('is_valid', true)
+        ->withSum('paymentMethods','cash_tendered')
+        ->get()
+        ->sum('payment_methods_sum_cash_tendered');
 
         $openingBalance = Shift::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
@@ -455,6 +488,9 @@ class ZReadingController extends Controller
             $start_date = Carbon::parse($request->date_from)->startOfDay();
             $end_date = Carbon::parse($request->date_to)->endOfDay();
 
+            $startDate = Carbon::parse($request->date_from)->format('F d, Y');
+            $endDate = Carbon::parse($request->date_to)->format('F d, Y');
+
             $z_Readings = z_record::whereBetween('created_at', [$start_date, $end_date]);
 
             if (empty($z_Readings->get())) {
@@ -485,6 +521,8 @@ class ZReadingController extends Controller
             $data['report_date'] = Carbon::now()->format('M d, Y');
             $data['report_time'] = Carbon::now()->format('h:i A');
             $data['total_invoices'] = $z_Readings->count();
+            $data['start_date'] = $startDate;
+            $data['end_date'] = $endDate;
 
 
 
