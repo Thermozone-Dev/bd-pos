@@ -131,24 +131,22 @@ class ListTransactions extends ListRecords
                 }),
             ActionGroup::make([
                 Action::make('downloadJournal')
-                    ->label('E Journal')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->action(
-                        function () {
-                            if (Storage::disk('public')->exists(Journal::getJournalPath())){
-                                $url = Storage::url(Journal::getJournalPath());
-                                return redirect($url);
-                                // return Storage::download($url, 'journal.log');
-                            }
+                ->label('E Journal')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->action(
+                    function () {
+                        if (Storage::disk('public')->exists(Journal::getJournalPath())){
+                            return response()->streamDownload(
+                                fn () => readfile(storage_path('app/public/' . Journal::getJournalPath())),
+                                'e-journal.txt'
+                            );
+                        }
                             Notification::make()
                                 ->title('E-Journal file not found.')
                                 ->warning()
                                 ->send();
-
-                        }
-                    ),
-
-
+                    }
+                ),
 
                 Action::make('downloadGeneral')
                     ->label('General Transaction Summary Report')

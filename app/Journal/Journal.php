@@ -36,16 +36,23 @@ class Journal
         return 'No journal entries found.';
     }
 
-    public static function append(string $message): void
+    public static function append(string $message, bool $is_raw = false): void
     {
         $filePath = self::$directory . self::$filename;
-        Storage::disk('public')->append($filePath, Date::now()->toDateTimeString() . ' - ' . $message);
+        if ($is_raw){
+            Storage::disk('public')->append($filePath, $message);
+            return;
+        }
+        else {
+            Storage::disk('public')->append($filePath, Date::now()->toDateTimeString() . ' - ' . $message);
+            return;
+        }
     }
 
-    public static function appendList(array $messages): void
+    public static function appendList(array $messages, bool $is_raw = false): void
     {
         foreach ($messages as $message) {
-            self::append($message);
+            self::append($message, $is_raw);
         }
     }
 

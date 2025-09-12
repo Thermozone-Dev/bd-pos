@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Filament\Loggers\ShiftLogger;
 use App\Filament\Loggers\TransactionLogger;
 use App\Http\Controllers\Controller;
+use App\Journal\Journal;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\x_record;
@@ -166,7 +167,7 @@ class XReadingController extends Controller
             ' Opening Fund'.str_pad(number_format($openingFund, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
             ' ================================ ',
             'PAYMENTS RECIEVED                 ',
-            ' CASH IN DRAWER'.str_pad(number_format($cashInDrawer, 2, '.', ''), 18, ' ', STR_PAD_LEFT),
+            ' CASH'.str_pad(number_format($cashInDrawer, 2, '.', ''), 28, ' ', STR_PAD_LEFT),
             ' GCASH '.str_pad(number_format($totalGcashPayment, 2, '.', ''), 26, ' ', STR_PAD_LEFT),
             ' MAYA '.str_pad(number_format($totalMayaPayment, 2, '.', ''), 27, ' ', STR_PAD_LEFT),
             ' DEBIT CARD'.str_pad(number_format($totalDebitPayment, 2, '.', ''), 22, ' ', STR_PAD_LEFT),
