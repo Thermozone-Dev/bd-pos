@@ -133,29 +133,29 @@ class ListTransactions extends ListRecords
                 Action::make('downloadJournal')
                 ->label('E Journal')
                 ->icon('heroicon-o-arrow-down-tray')
-                // ->form([
-                //     DatePicker::make('from')
-                //         ->label('From')
-                //         ->required()
-                //         ->default(now()),
-                //     DatePicker::make('to')
-                //         ->label('To')
-                //         ->required()
-                //         ->default(now()),
-                // ])
+                ->form([
+                    DatePicker::make('from')
+                        ->label('From')
+                        ->required()
+                        ->default(now()),
+                    DatePicker::make('to')
+                        ->label('To')
+                        ->required()
+                        ->default(now()),
+                ])
                 ->action(
                     function (array $data) {
                         if (Journal::journalDirectoryExists()){
                             Journal::clearJournalMergeFile();
                             $journals = Journal::getJournalEntries();
 
-                            // dd($journals->filter(function ($item) use ($data) {
-                            //     $fileDate = Carbon::parse($item['created_at']);
-                            //     return $fileDate->between(Carbon::parse($data['from']), Carbon::parse($data['to']));
-                            // }));
+                            $journal_entries = $journals->filter(function ($item, $key) use ($data) {
+                                $fileDate = Carbon::parse($item['created_at']);
+                                return $fileDate->between(Carbon::parse($data['from'])->startOfDay(), Carbon::parse($data['to'])->endOfDay());
+                            });
 
-                            foreach ($journals as $journal) {
-                                $data = Journal::read($journal['path']);
+                            foreach ($journal_entries as $entry) {
+                                $data = Journal::read($entry['path']);
                                 $merge_file = Journal::getJournalPath();
 
                                 Journal::append($merge_file, $data, true);
