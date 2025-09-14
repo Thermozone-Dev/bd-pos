@@ -399,7 +399,7 @@ class ZReadingController extends Controller
             ' -------------------------------- '.PHP_EOL,
         ];
 
-        Journal::appendList($_journal_z_reading, true);
+        Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'z_reading',  $_journal_z_reading);
 
         return response()->json([
             'reportDate' => $reportDate,
@@ -544,7 +544,7 @@ class ZReadingController extends Controller
             ' -------------------------------- '.PHP_EOL,
         ];
 
-        Journal::appendList($_journal_z_reading, true);
+        Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'z_reading_reprint',  $_journal_z_reading);
 
         if (!$latestZ) {
             return response()->json([

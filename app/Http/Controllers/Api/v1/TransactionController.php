@@ -242,7 +242,7 @@ class TransactionController extends Controller
                 $_journal_sales_details
             );
 
-            Journal::appendList($_journal_list, true);
+            Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'invoice',  $_journal_list);
 
             //Process Data Formatting for json
             $_return_data = [
@@ -544,7 +544,7 @@ class TransactionController extends Controller
                             $_journal_sales_details
                         );
 
-                        Journal::appendList($_journal_list, true);
+                    Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'void_invoice',  $_journal_list);
 
                     $response = [
                         'message' => 'Transaction voided successfully.',
@@ -711,7 +711,7 @@ class TransactionController extends Controller
                         $_journal_sales_details
                     );
 
-                    Journal::appendList($_journal_list, true);
+                    Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'void_invoice_reprint',  $_journal_list);
 
                 $response = [
                     'message' => 'Transaction voided successfully.',
@@ -1119,7 +1119,7 @@ class TransactionController extends Controller
                 $_journal_sales_details
             );
 
-            Journal::appendList($_journal_list, true);
+            Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'invoice_reprint',  $_journal_list);
 
             $response = [
                 'transaction_details' => $transactionDetails,

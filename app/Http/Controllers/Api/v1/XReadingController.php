@@ -193,7 +193,7 @@ class XReadingController extends Controller
             ' ================================ '.PHP_EOL,
         ];
 
-        Journal::appendList($_journal_x_reading, true);
+        Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'x_reading',  $_journal_x_reading);
 
         return response()->json([
             'report_date' => $reportDate,
@@ -295,7 +295,7 @@ class XReadingController extends Controller
             ' ================================ '.PHP_EOL,
         ];
 
-        Journal::appendList($_journal_x_reading, true);
+        Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'x_reading_reprint',  $_journal_x_reading);
 
         if (!$latestXRecord) {
             return response()->json([
