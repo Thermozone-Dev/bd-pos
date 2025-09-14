@@ -485,7 +485,7 @@ class TransactionController extends Controller
 
                         //Create Journal List
                         $_journal_transaction_details = [
-                            '  -----       INVOICE       ----  ',
+                            '  -----    VOID INVOICE     ----  ',
                             '   Thermozone Philippines Corp.   ',
                             ' 2286 Marconi St., Brgy. San Isid ',
                             '        ro City of Makati,        ',
@@ -504,7 +504,7 @@ class TransactionController extends Controller
                         ];
 
                         $_journal_item_details = [];
-                        $_discount_value = 0.0;
+
                         foreach ($basketItems as $_basket_item) {
                             $_item = Item::find($_basket_item['id']);
                             if($_item->package){
@@ -641,6 +641,77 @@ class TransactionController extends Controller
                             'discount_value' => number_format($basketItem->discount_value, 2),
                         ];
                     })->values();
+
+                    $_method_list = [];
+                    foreach($_transaction->paymentMethods as $method){
+                        array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
+                    }
+
+                    //Create Journal List
+                    $_journal_transaction_details = [
+                        '  -----       REPRINT       ----  ',
+                        'Date :' . str_pad(now()->format('F d, Y'), 28, ' ', STR_PAD_LEFT),
+                        'Time :' . str_pad(now()->format('h:i A'), 28, ' ', STR_PAD_LEFT) . PHP_EOL,
+                        '  -----    VOID INVOICE     ----  ',
+                        '   Thermozone Philippines Corp.   ',
+                        ' 2286 Marconi St., Brgy. San Isid ',
+                        '        ro City of Makati,        ',
+                        '  VAT REG TIN: 223-661-818-00000  ',
+                        ' -------------------------------- ',
+                        ' MIN: '.'XXXXXXXXXX   ',
+                        ' Serial No : ' . 'XXXXXXXXXX   ',
+                        ' ',
+                        'Issued By : ' . auth()->user()->name,
+                        'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                        'Date : ' . $_transaction->created_at->format('F d, Y'),
+                        'Payment Method : ' . implode(', ' , $_method_list),
+                        '----------------------------------',
+                        ' -----    ITEM BREAKDOWN    ----- ',
+                        ' Qty     Item     Price     Total ',
+                    ];
+
+                    $_journal_item_details = [];
+
+                    foreach ($basketItems as $_basket_item) {
+                        $_item = Item::find($_basket_item['id']);
+                        if($_item->package){
+                            $_item_data = Package::find($_item->package_id);
+                        }
+                        if($_item->product){
+                            $_item_data = Product::find($_item->product_id);
+                        }
+                        array_push($_journal_item_details,
+                            ' ' . $_basket_item['quantity'] .
+                            '    ' . $_item_data->name .
+                            '    -' . number_format($_item_data->price, 2) .
+                            '    -' . number_format($_item_data->total_value, 2));
+                    }
+                    $_journal_sales_details = [
+                        '----------------------------------',
+                        'Cash Tendered : ' . str_pad("-".number_format($_transaction->cash_tendered ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                        'VATable Sales : ' . str_pad("-".number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                        'Change : ' . str_pad("-".number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
+                        'VAT : ' . str_pad("-".number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
+                        'VAT Exempt Sales : ' . str_pad("-".number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
+                        'Zero Rated Sales : ' . str_pad("-".number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
+                        'Total Sales : ' . str_pad("-".number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
+                        '',
+                        '           ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT) . '     ',
+                        '',
+                        '   THERMOZONE PHILIPPINES CORP.   ',
+                        '   2286 Marconi St. Makati City   ',
+                        '  VAT REG TIN: 223-661-818-00000  ',
+                        ' Accreditation Number: XXXXXXXXXX ',
+                        '      ATG Number: XXXXXXXXXX      ' . PHP_EOL,
+                    ];
+
+                    $_journal_list = array_merge(
+                        $_journal_transaction_details,
+                        $_journal_item_details,
+                        $_journal_sales_details
+                    );
+
+                    Journal::appendList($_journal_list, true);
 
                 $response = [
                     'message' => 'Transaction voided successfully.',
@@ -929,7 +1000,6 @@ class TransactionController extends Controller
                 'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
                 'date' => $_transaction->created_at->format('F j, Y'),
                 'time' => $_transaction->created_at->format('h:i A'),
-                'payment_method' => $_transaction->paymentMethod->name,
 
                 'is_sc' => $_transaction->is_sc,
                 'is_pwd' => $_transaction->is_pwd,
@@ -977,6 +1047,79 @@ class TransactionController extends Controller
                         'discount_value' => number_format($basketItem->discount_value, 2),
                     ];
                 })->values();
+
+            $_method_list = [];
+            foreach ($_transaction->paymentMethods as $method){
+                array_push($_method_list, PaymentMethod::find($method['transaction_method_id'])->name);
+            }
+
+
+            //Create Journal List
+            $_journal_transaction_details = [
+                '  -----       REPRINT       ----  ',
+                'Date :' . str_pad(now()->format('F d, Y'), 28, ' ', STR_PAD_LEFT),
+                'Time :' . str_pad(now()->format('h:i A'), 28, ' ', STR_PAD_LEFT) . PHP_EOL,
+                '  -----       INVOICE       ----  ',
+                '   Thermozone Philippines Corp.   ',
+                ' 2286 Marconi St., Brgy. San Isid ',
+                '        ro City of Makati,        ',
+                '  VAT REG TIN: 223-661-818-00000  ',
+                ' -------------------------------- ',
+                ' MIN: '.'XXXXXXXXXX   ',
+                ' Serial No : ' . 'XXXXXXXXXX   ',
+                ' ',
+                'Issued By : ' . auth()->user()->name,
+                'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                'Date : ' . $_transaction->created_at->format('F d, Y'),
+                'Payment Method : ' . implode(', ' , $_method_list),
+                '----------------------------------',
+                ' -----    ITEM BREAKDOWN    ----- ',
+                ' Qty     Item     Price     Total ',
+            ];
+
+            $_journal_item_details = [];
+            $_discount_value = 0.0;
+            foreach ($basketItems as $_basket_item) {
+                $_item = Item::find($_basket_item->item_id);
+                if($_item->package){
+                    $_item_data = Package::find($_item->package_id);
+                }
+                if($_item->product){
+                    $_item_data = Product::find($_item->product_id);
+                }
+                array_push($_journal_item_details,
+                    ' ' . $_basket_item->quantity .
+                    '     ' . $_item_data->name .
+                    '     ' . number_format($_item_data->price, 2) .
+                    '     ' . number_format($_basket_item->total_value, 2));
+                $_discount_value += $_basket_item->discount_value;
+            }
+            $_journal_sales_details = [
+                '----------------------------------',
+                'Cash Tendered : ' . str_pad(number_format($_transaction->cash_tendered ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                'Change : ' . str_pad(number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
+                'VAT : ' . str_pad(number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
+                'VAT Exempt Sales : ' . str_pad(number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
+                'Zero Rated Sales : ' . str_pad(number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
+                'Total Sales : ' . str_pad(number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
+                '',
+                '           ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT) . '     ',
+                '',
+                '   THERMOZONE PHILIPPINES CORP.   ',
+                '   2286 Marconi St. Makati City   ',
+                '  VAT REG TIN: 223-661-818-00000  ',
+                ' Accreditation Number: XXXXXXXXXX ',
+                '      ATG Number: XXXXXXXXXX      ' . PHP_EOL,
+            ];
+
+            $_journal_list = array_merge(
+                $_journal_transaction_details,
+                $_journal_item_details,
+                $_journal_sales_details
+            );
+
+            Journal::appendList($_journal_list, true);
 
             $response = [
                 'transaction_details' => $transactionDetails,
