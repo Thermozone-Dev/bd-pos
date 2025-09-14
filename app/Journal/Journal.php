@@ -2,26 +2,51 @@
 
 namespace App\Journal;
 
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
 
 class Journal
 {
 
-    protected static ?string $filename = 'journal.log';
+    protected static ?string $filename = 'journal.txt';
 
     protected static ?string $directory = 'journal';
 
     public static function getJournalPath(): string
     {
-        return self::$directory . self::$filename;
+        return self::$directory . '/' . self::$filename;
     }
 
-    public static function createJournal(): void
+    public static function journalDirectoryExists(): bool
+    {
+        return Storage::disk('public')->exists(self::$directory);
+    }
+
+    public static function createJournalDirectory(): void
     {
         if (!Storage::disk('public')->exists(self::$directory)) {
             Storage::disk('public')->makeDirectory(self::$directory);
         }
+    }
+
+    public static function getJournalEntries(): Collection
+    {
+        $files = Storage::disk('public')->files(self::$directory, true);
+        $data = collect();
+        foreach ($files as $file) {
+            if (str_ends_with($file, '.log')) {
+                $data->push([
+                    'name' => explode('/', $file)[1],
+                    'path' => $file,
+                    'size' => Storage::disk('public')->size($file),
+                    'created_at' => Date::createFromTimestamp(Storage::disk('public')->lastModified($file))->toDateTimeString(),
+                ]);
+            }
+        }
+
+        return $data;
     }
 
     public static function createDateDirectory(string $date): void
@@ -48,9 +73,8 @@ class Journal
         self::appendList($filePath, $content, true);
     }
 
-    public static function read(): string
+    public static function read(string $filePath): string
     {
-        $filePath = self::$directory . self::$filename;
         if (Storage::disk('public')->exists($filePath)) {
             return Storage::disk('public')->get($filePath);
         }
@@ -73,6 +97,14 @@ class Journal
     {
         foreach ($messages as $message) {
             self::append($filePath, $message, $is_raw);
+        }
+    }
+
+    public static function clearJournalMergeFile(): void
+    {
+        if (Storage::disk('public')->exists(self::getJournalPath())) {
+            Storage::disk('public')->delete(self::getJournalPath());
+            Storage::disk('public')->put(self::getJournalPath(), '');
         }
     }
 }
