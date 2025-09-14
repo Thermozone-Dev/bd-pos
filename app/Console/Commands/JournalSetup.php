@@ -36,14 +36,6 @@ class JournalSetup extends Command
             echo 'Journal directory already exists.'. PHP_EOL;
         }
 
-        // Check if the journal file exists, if not create it
-        if (!Storage::exists('journal/journal.log')) {
-            Storage::put('journal/journal.log', '');
-            echo 'Journal file created.'. PHP_EOL;
-        } else {
-            echo 'Journal file already exists.'. PHP_EOL;
-        }
-
         // Confirm setup completion
         echo 'Journal setup completed successfully.'. PHP_EOL;
     }

@@ -175,7 +175,7 @@ class TransactionController extends Controller
                         'reference_number' => $method['reference_number'] ?? '00000000',
                     ]
                 ));
-                array_push($_method_list, PaymentMethod::find($method['transaction_method_id'])->name);
+                array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
             }
 
             $_transaction->update();
@@ -242,7 +242,7 @@ class TransactionController extends Controller
                 $_journal_sales_details
             );
 
-            Journal::appendList($_journal_list, true);
+            Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'invoice',  $_journal_list);
 
             //Process Data Formatting for json
             $_return_data = [
@@ -420,6 +420,11 @@ class TransactionController extends Controller
                         return response()->json(['error' => 'Transaction not found.'], 404);
                     }
 
+                    $_method_list = [];
+                    foreach($_transaction->paymentMethods as $method){
+                        array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
+                    }
+
                     $transactionDetails = [
                         'id' => $_transaction->id,
                         'void_id' => str_pad($void->id, 12, '0', STR_PAD_LEFT),
@@ -429,7 +434,7 @@ class TransactionController extends Controller
                         'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
                         'date' => $_transaction->created_at->format('F j, Y'),
                         'time' => $_transaction->created_at->format('h:i A'),
-                        'payment_method' => '',
+                        'payment_method' => implode(', ' , $_method_list),
 
                         'is_sc' => $_transaction->is_sc,
                         'is_pwd' => $_transaction->is_pwd,
@@ -478,10 +483,6 @@ class TransactionController extends Controller
                             ];
                         })->values();
 
-                        $_method_list = [];
-                        foreach($_transaction->paymentMethods as $method){
-                            array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
-                        }
 
                         //Create Journal List
                         $_journal_transaction_details = [
@@ -544,7 +545,7 @@ class TransactionController extends Controller
                             $_journal_sales_details
                         );
 
-                        Journal::appendList($_journal_list, true);
+                    Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'void_invoice',  $_journal_list);
 
                     $response = [
                         'message' => 'Transaction voided successfully.',
@@ -584,6 +585,11 @@ class TransactionController extends Controller
                     return response()->json(['error' => 'Transaction not found.'], 404);
                 }
 
+                $_method_list = [];
+                foreach($_transaction->paymentMethods as $method){
+                    array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
+                }
+
                 $transactionDetails = [
                     'id' => $_transaction->id,
                     'void_id' => str_pad($_void->id, 12, '0', STR_PAD_LEFT),
@@ -593,7 +599,7 @@ class TransactionController extends Controller
                     'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
                     'date' => $_transaction->created_at->format('F j, Y'),
                     'time' => $_transaction->created_at->format('h:i A'),
-                    'payment_method' => $_transaction->paymentMethod->name,
+                    'payment_method' => implode(', ' , $_method_list),
 
                     'is_sc' => $_transaction->is_sc,
                     'is_pwd' => $_transaction->is_pwd,
@@ -711,7 +717,7 @@ class TransactionController extends Controller
                         $_journal_sales_details
                     );
 
-                    Journal::appendList($_journal_list, true);
+                    Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'void_invoice_reprint',  $_journal_list);
 
                 $response = [
                     'message' => 'Transaction voided successfully.',
@@ -994,12 +1000,18 @@ class TransactionController extends Controller
                 return response()->json(['error' => 'Transaction not found.'], 404);
             }
 
+            $_method_list = [];
+            foreach ($_transaction->paymentMethods as $method){
+                array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
+            }
+
             $transactionDetails = [
                 'id' => $_transaction->id,
                 'processed_by' => $_transaction->processedBy->name,
                 'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
                 'date' => $_transaction->created_at->format('F j, Y'),
                 'time' => $_transaction->created_at->format('h:i A'),
+                'payment_method' => implode(', ' , $_method_list),
 
                 'is_sc' => $_transaction->is_sc,
                 'is_pwd' => $_transaction->is_pwd,
@@ -1048,12 +1060,6 @@ class TransactionController extends Controller
                     ];
                 })->values();
 
-            $_method_list = [];
-            foreach ($_transaction->paymentMethods as $method){
-                array_push($_method_list, PaymentMethod::find($method['transaction_method_id'])->name);
-            }
-
-
             //Create Journal List
             $_journal_transaction_details = [
                 '  -----       REPRINT       ----  ',
@@ -1080,7 +1086,7 @@ class TransactionController extends Controller
             $_journal_item_details = [];
             $_discount_value = 0.0;
             foreach ($basketItems as $_basket_item) {
-                $_item = Item::find($_basket_item->item_id);
+                $_item = Item::find($_basket_item['id']);
                 if($_item->package){
                     $_item_data = Package::find($_item->package_id);
                 }
@@ -1088,11 +1094,11 @@ class TransactionController extends Controller
                     $_item_data = Product::find($_item->product_id);
                 }
                 array_push($_journal_item_details,
-                    ' ' . $_basket_item->quantity .
-                    '     ' . $_item_data->name .
-                    '     ' . number_format($_item_data->price, 2) .
-                    '     ' . number_format($_basket_item->total_value, 2));
-                $_discount_value += $_basket_item->discount_value;
+                    ' ' . $_basket_item['quantity'] .
+                    '    ' . $_item_data->name .
+                    '    ' . number_format($_item_data->price, 2) .
+                    '    ' . number_format($_item_data->total_value, 2));
+                $_discount_value += $_basket_item['discount_value'] ?? 0;
             }
             $_journal_sales_details = [
                 '----------------------------------',
@@ -1119,7 +1125,7 @@ class TransactionController extends Controller
                 $_journal_sales_details
             );
 
-            Journal::appendList($_journal_list, true);
+            Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'invoice_reprint',  $_journal_list);
 
             $response = [
                 'transaction_details' => $transactionDetails,

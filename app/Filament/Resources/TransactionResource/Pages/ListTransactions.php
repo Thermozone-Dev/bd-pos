@@ -133,9 +133,34 @@ class ListTransactions extends ListRecords
                 Action::make('downloadJournal')
                 ->label('E Journal')
                 ->icon('heroicon-o-arrow-down-tray')
+                // ->form([
+                //     DatePicker::make('from')
+                //         ->label('From')
+                //         ->required()
+                //         ->default(now()),
+                //     DatePicker::make('to')
+                //         ->label('To')
+                //         ->required()
+                //         ->default(now()),
+                // ])
                 ->action(
-                    function () {
-                        if (Storage::disk('public')->exists(Journal::getJournalPath())){
+                    function (array $data) {
+                        if (Journal::journalDirectoryExists()){
+                            Journal::clearJournalMergeFile();
+                            $journals = Journal::getJournalEntries();
+
+                            // dd($journals->filter(function ($item) use ($data) {
+                            //     $fileDate = Carbon::parse($item['created_at']);
+                            //     return $fileDate->between(Carbon::parse($data['from']), Carbon::parse($data['to']));
+                            // }));
+
+                            foreach ($journals as $journal) {
+                                $data = Journal::read($journal['path']);
+                                $merge_file = Journal::getJournalPath();
+
+                                Journal::append($merge_file, $data, true);
+                            }
+
                             return response()->streamDownload(
                                 fn () => readfile(storage_path('app/public/' . Journal::getJournalPath())),
                                 'e-journal.txt'
