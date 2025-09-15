@@ -175,7 +175,7 @@ class TransactionController extends Controller
                         'reference_number' => $method['reference_number'] ?? '00000000',
                     ]
                 ));
-                array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
+                array_push($_method_list, PaymentMethod::find($method['transaction_method_id'])->name);
             }
 
             $_transaction->update();
