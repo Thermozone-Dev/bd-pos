@@ -152,6 +152,8 @@ class ListTransactions extends ListRecords
                             $journal_entries = $journals->filter(function ($item, $key) use ($data) {
                                 $fileDate = Carbon::parse($item['created_at']);
                                 return $fileDate->between(Carbon::parse($data['from'])->startOfDay(), Carbon::parse($data['to'])->endOfDay());
+                            })->sortBy(function ($file) {
+                                return Carbon::parse($file['created_at'])->timestamp;
                             });
 
                             foreach ($journal_entries as $entry) {
