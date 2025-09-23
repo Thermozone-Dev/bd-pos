@@ -441,7 +441,7 @@ class TransactionController extends Controller
                         'is_nac' => $_transaction->is_nac,
                         'is_soloparent' => $_transaction->is_soloparent,
 
-                        'cash_tendered' => number_format($_transaction->cash_tendered, 2),
+                        'cash_tendered' => number_format($_transaction->total_cash_tendered, 2),
                         'vatable_sales' => number_format($_transaction->vatable_sales, 2),
                         'change' => number_format($_transaction->change, 2),
                         'vat' => number_format($_transaction->vat, 2),
@@ -606,7 +606,7 @@ class TransactionController extends Controller
                     'is_nac' => $_transaction->is_nac,
                     'is_soloparent' => $_transaction->is_soloparent,
 
-                    'cash_tendered' => number_format($_transaction->cash_tendered, 2),
+                    'cash_tendered' => number_format($_transaction->total_cash_tendered, 2),
                     'vatable_sales' => number_format($_transaction->vatable_sales, 2),
                     'change' => number_format($_transaction->change, 2),
                     'vat' => number_format($_transaction->vat, 2),
@@ -1018,7 +1018,7 @@ class TransactionController extends Controller
                 'is_nac' => $_transaction->is_nac,
                 'is_soloparent' => $_transaction->is_soloparent,
 
-                'cash_tendered' => number_format($_transaction->cash_tendered, 2),
+                'cash_tendered' => number_format($_transaction->total_cash_tendered, 2),
                 'vatable_sales' => number_format($_transaction->vatable_sales, 2),
                 'change' => number_format($_transaction->change, 2),
                 'vat' => number_format($_transaction->vat, 2),
