@@ -452,7 +452,7 @@ class TransactionController extends Controller
                     ];
 
                     $basketItems = $_transaction->basket->items
-                        ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
+                        // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
                         ->map(function ($basketItem) {
                             return [
                                 'id' => $basketItem->item->id,
@@ -618,7 +618,7 @@ class TransactionController extends Controller
                 ];
 
                 $basketItems = $_transaction->basket->items
-                    ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
+                    // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
                     ->map(function ($basketItem) {
                         return [
                             'id' => $basketItem->item->id,
@@ -1031,7 +1031,7 @@ class TransactionController extends Controller
             ];
 
             $basketItems = $_transaction->basket->items
-                ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
+                // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
                 ->map(function ($basketItem) {
                     return [
                         'id' => $basketItem->item->id,
