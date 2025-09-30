@@ -25,6 +25,8 @@ class z_record extends Model
         'vat_exempt_sales',
         'zero_rated_sales',
         'gross_amount',
+        'total_discounts',
+        'total_vat_adjusts',
         'less_discount',
         'less_void',
         'less_vat_adjust',

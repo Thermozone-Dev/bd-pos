@@ -190,26 +190,25 @@ class ZReadingController extends Controller
             ->where('is_valid', true)
             ->sum('vat_adjustment');
 
+        $todayStart = Carbon::now()->startOfDay();
+        $todayEnd   = Carbon::now()->endOfDay();
+
         $regDiscountsVATAdjust = Transaction::where('is_valid', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
-            ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->where('is_sc', false)
-            ->where('is_pwd', false)
-            ->orWhere('is_nac', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
-            ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->orWhere('is_soloparent', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
-            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->where(function ($q) {
+                $q->where(function ($q2) {
+                    $q2->where('is_sc', false)
+                    ->where('is_pwd', false);
+                })
+                ->orWhere('is_nac', true)
+                ->orWhere('is_soloparent', true);
+            })
             ->sum('vat_adjustment');
+
 
         $zeroRatedVATAdjust = 0;
         $returnVATAdjust = 0;
-
-        $otherVATAdjust = Transaction::where('is_valid', false)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
-            ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->sum('vat_adjustment');
+        $otherVATAdjust = 0;
 
         // TRANSACTION SUMMARY
 
@@ -295,6 +294,8 @@ class ZReadingController extends Controller
             'vat_exempt_sales' => $vatExemptSales,
             'zero_rated_sales' => $zeroRatedSales,
             'gross_amount' => $grossAmount,
+            'total_discounts' => $totalDiscounts,
+            'total_vat_adjusts' => $totalVATAdjusts,
             'less_discount' => $lessDiscounts,
             'less_void' => $lessVoids,
             'less_vat_adjust' => $lessVATAdjustments,
@@ -360,9 +361,9 @@ class ZReadingController extends Controller
             ' ZERO RATED SALE'.str_pad(number_format($zeroRatedSales, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
             ' -------------------------------- ',
             ' Gross Amount: '.str_pad(number_format($grossAmount, 2, '.', ''), 18, ' ', STR_PAD_LEFT),
-            ' Less Discount: '.str_pad(number_format($lessDiscounts, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
-            ' Less Voids: '.str_pad(number_format($lessVoids, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
-            ' Less VAT Adjust'.str_pad(number_format($lessVATAdjustments, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Total Discounts: '.str_pad(number_format($totalDiscounts, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Total Void: ' . str_pad(number_format($totalVoids, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' Total VAT Adjus'.str_pad(number_format($totalVATAdjusts, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
             ' Net Amount: '.str_pad(number_format($netAmount, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
             ' -------------------------------- ',
             '         DISCOUNT SUMMARY         ',
@@ -422,6 +423,8 @@ class ZReadingController extends Controller
             'vatExemptSales' => number_format($vatExemptSales, 2, '.', ''),
             'zeroRatedSales' => number_format($zeroRatedSales, 2, '.', ''),
             'grossAmount' => number_format($grossAmount, 2, '.', ''),
+            'totalDiscounts' => number_format($totalDiscounts, 2, '.', ''),
+            'totalVATAdjusts' => number_format($totalVATAdjusts, 2, '.', ''),
             'lessDiscounts' => number_format($lessDiscounts, 2, '.', ''),
             'lessReturns' => number_format($lessReturns, 2, '.', ''),
             'lessVoids' => number_format($lessVoids, 2, '.', ''),
@@ -467,6 +470,7 @@ class ZReadingController extends Controller
             ->latest()
             ->first();
 
+
         //Create Journal List
         $_journal_z_reading = [
             '  -----       REPRINT       ----  ',
@@ -505,9 +509,9 @@ class ZReadingController extends Controller
             ' ZERO RATED SALE'.str_pad(number_format($latestZ->zero_rated_sale, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
             ' -------------------------------- ',
             ' Gross Amount: '.str_pad(number_format($latestZ->gross_amount, 2, '.', ''), 18, ' ', STR_PAD_LEFT),
-            ' Less Discount: '.str_pad(number_format($latestZ->less_discount, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
-            ' Less Voids: '.str_pad(number_format($latestZ->less_void, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
-            ' Less VAT Adjust'.str_pad(number_format($latestZ->less_vat_adjust, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Total Discounts: '.str_pad(number_format($latestZ->total_discounts, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
+            ' Total Void: '.str_pad(number_format($latestZ->void, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' Total VAT Adjus'.str_pad(number_format($latestZ->total_vat_adjusts, 2, '.', ''), 17, ' ', STR_PAD_LEFT),
             ' Net Amount: '.str_pad(number_format($latestZ->net_amount, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
             ' -------------------------------- ',
             '         DISCOUNT SUMMARY         ',
