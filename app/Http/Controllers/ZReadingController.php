@@ -104,8 +104,7 @@ class ZReadingController extends Controller
                 ->sum('gross_sales');
         }
 
-        $vatableSales = Transaction::where('is_valid', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
+        $vatableSales = Transaction::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vatable_sales');
 
@@ -210,8 +209,12 @@ class ZReadingController extends Controller
 
 
         $zeroRatedVATAdjust = 0;
-        $returnVATAdjust = 0;
         $otherVATAdjust = 0;
+
+        $returnVATAdjust = Transaction::where('is_valid', false)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->sum('vatable_sales')  * 0.12;
 
         // TRANSACTION SUMMARY
 
