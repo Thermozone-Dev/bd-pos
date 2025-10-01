@@ -179,7 +179,7 @@ class ZReadingController extends Controller
         $lessReturns = $lessDiscounts - $totalReturns;
         $lessVoids = $lessDiscounts - $totalVoids;
         $lessVATAdjustments = $lessVoids - $totalVATAdjusts;
-        $netAmount = $lessVATAdjustments;
+        $netAmount = $grossAmount - ($totalDiscounts + $totalVoids + $totalVATAdjusts + $totalReturns + $vatAmount);
 
         $scTransactionsVATAdjust = Transaction::where('is_sc', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
