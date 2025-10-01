@@ -109,8 +109,7 @@ class ZReadingController extends Controller
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vatable_sales');
 
-        $vatAmount = Transaction::where('is_valid', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
+        $vatAmount = Transaction::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vat');
 
