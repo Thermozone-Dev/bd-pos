@@ -83,7 +83,7 @@ class ListTransactions extends ListRecords
                                 'Other Discounts' => $record->other_discounts,
                                 'Void' => $record->void,
                                 'Returns' => $record->returns,
-                                'Total Deductions' => $record->total_discounts,
+                                'Total Deductions' => $record->total_discounts + $record->void,
                                 'SC Adjustments' => $record->sc_adjustments,
                                 'PWD Adjustments' => $record->pwd_adjustments,
                                 'Reg Discount Adjustments' => $record->reg_discount_adjustments,
