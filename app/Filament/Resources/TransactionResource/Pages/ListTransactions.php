@@ -93,7 +93,7 @@ class ListTransactions extends ListRecords
                                 'VAT Payable' => $record->vat - $record->total_vat_adjusts,
                                 'NET Sales' => $record->net_amount,
                                 'Overflow' => $record->short_over,
-                                'Total Income' => $record->net_amount,
+                                'Total Income' => $record->net_amount + ($record->vat - $record->total_vat_adjusts),
                                 'Reset Counter' => $record->reset_counter,
                                 'Z Counter' => $record->counter,
                             ];
