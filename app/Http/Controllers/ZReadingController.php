@@ -167,7 +167,7 @@ class ZReadingController extends Controller
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('gross_sales');
-        $totalVATAdjusts = Transaction::where('is_valid', true)
+        $totalVATAdjusts = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vat_adjustment');
@@ -181,19 +181,19 @@ class ZReadingController extends Controller
         $scTransactionsVATAdjust = Transaction::where('is_sc', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->where('is_valid', true)
+            ->where('is_valid', false)
             ->sum('vat_adjustment');
 
         $pwdTransactionsVATAdjust = Transaction::where('is_pwd', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->where('is_valid', true)
+            ->where('is_valid', false)
             ->sum('vat_adjustment');
 
         $todayStart = Carbon::now()->startOfDay();
         $todayEnd   = Carbon::now()->endOfDay();
 
-        $regDiscountsVATAdjust = Transaction::where('is_valid', true)
+        $regDiscountsVATAdjust = Transaction::where('is_valid', false)
             ->whereBetween('created_at', [$todayStart, $todayEnd])
             ->where(function ($q) {
                 $q->where(function ($q2) {
