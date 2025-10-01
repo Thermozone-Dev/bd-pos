@@ -104,18 +104,15 @@ class ZReadingController extends Controller
                 ->sum('gross_sales');
         }
 
-        $vatableSales = Transaction::where('is_valid', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
+        $vatableSales = Transaction::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vatable_sales');
 
-        $vatAmount = Transaction::where('is_valid', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
+        $vatAmount = Transaction::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vat');
 
-        $vatExemptSales = Transaction::where('is_valid', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
+        $vatExemptSales = Transaction::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vat_exempt_sales');
 
@@ -163,37 +160,32 @@ class ZReadingController extends Controller
         // FOR LESS CALCULATIONS
 
         $totalReturns = 0;
-        $totalVoids = Transaction::where('is_valid', false)
+        $totalVoidsVatable = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->sum('gross_sales');
-        $totalVATAdjusts = Transaction::where('is_valid', true)
+            ->sum('vatable_sales');
+        $totalVoidsVatExempt = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->sum('vat_adjustment');
-
-        $lessDiscounts = $grossAmount - $totalDiscounts;
-        $lessReturns = $lessDiscounts - $totalReturns;
-        $lessVoids = $lessDiscounts - $totalVoids;
-        $lessVATAdjustments = $lessVoids - $totalVATAdjusts;
-        $netAmount = $lessVATAdjustments;
+            ->sum('vat_exempt_sales');
+        $totalVoids = $totalVoidsVatable + $totalVoidsVatExempt;
 
         $scTransactionsVATAdjust = Transaction::where('is_sc', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->where('is_valid', true)
+            ->where('is_valid', false)
             ->sum('vat_adjustment');
 
         $pwdTransactionsVATAdjust = Transaction::where('is_pwd', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->where('is_valid', true)
+            ->where('is_valid', false)
             ->sum('vat_adjustment');
 
         $todayStart = Carbon::now()->startOfDay();
         $todayEnd   = Carbon::now()->endOfDay();
 
-        $regDiscountsVATAdjust = Transaction::where('is_valid', true)
+        $regDiscountsVATAdjust = Transaction::where('is_valid', false)
             ->whereBetween('created_at', [$todayStart, $todayEnd])
             ->where(function ($q) {
                 $q->where(function ($q2) {
@@ -205,10 +197,22 @@ class ZReadingController extends Controller
             })
             ->sum('vat_adjustment');
 
-
         $zeroRatedVATAdjust = 0;
-        $returnVATAdjust = 0;
         $otherVATAdjust = 0;
+
+        $returnVATAdjust = Transaction::where('is_valid', false)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->sum('vat')  * 0.12;
+
+        $totalVATAdjusts = $scTransactionsVATAdjust + $pwdTransactionsVATAdjust + $regDiscountsVATAdjust + $zeroRatedVATAdjust + $otherVATAdjust + $returnVATAdjust;
+
+
+        $lessDiscounts = $grossAmount - $totalDiscounts;
+        $lessReturns = $lessDiscounts - $totalReturns;
+        $lessVoids = $lessDiscounts - $totalVoids;
+        $lessVATAdjustments = $lessVoids - $totalVATAdjusts;
+        $netAmount = $grossAmount - ($totalDiscounts + $totalVoids + $totalVATAdjusts + $totalReturns + $vatAmount);
 
         // TRANSACTION SUMMARY
 
