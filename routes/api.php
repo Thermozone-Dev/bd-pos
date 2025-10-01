@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\v1\ShiftController;
 use App\Http\Controllers\Api\v1\TransactionController;
 use App\Http\Controllers\Api\v1\XReadingController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\LockController;
 use App\Http\Controllers\ZReadingController;
 use App\Http\Middleware\EnsureSecretKeyIsValid;
 use Illuminate\Http\Request;
@@ -62,6 +63,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKey
     Route::post('/zreading/reprint', [ZReadingController::class, 'reprint']);
     Route::post('/zreading/summary', [ZReadingController::class, 'zReading_summary']);
 
+    // System Lock Routes
+    Route::post('lock-system', [LockController::class, 'lockSystem']);
+    Route::get('check-lock', [LockController::class, 'checkLock']);
 
     // Item Routes
     Route::get('/items', [ItemController::class, 'index']);
