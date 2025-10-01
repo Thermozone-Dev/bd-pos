@@ -166,7 +166,7 @@ class ZReadingController extends Controller
         $totalVoids = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->sum('gross_sales');
+            ->sum('vatable_sales');
         $totalVATAdjusts = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
