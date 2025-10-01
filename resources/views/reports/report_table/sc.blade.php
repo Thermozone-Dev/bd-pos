@@ -30,7 +30,7 @@
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $scInfo->sc_id }}</td>
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $scInfo->sc_tin }}</td>
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ str_pad($scInfo->transaction_id, 12, '0', STR_PAD_LEFT) }}</td>
-                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->vatable_sales - $scTransaction->vat_exempt_sales, 2) }}</td>
+                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->vatable_sales * 1.12, 2) }}</td>
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->vat + $scTransaction->vat_adjustment, 2) }}</td>
                     {{-- <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->vat_exempt_sales, 2) }}</td> --}}
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($scTransaction->vat_exempt_sales, 2) }}</td>
