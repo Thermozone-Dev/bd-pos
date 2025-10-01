@@ -113,8 +113,7 @@ class ZReadingController extends Controller
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vat');
 
-        $vatExemptSales = Transaction::where('is_valid', true)
-            ->where('created_at', '>=', Carbon::now()->startOfDay())
+        $vatExemptSales = Transaction::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vat_exempt_sales');
 
@@ -162,10 +161,15 @@ class ZReadingController extends Controller
         // FOR LESS CALCULATIONS
 
         $totalReturns = 0;
-        $totalVoids = Transaction::where('is_valid', false)
+        $totalVoidsVatable = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
             ->sum('vatable_sales');
+        $totalVoidsVatExempt = Transaction::where('is_valid', false)
+            ->where('created_at', '>=', Carbon::now()->startOfDay())
+            ->where('created_at', '<=', Carbon::now()->endOfDay())
+            ->sum('vat_exempt_sales');
+        $totalVoids = $totalVoidsVatable + $totalVoidsVatExempt;
         $totalVATAdjusts = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
