@@ -203,7 +203,7 @@ class ZReadingController extends Controller
         $returnVATAdjust = Transaction::where('is_valid', false)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->sum('vat')  * 0.12;
+            ->sum('vatable_sales') * 0.12;
 
         $totalVATAdjusts = $scTransactionsVATAdjust + $pwdTransactionsVATAdjust + $regDiscountsVATAdjust + $zeroRatedVATAdjust + $otherVATAdjust + $returnVATAdjust;
 
