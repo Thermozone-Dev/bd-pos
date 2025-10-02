@@ -188,12 +188,12 @@ class ZReadingController extends Controller
         $regDiscountsVATAdjust = Transaction::where('is_valid', false)
             ->whereBetween('created_at', [$todayStart, $todayEnd])
             ->where(function ($q) {
-                $q->where(function ($q2) {
+                $q->where('is_nac', true)
+                ->orWhere('is_soloparent', true)
+                ->orWhere(function ($q2) {
                     $q2->where('is_sc', false)
                     ->where('is_pwd', false);
-                })
-                ->orWhere('is_nac', true)
-                ->orWhere('is_soloparent', true);
+                });
             })
             ->sum('vat_adjustment');
 
