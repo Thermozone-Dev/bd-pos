@@ -35,6 +35,15 @@ Route::get('/xreading/{id}', [XReadingController::class, 'show']);
 
 
 Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum', EnsureSecretKeyIsValid::class]], function () {
+    // Ping Route
+    Route::get('/ping', function (Request $request) {
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Server is online',
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+    });
+
     // Journal Routes
     Route::get('/journal', [JournalController::class, 'newTransaction']);
     Route::get('/journal/{id}', [JournalController::class, 'updateTransaction']);
