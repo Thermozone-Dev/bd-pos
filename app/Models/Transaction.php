@@ -26,6 +26,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'processed_by',
+        'terminal_id',
         'transaction_basket_id',
         'barcode',
         'transaction_method_id',
