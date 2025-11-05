@@ -54,6 +54,7 @@ class TransactionController extends Controller
             // return response()->json($request->transaction_fee, 201);
             //Validate Request
             $request->validate([
+                'terminal_id' => 'required|numeric',
                 'items.*.item_id' => 'numeric',
                 'items.*.item_quantity' => 'numeric',
                 'items.*.item_discounts.id' => 'numeric',
@@ -83,6 +84,7 @@ class TransactionController extends Controller
 
             $_data = [
                 'processed_by' => auth()->user()->id,
+                'terminal_id' => (int)$request->terminal_id,
                 'transaction_basket_id' => null,
                 'barcode' =>  null,
                 'transaction_method_id' => 0,
@@ -112,7 +114,6 @@ class TransactionController extends Controller
             //Create Basket Items
             $_gov_discount_list = [];
             $_basket_item_data = $this->processItems($_basket, $request->items, $_gov_discount_list);
-
 
             //return these values
             $_basket_items = $_basket_item_data[0];
@@ -446,7 +447,6 @@ class TransactionController extends Controller
                         'vatable_sales' => number_format($_transaction->vatable_sales, 2),
                         'change' => number_format($_transaction->change, 2),
                         'vat' => number_format($_transaction->vat, 2),
-                        'vat_adjustments' => number_format($_transaction->vat_adjustment, 2),
                         'vat_exempt_sales' => number_format($_transaction->vat_exempt_sales, 2),
                         'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
                         'total_sales' => number_format($_transaction->total_sales, 2),
@@ -613,7 +613,6 @@ class TransactionController extends Controller
                     'vatable_sales' => number_format($_transaction->vatable_sales, 2),
                     'change' => number_format($_transaction->change, 2),
                     'vat' => number_format($_transaction->vat, 2),
-                    'vat_adjustments' => number_format($_transaction->vat_adjustment, 2),
                     'vat_exempt_sales' => number_format($_transaction->vat_exempt_sales, 2),
                     'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
                     'total_sales' => number_format($_transaction->total_sales, 2),
@@ -1027,7 +1026,6 @@ class TransactionController extends Controller
                 'vatable_sales' => number_format($_transaction->vatable_sales, 2),
                 'change' => number_format($_transaction->change, 2),
                 'vat' => number_format($_transaction->vat, 2),
-                'vat_adjustments' => number_format($_transaction->vat_adjustment, 2),
                 'vat_exempt_sales' => number_format($_transaction->vat_exempt_sales, 2),
                 'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
                 'total_sales' => number_format($_transaction->total_sales, 2),
