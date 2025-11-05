@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Filament\Loggers\UserLogger;
 use App\Http\Controllers\Controller;
+use App\Models\Terminal;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -28,9 +29,15 @@ class AuthController extends Controller
 
         $token = $_user->createToken($request->device_name, ['general:utils'])->plainTextToken;
 
+        $terminal = Terminal::where('name', $request->device_name)->first();
+
+        if (!$terminal) {
+            $terminal = Terminal::create(['name' => $request->device_name]);
+        }
+
         UserLogger::make($_user)->login();
 
-        return response()->json(['token' => $token, 'name' => $_user->name], 201);
+        return response()->json(['token' => $token, 'name' => $_user->name, 'terminal_id' => $terminal->id], 201);
     }
 
     public function logout(Request $request){
