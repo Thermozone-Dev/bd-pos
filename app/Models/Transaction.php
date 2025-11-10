@@ -80,7 +80,7 @@ class Transaction extends Model
                     $si_num = 1;
                 }
             }
-            $model->si_no = sprintf('%012d', $si_num);
+            $model->si_no = $si_num;
             $model->reset_si_batch = $batch;
         });
     }
