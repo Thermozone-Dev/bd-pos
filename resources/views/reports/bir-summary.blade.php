@@ -94,7 +94,7 @@
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Overflow'], 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Total Income'], 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Reset Counter'], 2) }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Z Counter'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ $datum['Z Counter'] }}</td>
                 <td style="border: 1px solid black; padding: 8px;"></td>
             </tr>
         @endforeach
