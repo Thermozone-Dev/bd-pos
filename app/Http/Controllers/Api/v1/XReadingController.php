@@ -119,7 +119,7 @@ class XReadingController extends Controller
         $withdrawal = $totalChange;
         $lessWithdrawal = $cashInDrawer - $totalChange;
 
-        $shortOrOver = $request->currentCash - $cashInDrawer;
+        $shortOrOver = $request->currentCash - $lessWithdrawal;
 
         x_record::create([
             'generated_by' => $user->id,

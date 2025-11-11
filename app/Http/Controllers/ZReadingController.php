@@ -279,7 +279,7 @@ class ZReadingController extends Controller
         $withdrawal = $totalChange;
         $lessWithdrawal = $cashInDrawer - $totalChange;
 
-        $shortOrOver = $request->currentCash - $cashInDrawer;
+        $shortOrOver = $request->currentCash - $lessWithdrawal;
 
         $reportDate = Carbon::now()->format('M d, Y');
         $reportTime = Carbon::now()->format('h:i A');
