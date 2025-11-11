@@ -54,11 +54,13 @@ class XReadingController extends Controller
 
         // $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
         $totalChange = $transactions_query->where('is_valid', 1)->
-            with(['paymentMethods' => function ($query) {
-                $query->where('payment_method_id', 1);
-            }])->sum(function ($transaction) {
-                return $transaction->paymentMethods->change() ? $transaction->change : 0;
-            });
+        with(['paymentMethods' => function ($query) {
+            $query->where('payment_method_id', 1);
+        }])
+        ->get()
+        ->sum(function ($transaction) {
+            return $transaction->paymentMethods->change() ? $transaction->change : 0;
+        });
 
         dd($totalChange);
 
