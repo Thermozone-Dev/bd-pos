@@ -58,9 +58,7 @@ class XReadingController extends Controller
             $query->where('payment_method_id', 1);
         }])
         ->get()
-        ->sum(function ($transaction) {
-            return $transaction->change : 0;
-        });
+        ->sum('change');
 
         dd($totalChange);
 
