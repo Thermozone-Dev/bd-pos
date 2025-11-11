@@ -59,7 +59,7 @@ class XReadingController extends Controller
         }])
         ->get()
         ->sum(function ($transaction) {
-            return $transaction->paymentMethods->change ? $transaction->change : 0;
+            return $transaction->change : 0;
         });
 
         dd($totalChange);
