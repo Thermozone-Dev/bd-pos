@@ -60,8 +60,6 @@ class XReadingController extends Controller
         ->get()
         ->sum('change');
 
-        dd($totalChange);
-
         // $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
         $totalCashPayment = $transactions_query->where('is_valid', true)
         ->withSum(['paymentMethods' => function($query) {
