@@ -48,8 +48,8 @@ class ZReadingController extends Controller
 
         $transactions = $transaction_query->get();
 
-        $beginningOR = $transactions->first()?->id ?? null;
-        $endingOR = $transactions->last()?->id ?? null;
+        $beginningOR = $transactions->first()?->si_no ?? null;
+        $endingOR = $transactions->last()?->si_no ?? null;
 
         $void = VoidTransaction::where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())

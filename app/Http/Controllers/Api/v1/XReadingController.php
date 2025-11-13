@@ -44,9 +44,9 @@ class XReadingController extends Controller
         $transactions_query = Transaction::where('created_at', '>=', $inTime)->where('processed_by', $user->id);
         $transactions = $transactions_query->get();
 
-        $startOR = $transactions->first()?->id ?? null;
+        $startOR = $transactions->first()?->si_no ?? null;
         $beginningOR = str_pad($startOR, 12, '0', STR_PAD_LEFT);
-        $endOR = $transactions->last()?->id ?? null;
+        $endOR = $transactions->last()?->si_no ?? null;
         $endingOR = str_pad($endOR, 12, '0', STR_PAD_LEFT);
 
         $openingFund = $shift->opening_balance;

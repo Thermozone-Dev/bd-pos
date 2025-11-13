@@ -400,7 +400,7 @@ class TransactionController extends Controller
     public function voidTransaction(Request $request, string $id)
     {
         try {
-            $_transaction = Transaction::find($id);
+            $_transaction = Transaction::where('si_no', $id)->latest()->first();
             if ($_transaction) {
                 if (!$_transaction->is_valid) {
                     return response()->json(['error' => 'Transaction is already voided.'], 400);
@@ -409,13 +409,13 @@ class TransactionController extends Controller
                     $_transaction->update();
 
                     $void = VoidTransaction::create([
-                        'transaction_id' => $_transaction->id,
+                        'transaction_id' => $_transaction->si_no,
                     ]);
 
                     $_transaction = Transaction::with([
                         'basket.items.item.product',
                         'basket.items.item.package'
-                    ])->find($id);
+                    ])->where('si_no', $id)->latest()->first();
 
                     if (!$_transaction) {
                         return response()->json(['error' => 'Transaction not found.'], 404);
@@ -432,7 +432,7 @@ class TransactionController extends Controller
                         'void_date' => $void->created_at->format('F j, Y'),
                         'void_time' => $void->created_at->format('h:i A'),
                         'processed_by' => $_transaction->processedBy->name,
-                        'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                        'si_no' => str_pad($_transaction->si_no, 12, '0', STR_PAD_LEFT),
                         'date' => $_transaction->created_at->format('F j, Y'),
                         'time' => $_transaction->created_at->format('h:i A'),
                         'payment_method' => implode(', ' , $_method_list),
@@ -576,12 +576,12 @@ class TransactionController extends Controller
             }
 
             $_id = $_void->transaction_id;
-            $_transaction = Transaction::find($_id);
+            $_transaction = Transaction::where('si_no', $_id)->latest()->first();
             if ($_transaction) {
                 $_transaction = Transaction::with([
                     'basket.items.item.product',
                     'basket.items.item.package'
-                ])->find($_id);
+                ])->where('si_no', $_id)->latest()->first();
 
                 if (!$_transaction) {
                     return response()->json(['error' => 'Transaction not found.'], 404);
@@ -598,7 +598,7 @@ class TransactionController extends Controller
                     'void_date' => $_void->created_at->format('F j, Y'),
                     'void_time' => $_void->created_at->format('h:i A'),
                     'processed_by' => $_transaction->processedBy->name,
-                    'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                    'si_no' => str_pad($_transaction->si_no, 12, '0', STR_PAD_LEFT),
                     'date' => $_transaction->created_at->format('F j, Y'),
                     'time' => $_transaction->created_at->format('h:i A'),
                     'payment_method' => implode(', ' , $_method_list),
@@ -997,7 +997,7 @@ class TransactionController extends Controller
             $_transaction = Transaction::with([
                 'basket.items.item.product',
                 'basket.items.item.package'
-            ])->find($id);
+            ])->where('si_no', $id)->latest()->first();
 
             if (!$_transaction) {
                 return response()->json(['error' => 'Transaction not found.'], 404);
@@ -1011,7 +1011,7 @@ class TransactionController extends Controller
             $transactionDetails = [
                 'id' => $_transaction->id,
                 'processed_by' => $_transaction->processedBy->name,
-                'si_no' => str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                'si_no' => str_pad($_transaction->si_no, 12, '0', STR_PAD_LEFT),
                 'date' => $_transaction->created_at->format('F j, Y'),
                 'time' => $_transaction->created_at->format('h:i A'),
                 'payment_method' => implode(', ' , $_method_list),
