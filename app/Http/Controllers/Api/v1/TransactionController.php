@@ -206,31 +206,43 @@ class TransactionController extends Controller
             if ($_transaction->is_sc) {
                 $_sc_info = ScInfo::where('transaction_id', $_transaction->id)->first();
                 array_push($_journal_customer_details,
-                    ' SC Name: ' . $_sc_info->name,
-                    ' SC ID  : ' . $_sc_info->sc_id,
+                    ' Name: ' . $_sc_info->name,
+                    ' ID Number  : ' . $_sc_info->sc_id,
+                    ' Signature : ______________________ '
                 );
-            };
-            if ($_transaction->is_pwd) {
+            }
+            else if ($_transaction->is_pwd) {
                 $_pwd_info = PwdInfo::where('transaction_id', $_transaction->id)->first();
                 array_push($_journal_customer_details,
-                    ' PWD Name: ' . $_pwd_info->name,
-                    ' PWD ID  : ' . $_pwd_info->pwd_id,
+                    ' Name:      ' . $_pwd_info->name,
+                    ' ID Number: ' . $_pwd_info->pwd_id,
+                    ' Signature: ______________________ '
                 );
-            };
-            if ($_transaction->is_nac) {
+            }
+            else if ($_transaction->is_nac) {
                 $_nac_info = NacInfo::where('transaction_id', $_transaction->id)->first();
                 array_push($_journal_customer_details,
-                    ' NAC Name: ' . $_nac_info->name,
-                    ' NAC ID  : ' . $_nac_info->pnstm_id,
+                    ' Name:      ' . $_nac_info->name,
+                    ' ID Number: ' . $_nac_info->pnstm_id,
+                    ' Signature: ______________________ '
                 );
-            };
-            if ($_transaction->is_soloparent) {
+            }
+            else if ($_transaction->is_soloparent) {
                 $_sp_info = SoloparentInfo::where('transaction_id', $_transaction->id)->first();
                 array_push($_journal_customer_details,
-                    ' SP Name: ' . $_sp_info->name,
-                    ' SP ID  : ' . $_sp_info->spic_id,
+                    ' Name:      ' . $_sp_info->name,
+                    ' ID Number: ' . $_sp_info->spic_id,
+                    ' Signature: ______________________ '
                 );
-            };
+            }
+            else {
+                array_push($_journal_customer_details,
+                    ' Name:      ______________________ ',
+                    ' Address:   ______________________ ',
+                    ' TIN:       ______________________ ',
+                    ' Signature: ______________________ '
+            );
+            }
 
             $_journal_item_details = [
                 ' -----    ITEM BREAKDOWN    ----- ',
