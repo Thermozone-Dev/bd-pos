@@ -687,17 +687,6 @@ class TransactionController extends Controller
                             $_item_count += $_item_data['quantity'];
                         }
 
-                        // foreach ($discountedBasketItems as $_basket_item) {
-                        //     $_item = Item::find($_basket_item['id']);
-                        //     if($_item->package){
-                        //         $_item_data = Package::find($_item->package_id);
-                        //     }
-                        //     if($_item->product){
-                        //         $_item_data = Product::find($_item->product_id);
-                        //     }
-                        //     $_discount_value += $_basket_item['discount_value'];
-                        // }
-
                         $_journal_discount_details = [''];
 
                         if($_discount_value > 0){
@@ -973,8 +962,8 @@ class TransactionController extends Controller
                             '    ' . $_item_data->name .
                             '    -' . number_format($_item_data->price, 2) .
                             '    -' . number_format($_item_data->total_value, 2));
-                        $_discount_value += $_basket_item->discount_value;
-                        $_item_count += $_basket_item->quantity;
+                        $_discount_value += $_item_data['discount_value'];
+                        $_item_count += $_item_data['quantity'];
                     }
 
                     $_journal_discount_details = [''];
