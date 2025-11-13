@@ -569,6 +569,7 @@ class TransactionController extends Controller
                                 'price' => $basketItem->item->type === 'product'
                                     ? $basketItem->item->product?->price
                                     : $basketItem->item->package?->price,
+                                'discount_value' => number_format($basketItem->discount_value, 2) ,
                             ];
                         })->values();
 
@@ -1476,7 +1477,7 @@ class TransactionController extends Controller
                     '    ' . $_item_data->name .
                     '   @' . number_format($_item_data->price, 2) .
                     '    ' . number_format($_item_data->total_value, 2));
-                $_discount_value += $_basket_item['discount_value'] ?? 0;
+                $_discount_value += $_item_data['discount_value'] ?? 0;
             }
 
             $_journal_discount_details = [''];
