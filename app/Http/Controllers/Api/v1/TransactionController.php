@@ -840,6 +840,7 @@ class TransactionController extends Controller
                             'price' => $basketItem->item->type === 'product'
                                 ? $basketItem->item->product?->price
                                 : $basketItem->item->package?->price,
+                            'discount_value' => number_format($basketItem->discount_value, 2) ?? 0,
                         ];
                     })->values();
 
