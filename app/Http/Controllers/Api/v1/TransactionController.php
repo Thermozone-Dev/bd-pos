@@ -255,7 +255,7 @@ class TransactionController extends Controller
                 $_item_count += $_basket_item->quantity;
             }
 
-            $_journal_discount_details = [];
+            $_journal_discount_details = [''];
 
             if($_discount_value > 0){
                 array_push($_journal_discount_details,[
@@ -287,7 +287,6 @@ class TransactionController extends Controller
                         ' Less Promo:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     ),
                 };
-                dd($_discount_string);
                 $_journal_discount_details = [
                     '----------------------------------',
                     $_discount_string
