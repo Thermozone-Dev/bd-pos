@@ -18,11 +18,9 @@ class BirSummaryExport implements FromView
 
     public function view(): View
     {
-        $transactions = $this->records['transactions'];
-        $dailyRelationalData = $this->records['dailyRelationalData'];
-        $accumulatedBalance = $this->records['accumulatedBalance'];
+        $data = $this->records['data'];
 
-       return view('reports.bir-excel-report',compact('transactions','dailyRelationalData','accumulatedBalance') );
+       return view('reports.bir-excel-report',compact('data') );
     }
 
 }
