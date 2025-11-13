@@ -184,11 +184,14 @@ class TransactionController extends Controller
             //Create Journal List
             $_journal_transaction_details = [
                 '  -----       INVOICE       ----  ',
+                ' ',
                 '   Thermozone Philippines Corp.   ',
                 ' 2286 Marconi St., Brgy. San Isid ',
                 '        ro City of Makati,        ',
                 '  VAT REG TIN: 223-661-818-00000  ',
+                ' ',
                 ' -------------------------------- ',
+                ' ',
                 ' MIN: '.'XXXXXXXXXX   ',
                 ' Serial No : ' . 'XXXXXXXXXX   ',
                 ' ',
@@ -196,11 +199,14 @@ class TransactionController extends Controller
                 'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
                 'Date : ' . $_transaction->created_at->format('F d, Y'),
                 'Payment Method : ' . implode(', ' , $_method_list),
+                ' ',
                 '----------------------------------',
             ];
 
             $_journal_customer_details = [
+                ' ',
                 ' -----   CUSTOMER DETAILS  ----- ',
+                ' ',
             ];
 
             if ($_transaction->is_sc) {
@@ -245,6 +251,9 @@ class TransactionController extends Controller
             }
 
             $_journal_item_details = [
+                ' ',
+                '----------------------------------',
+                ' ',
                 ' -----    ITEM BREAKDOWN    ----- ',
                 ' Qty     Item     Price     Total ',
             ];
@@ -301,12 +310,14 @@ class TransactionController extends Controller
                 };
                 $_journal_discount_details = [
                     '----------------------------------',
+                    ' ',
                     $_discount_string
                 ];
             }
             else{
                 $_journal_sales_details = [
                     '----------------------------------',
+                    ' ',
                     'Gross Sales   : ' . str_pad(number_format($_transaction->gross_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 ];
             }
