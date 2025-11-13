@@ -326,7 +326,9 @@ class TransactionController extends Controller
                 $_journal_sales_details
             );
 
-            Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'invoice',  $_journal_list);
+            dd($_journal_list);
+
+            // Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'invoice',  $_journal_list);
 
             //Process Data Formatting for json
             $_return_data = [
