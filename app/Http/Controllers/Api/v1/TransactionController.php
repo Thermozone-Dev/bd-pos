@@ -963,8 +963,8 @@ class TransactionController extends Controller
                             '    ' . $_item_data->name .
                             '    -' . number_format($_item_data->price, 2) .
                             '    -' . number_format($_item_data->total_value, 2));
-                        $_discount_value += $_item_data['discount_value'];
-                        $_item_count += $_item_data['quantity'];
+                        $_discount_value += $_basket_item['discount_value'];
+                        $_item_count += $_basket_item['quantity'];
                     }
 
                     $_journal_discount_details = [''];
