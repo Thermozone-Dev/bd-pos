@@ -309,7 +309,7 @@ class TransactionController extends Controller
                         ' Less Promo:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     ),
                 };
-                $_journal_discount_details = [
+                $_journal_sales_details = [
                     '----------------------------------',
                     ' ',
                     $_discount_string
