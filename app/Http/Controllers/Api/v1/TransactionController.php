@@ -280,7 +280,7 @@ class TransactionController extends Controller
             $_journal_discount_details = [''];
 
             if($_discount_value > 0){
-                array_push($_journal_discount_details,[
+                $_journal_discount_details = array_merge($_journal_discount_details,[
                     '----------------------------------',
                     '',
                     $_item_count . ' Item(s)',
