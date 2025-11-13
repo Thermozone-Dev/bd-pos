@@ -255,6 +255,7 @@ class TransactionController extends Controller
                 '----------------------------------',
                 ' ',
                 ' -----    ITEM BREAKDOWN    ----- ',
+                ' ',
                 ' Qty     Item     Price     Total ',
             ];
             $_discount_value = 0.0;
