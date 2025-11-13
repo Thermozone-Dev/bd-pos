@@ -321,8 +321,8 @@ class TransactionController extends Controller
             $_journal_list = array_merge(
                 $_journal_transaction_details,
                 $_journal_customer_details,
-                $_journal_discount_details,
                 $_journal_item_details,
+                $_journal_discount_details,
                 $_journal_sales_details
             );
 
