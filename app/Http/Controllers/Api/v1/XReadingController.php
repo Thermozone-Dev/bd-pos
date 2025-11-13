@@ -242,6 +242,8 @@ class XReadingController extends Controller
             ->latest()
             ->first();
 
+        // dd($latestXRecord);
+
         //Create Journal List
         $_journal_x_reading = [
             '  -----       REPRINT       ----  ',
@@ -266,7 +268,7 @@ class XReadingController extends Controller
             ' Beg. SI #: '.str_pad(is_null($latestXRecord->beginning_si) ? 'N/A' : str_pad($latestXRecord->beginning_si, 12, '0', STR_PAD_LEFT), 21, ' ', STR_PAD_LEFT),
             ' End SI #: '.str_pad(is_null($latestXRecord->ending_si) ? 'N/A' : str_pad($latestXRecord->ending_si, 12, '0', STR_PAD_LEFT), 22, ' ', STR_PAD_LEFT),
             '',
-            ' Opening Fund'.str_pad(number_format($latestXRecord, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
+            ' Opening Fund'.str_pad(number_format($latestXRecord->opening_fund, 2, '.', ''), 20, ' ', STR_PAD_LEFT),
             ' ================================ ',
             'PAYMENTS RECIEVED                 ',
             ' CASH'.str_pad(number_format($latestXRecord->cash_payments, 2, '.', ''), 28, ' ', STR_PAD_LEFT),
