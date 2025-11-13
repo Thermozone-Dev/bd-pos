@@ -293,21 +293,16 @@ class TransactionController extends Controller
                     '',
                 ]);
                 $_discount_string = match(true) {
-                    $_transaction->is_sc == true => array_push($_journal_discount_details,
+                    $_transaction->is_sc == true =>
                         ' Less SC @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                    ),
-                    $_transaction->is_pwd == true => array_push($_journal_discount_details,
+                    $_transaction->is_pwd == true =>
                         ' Less PWD @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                    ),
-                    $_transaction->is_nac == true => array_push($_journal_discount_details,
+                    $_transaction->is_nac == true =>
                         ' Less NAC @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                    ),
-                    $_transaction->is_soloparent == true => array_push($_journal_discount_details,
+                    $_transaction->is_soloparent == true =>
                         ' Less SP @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                    ),
-                    $_transaction->is_soloparent == true => array_push($_journal_discount_details,
+                    $_transaction->is_soloparent == true =>
                         ' Less Promo:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                    ),
                 };
                 $_journal_sales_details = [
                     '----------------------------------',
