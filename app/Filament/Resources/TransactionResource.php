@@ -121,8 +121,9 @@ class TransactionResource extends Resource
                 TextColumn::make('or_number')
                     ->label('OR Number')
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('paymentMethod.name')
-                    ->label('Transaction Method'),
+                TextColumn::make('paymentMethods.name')
+                    ->label('Transaction Methods')
+                    ->badge(),
                 TextColumn::make('transaction_fee')
                     ->label('Transaction Fee')
                     ->toggleable(isToggledHiddenByDefault: true)
