@@ -216,7 +216,12 @@ class ZReadingController extends Controller
 
         // TRANSACTION SUMMARY
 
-        $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
+        $totalChange = $transaction_query->where('is_valid', 1)->
+        with(['paymentMethods' => function ($query) {
+            $query->where('payment_method_id', 1);
+        }])
+        ->get()
+        ->sum('change');
 
         $totalCashPayment = $transaction_query->where('is_valid', true)
         ->withSum(['paymentMethods' => function($query) {
@@ -274,7 +279,7 @@ class ZReadingController extends Controller
         $withdrawal = $totalChange;
         $lessWithdrawal = $cashInDrawer - $totalChange;
 
-        $shortOrOver = $request->currentCash - $cashInDrawer;
+        $shortOrOver = $request->currentCash - $lessWithdrawal;
 
         $reportDate = Carbon::now()->format('M d, Y');
         $reportTime = Carbon::now()->format('h:i A');

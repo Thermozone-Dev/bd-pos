@@ -52,12 +52,13 @@ class XReadingController extends Controller
         $openingFund = $shift->opening_balance;
         $endingFund = $shift->ending_balance;
 
-        $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
-        // $totalChange = $transactions->with(['paymentMethods' => function ($query) {
-        //     $query->where('id', 1);
-        // }])->where('is_valid', 1)->sum(function ($transaction) {
-        //     return $transaction->paymentMethods->change() ? $transaction->change : 0;
-        // });
+        // $totalChange = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('change');
+        $totalChange = $transactions_query->where('is_valid', 1)->
+        with(['paymentMethods' => function ($query) {
+            $query->where('payment_method_id', 1);
+        }])
+        ->get()
+        ->sum('change');
 
         // $totalCashPayment = $transactions->where('transaction_method_id', 1)->where('is_valid', true)->sum('total_sales');
         $totalCashPayment = $transactions_query->where('is_valid', true)
@@ -118,7 +119,7 @@ class XReadingController extends Controller
         $withdrawal = $totalChange;
         $lessWithdrawal = $cashInDrawer - $totalChange;
 
-        $shortOrOver = $request->currentCash - $cashInDrawer;
+        $shortOrOver = $request->currentCash - $lessWithdrawal;
 
         x_record::create([
             'generated_by' => $user->id,
