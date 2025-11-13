@@ -197,12 +197,47 @@ class TransactionController extends Controller
                 'Date : ' . $_transaction->created_at->format('F d, Y'),
                 'Payment Method : ' . implode(', ' , $_method_list),
                 '----------------------------------',
+            ];
+
+            $_journal_customer_details = [
+                ' -----   CUSTOMER DETAILS  ----- ',
+            ];
+
+            if ($_transaction->is_sc) {
+                $_sc_info = ScInfo::where('transaction_id', $_transaction->id)->first();
+                array_push($_journal_customer_details,
+                    ' SC Name: ' . $_sc_info->name,
+                    ' SC ID  : ' . $_sc_info->sc_id,
+                );
+            };
+            if ($_transaction->is_pwd) {
+                $_pwd_info = PwdInfo::where('transaction_id', $_transaction->id)->first();
+                array_push($_journal_customer_details,
+                    ' PWD Name: ' . $_pwd_info->name,
+                    ' PWD ID  : ' . $_pwd_info->pwd_id,
+                );
+            };
+            if ($_transaction->is_nac) {
+                $_nac_info = NacInfo::where('transaction_id', $_transaction->id)->first();
+                array_push($_journal_customer_details,
+                    ' NAC Name: ' . $_nac_info->name,
+                    ' NAC ID  : ' . $_nac_info->pnstm_id,
+                );
+            };
+            if ($_transaction->is_soloparent) {
+                $_sp_info = SoloparentInfo::where('transaction_id', $_transaction->id)->first();
+                array_push($_journal_customer_details,
+                    ' SP Name: ' . $_sp_info->name,
+                    ' SP ID  : ' . $_sp_info->spic_id,
+                );
+            };
+
+            $_journal_item_details = [
                 ' -----    ITEM BREAKDOWN    ----- ',
                 ' Qty     Item     Price     Total ',
             ];
-
-            $_journal_item_details = [];
             $_discount_value = 0.0;
+            $_item_count = 0;
             foreach ($_basket_items as $_basket_item) {
                 $_item = Item::find($_basket_item->item_id);
                 if($_item->package){
@@ -214,19 +249,64 @@ class TransactionController extends Controller
                 array_push($_journal_item_details,
                     ' ' . $_basket_item->quantity .
                     '     ' . $_item_data->name .
-                    '     ' . number_format($_item_data->price, 2) .
+                    '    @' . number_format($_item_data->price, 2) .
                     '     ' . number_format($_basket_item->total_value, 2));
                 $_discount_value += $_basket_item->discount_value;
+                $_item_count += $_basket_item->quantity;
             }
-            $_journal_sales_details = [
-                '----------------------------------',
+
+            $_journal_discount_details = [];
+
+            if($_discount_value > 0){
+                array_push($_journal_discount_details,[
+                    '----------------------------------',
+                    '',
+                    $_item_count . ' Item(s)',
+                    ' Subtotal:      ' . str_pad(number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                    '',
+                    '----------------------------------',
+                    '',
+                    ' Less Disc Vat: ' . str_pad(number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                    ' Gross Total:   ' . str_pad(number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
+                    '',
+                ]);
+                $_discount_string = match(true) {
+                    $_transaction->is_sc == true => array_push($_journal_discount_details,
+                        ' Less SC @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    ),
+                    $_transaction->is_pwd == true => array_push($_journal_discount_details,
+                        ' Less PWD @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    ),
+                    $_transaction->is_nac == true => array_push($_journal_discount_details,
+                        ' Less NAC @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    ),
+                    $_transaction->is_soloparent == true => array_push($_journal_discount_details,
+                        ' Less SP @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    ),
+                    $_transaction->is_soloparent == true => array_push($_journal_discount_details,
+                        ' Less Promo:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    ),
+                };
+                $_journal_discount_details = [
+                    '----------------------------------',
+                    $_discount_string
+                ];
+            }
+            else{
+                $_journal_sales_details = [
+                    '----------------------------------',
+                    'Gross Sales   : ' . str_pad(number_format($_transaction->gross_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                ];
+            }
+
+            array_push($_journal_sales_details, [
                 'Cash Tendered : ' . str_pad(number_format($_transaction->total_cash_tendered ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'Change : ' . str_pad(number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
                 'VAT : ' . str_pad(number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
                 'VAT Exempt Sales : ' . str_pad(number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
                 'Zero Rated Sales : ' . str_pad(number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
-                'Total Sales : ' . str_pad(number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
+                'Amount Due :  ' . str_pad(number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
                 '',
                 '           ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT) . '     ',
                 '',
@@ -235,10 +315,12 @@ class TransactionController extends Controller
                 '  VAT REG TIN: 223-661-818-00000  ',
                 ' Accreditation Number: XXXXXXXXXX ',
                 '      ATG Number: XXXXXXXXXX      ' . PHP_EOL,
-            ];
+            ]);
+
 
             $_journal_list = array_merge(
                 $_journal_transaction_details,
+                $_journal_customer_details,
                 $_journal_item_details,
                 $_journal_sales_details
             );
@@ -1100,7 +1182,7 @@ class TransactionController extends Controller
                 array_push($_journal_item_details,
                     ' ' . $_basket_item['quantity'] .
                     '    ' . $_item_data->name .
-                    '    ' . number_format($_item_data->price, 2) .
+                    '   @' . number_format($_item_data->price, 2) .
                     '    ' . number_format($_item_data->total_value, 2));
                 $_discount_value += $_basket_item['discount_value'] ?? 0;
             }
@@ -1112,7 +1194,7 @@ class TransactionController extends Controller
                 'VAT : ' . str_pad(number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
                 'VAT Exempt Sales : ' . str_pad(number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
                 'Zero Rated Sales : ' . str_pad(number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
-                'Total Sales : ' . str_pad(number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
+                'Amount Due :  ' . str_pad(number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
                 '',
                 '           ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT) . '     ',
                 '',
