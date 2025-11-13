@@ -299,7 +299,7 @@ class TransactionController extends Controller
                 ];
             }
 
-            array_push($_journal_sales_details,
+            $_journal_sales_details = array_merge($_journal_sales_details, [
                 'Cash Tendered : ' . str_pad(number_format($_transaction->total_cash_tendered ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'Change : ' . str_pad(number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
@@ -315,7 +315,7 @@ class TransactionController extends Controller
                 '  VAT REG TIN: 223-661-818-00000  ',
                 ' Accreditation Number: XXXXXXXXXX ',
                 '      ATG Number: XXXXXXXXXX      ' . PHP_EOL,
-            );
+            ]);
 
 
             $_journal_list = array_merge(
