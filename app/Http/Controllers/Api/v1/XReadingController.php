@@ -38,8 +38,8 @@ class XReadingController extends Controller
 
         $inTime = $shift->time_in;
 
-        $time_in = Carbon::parse($shift->time_in)->format('h:i A');
-        $time_out = Carbon::now()->format('h:i A');
+        $time_in = Carbon::parse($shift->time_in)->format('M d, Y - h:i A');
+        $time_out = Carbon::now()->format('M d, Y - h:i A');
 
         $transactions_query = Transaction::where('created_at', '>=', $inTime)->where('processed_by', $user->id);
         $transactions = $transactions_query->get();
@@ -259,7 +259,7 @@ class XReadingController extends Controller
             '         MIN: '.'XXXXXXXXXX       ',
             '         S/N: '.'XXXXXXXXXX       ',
             ' ',
-            '          Z READING REPORT       ',
+            '          X READING REPORT       ',
             ' Report Date: '.str_pad($latestXRecord->report_date, 19, ' ', STR_PAD_LEFT),
             ' Report Time: '.str_pad($latestXRecord->report_time, 19, ' ', STR_PAD_LEFT),
             ' ',

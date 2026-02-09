@@ -39,8 +39,8 @@ class ZReadingController extends Controller
         $endTime = $shift->last()?->time_out;
 
         $shift = [
-            'startTime' => Carbon::parse($startTime)->format('h:i A'),
-            'endTime' => Carbon::parse($endTime)->format('h:i A'),
+            'startTime' => Carbon::parse($startTime)->format('M d, Y - h:i A'),
+            'endTime' => Carbon::parse($endTime)->format('M d, Y - h:i A'),
         ];
 
         $transaction_query = Transaction::where('created_at', '>=', Carbon::now()->startOfDay())
