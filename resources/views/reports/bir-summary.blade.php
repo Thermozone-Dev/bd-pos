@@ -91,7 +91,7 @@
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Total VAT Adjustments'], 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['VAT Payable'], 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['NET Sales'], 2) }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Overflow'], 2) }}</td>
+                <td style="border: 1px solid black; padding: 8px;">0</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($datum['Total Income'], 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ $datum['Reset Counter'] }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ $datum['Z Counter'] }}</td>
