@@ -30,13 +30,13 @@
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdInfo->pwd_id }}</td>
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ $pwdInfo->pwd_tin }}</td>
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{ str_pad($pwdInfo->transaction_id, 12, '0', STR_PAD_LEFT) }}</td>
-                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format(round($pwdTransaction->vatable_sales * 1.12, 2),2) }}</td>
-                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format(round($pwdTransaction->vat + $pwdTransaction->vat_adjustment, 2),2) }}</td>
+                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat_exempt_sales * 1.12, 2) }}</td>
+                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat_adjustment, 2) }}</td>
                     {{-- <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat_exempt_sales, 2) }}</td> --}}
-                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format(round($pwdTransaction->vat_exempt_sales, 2),2) }}</td>
+                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat_exempt_sales, 2) }}</td>
                     <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">0</td>
-                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format(round($transactionDiscount, 2),2) }}</td>
-                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format(round($pwdTransaction->total_sales - $pwdTransaction->vat, 2),2) }}</td>
+                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($transactionDiscount, 2) }}</td>
+                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->total_sales - $pwdTransaction->vat, 2) }}</td>
                 </tr>
             @endif
         @endforeach
