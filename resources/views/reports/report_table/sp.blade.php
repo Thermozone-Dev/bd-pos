@@ -28,8 +28,8 @@
                             <td style="border: 1px solid black; padding: 8px;">{{ $spInfo->child_age }}</td>
                             <td style="border: 1px solid black; padding: 8px;">{{ number_format($transactionDiscount, 2) }}</td>
                             <td style="border: 1px solid black; padding: 8px;">{{ str_pad($spInfo->transaction_id, 12, '0', STR_PAD_LEFT) }}</td>
-                            <td style="border: 1px solid black; padding: 8px;">{{ number_format($spTransaction->gross_sales, 2) }}</td>
-                            <td style="border: 1px solid black; padding: 8px;">{{ number_format($spTransaction->total_sales, 2) }}</td>
+                            <td style="border: 1px solid black; padding: 8px;">{{ number_format($spTransaction->vat_exempt_sales + $spTransaction->vat_adjustment, 2) }}</td>
+                            <td style="border: 1px solid black; padding: 8px;">{{ number_format($spTransaction->vat_exempt_sales + $spTransaction->vat_adjustment - $transactionDiscount, 2) }}</td>
                         </tr>
                     @endif
                 @endforeach

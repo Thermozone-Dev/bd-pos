@@ -21,9 +21,9 @@
                             <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ $nacInfo->name }}</td>
                             <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ $nacInfo->pnstm_id }}</td>
                             <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ str_pad($nacInfo->transaction_id, 12, '0', STR_PAD_LEFT) }}</td>
-                            <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ number_format($nacTransaction->gross_sales, 2) }}</td>
+                            <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ number_format($nacTransaction->vat_exempt_sales + $nacTransaction->vat_adjustment, 2) }}</td>
                             <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ number_format($transactionDiscount, 2) }}</td>
-                            <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ number_format($nacTransaction->total_sales, 2) }}</td>
+                            <td colspan="3" style="border: 1px solid black; padding: 8px;">{{ number_format($nacTransaction->vat_exempt_sales + $nacTransaction->vat_adjustment - $transactionDiscount, 2) }}</td>
                         </tr>
                     @endif
                 @endforeach
