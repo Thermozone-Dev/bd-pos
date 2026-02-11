@@ -1351,6 +1351,7 @@ class TransactionController extends Controller
                 'change' => number_format($_transaction->change, 2),
                 'vat' => number_format($_transaction->vat, 2),
                 'vat_adjustment' => number_format($_transaction->vat_adjustment, 2),
+                'vat_adjustments' => number_format($_transaction->vat_adjustment, 2),
                 'vat_exempt_sales' => number_format($_transaction->vat_exempt_sales, 2),
                 'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
                 'total_sales' => number_format($_transaction->total_sales, 2),
