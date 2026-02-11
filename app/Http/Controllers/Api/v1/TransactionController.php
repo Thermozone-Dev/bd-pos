@@ -1328,8 +1328,20 @@ class TransactionController extends Controller
             }
 
             $_method_list = [];
+            $transactionPaymentMethods = [];
+
             foreach ($_transaction->paymentMethods as $method){
-                array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
+                $paymentMethod = PaymentMethod::find($method->payment_method_id);
+                array_push($_method_list, $paymentMethod->name);
+                array_push($transactionPaymentMethods,
+                    collect([
+                        'transaction_id' => $_transaction->id,
+                        'payment_method_name' => $paymentMethod->name,
+                        'cash_tendered' => $method->cash_tendered,
+                        'transaction_fee' => $method->transaction_fee,
+                        'reference_number' => $method->reference_number,
+                    ])
+                );
             }
 
             $transactionDetails = [
@@ -1356,6 +1368,7 @@ class TransactionController extends Controller
                 'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
                 'total_sales' => number_format($_transaction->total_sales, 2),
             ];
+
 
             $basketItems = $_transaction->basket->items
                 // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
@@ -1565,6 +1578,7 @@ class TransactionController extends Controller
 
             $response = [
                 'transaction_details' => $transactionDetails,
+                'payment_methods' => $transactionPaymentMethods,
                 'items' => $basketItems,              // only items WITHOUT discounts
                 'discounted_items' => $discountedBasketItems, // only items WITH discounts
             ];
