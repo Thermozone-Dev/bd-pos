@@ -16,6 +16,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
@@ -142,6 +143,9 @@ class ListTransactions extends ListRecords
                         ->label('To')
                         ->required()
                         ->default(now()),
+                    Toggle::make('include_reprint')
+                        ->label('Include Reprints')
+                        ->default(false)
                 ])
                 ->action(
                     function (array $data) {
@@ -151,7 +155,16 @@ class ListTransactions extends ListRecords
 
                             $journal_entries = $journals->filter(function ($item, $key) use ($data) {
                                 $fileDate = Carbon::parse($item['created_at']);
-                                return $fileDate->between(Carbon::parse($data['from'])->startOfDay(), Carbon::parse($data['to'])->endOfDay());
+
+                                $withinDateRange = $fileDate->between(Carbon::parse($data['from'])->startOfDay(), Carbon::parse($data['to'])->endOfDay());
+
+                                if ($data['include_reprint']) {
+                                    $reprintMatch = true; // Include all files if reprints are included
+                                } else {
+                                    $reprintMatch = !str_contains($item['path'], 'reprint');
+                                }
+
+                                return $withinDateRange &&  $reprintMatch;
                             })->sortBy(function ($file) {
                                 return Carbon::parse($file['created_at'])->timestamp;
                             });
