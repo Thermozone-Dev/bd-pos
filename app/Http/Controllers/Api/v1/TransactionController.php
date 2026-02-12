@@ -165,6 +165,7 @@ class TransactionController extends Controller
             }
 
             $_transaction_methods = [];
+            $transactionPaymentMethods = [];
             $_method_list = [];
             foreach ($request->transaction_methods as $method){
                 array_push($_transaction_methods, TransactionHasPaymentMethod::create(
@@ -176,6 +177,13 @@ class TransactionController extends Controller
                         'reference_number' => $method['reference_number'] ?? '00000000',
                     ]
                 ));
+
+                array_push ($transactionPaymentMethods, [
+                    'payment_method_name' => PaymentMethod::find($method['transaction_method_id'])->name,
+                    'cash_tendered' => round($method['cash_tendered'], 2),
+                    'transaction_fee' => round($method['transaction_fee'] ?? 0, 2),
+                    'reference_number' => $method['reference_number'] ?? '00000000',
+                ]);
                 array_push($_method_list, PaymentMethod::find($method['transaction_method_id'])->name);
             }
 
@@ -354,6 +362,7 @@ class TransactionController extends Controller
                 'transaction details' => $_transaction,
                 'transaction basket' => $_basket_items,
                 'payment methods' => $_transaction_methods,
+                'transaction payment methods' => $transactionPaymentMethods,
                 'stub_details' => $this->generate_stub($_transaction->id),
             ];
 
