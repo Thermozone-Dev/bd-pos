@@ -165,7 +165,7 @@ class TransactionController extends Controller
             }
 
             $_transaction_methods = [];
-            $transactionPaymentMethods = [];
+            $_transaction_payment_methods = [];
             $_method_list = [];
             foreach ($request->transaction_methods as $method){
                 array_push($_transaction_methods, TransactionHasPaymentMethod::create(
@@ -178,7 +178,8 @@ class TransactionController extends Controller
                     ]
                 ));
 
-                array_push ($transactionPaymentMethods, [
+                array_push ($_transaction_payment_methods, [
+                    'transaction_id' => $_transaction->id,
                     'payment_method_name' => PaymentMethod::find($method['transaction_method_id'])->name,
                     'cash_tendered' => round($method['cash_tendered'], 2),
                     'transaction_fee' => round($method['transaction_fee'] ?? 0, 2),
@@ -188,6 +189,65 @@ class TransactionController extends Controller
             }
 
             $_transaction->update();
+
+            $_transaction_details = [
+                'id' => $_transaction->id,
+                'processed_by' => $_transaction->processedBy->name,
+                'si_no' => str_pad($_transaction->si_no, 12, '0', STR_PAD_LEFT),
+                'date' => $_transaction->created_at->format('F j, Y'),
+                'time' => $_transaction->created_at->format('h:i A'),
+                'payment_method' => implode(', ' , $_method_list),
+
+                'is_sc' => $_transaction->is_sc,
+                'is_pwd' => $_transaction->is_pwd,
+                'is_nac' => $_transaction->is_nac,
+                'is_soloparent' => $_transaction->is_soloparent,
+
+                'gross_sales' => number_format($_transaction->gross_sales, 2),
+                'cash_tendered' => number_format($_transaction->total_cash_tendered, 2),
+                'vatable_sales' => number_format($_transaction->vatable_sales, 2),
+                'change' => number_format($_transaction->change, 2),
+                'vat' => number_format($_transaction->vat, 2),
+                'vat_adjustment' => number_format($_transaction->vat_adjustment, 2),
+                'vat_adjustments' => number_format($_transaction->vat_adjustment, 2),
+                'vat_exempt_sales' => number_format($_transaction->vat_exempt_sales, 2),
+                'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
+                'total_sales' => number_format($_transaction->total_sales, 2),
+            ];
+
+            $_transaction_basket_items = $_transaction->basket->items
+                // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
+                ->map(function ($basketItem) {
+                    return [
+                        'id' => $basketItem->item->id,
+                        'type' => $basketItem->item->type,
+                        'name' => $basketItem->item->type === 'product'
+                            ? $basketItem->item->product?->name
+                            : $basketItem->item->package?->name,
+                        'quantity' => $basketItem->quantity,
+                        'price' => $basketItem->item->type === 'product'
+                            ? $basketItem->item->product?->price
+                            : $basketItem->item->package?->price,
+                        'discount_value' => number_format($basketItem->discount_value, 2) ?? 0,
+                    ];
+                })->values();
+
+            $_transaction_discounted_basket_items = $_transaction->basket->items
+                ->filter(fn($basketItem) => $basketItem->discount_value > 0)
+                ->map(function ($basketItem) {
+                    return [
+                        'id' => $basketItem->item->id,
+                        'type' => $basketItem->item->type,
+                        'name' => $basketItem->item->type === 'product'
+                            ? $basketItem->item->product?->name
+                            : $basketItem->item->package?->name,
+                        'quantity' => $basketItem->quantity,
+                        'price' => $basketItem->item->type === 'product'
+                            ? $basketItem->total_value
+                            : $basketItem->total_value,
+                        'discount_value' => number_format($basketItem->discount_value, 2),
+                    ];
+                })->values();
 
             //Create Journal List
             $_journal_transaction_details = [
@@ -359,10 +419,10 @@ class TransactionController extends Controller
 
             //Process Data Formatting for json
             $_return_data = [
-                'transaction details' => $_transaction,
-                'transaction basket' => $_basket_items,
-                'payment methods' => $_transaction_methods,
-                'transaction payment methods' => $transactionPaymentMethods,
+                'transaction_details' => $_transaction_details,
+                'payment_methods' => $_transaction_payment_methods,
+                'items' => $_transaction_basket_items,
+                'discounted_items' => $_transaction_discounted_basket_items,
                 'stub_details' => $this->generate_stub($_transaction->id),
             ];
 
