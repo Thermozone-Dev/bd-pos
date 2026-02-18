@@ -36,7 +36,7 @@
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat_exempt_sales, 2) }}</td>
                     <td colspan="4" style="border: 1px solid black; padding: 8px; text-align: center;">0</td>
                     <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($transactionDiscount, 2) }}</td>
-                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->total_sales - $pwdTransaction->vat, 2) }}</td>
+                    <td colspan="4" style="border: 1px solid black; padding: 8px;">{{  number_format($pwdTransaction->vat_exempt_sales - $transactionDiscount, 2) }}</td>
                 </tr>
             @endif
         @endforeach
