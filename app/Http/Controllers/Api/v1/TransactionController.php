@@ -625,6 +625,17 @@ class TransactionController extends Controller
                         'total_sales' => number_format($_transaction->total_sales, 2),
                     ];
 
+                    $transactionPaymentMethods = $_transaction->paymentMethods->map(function ($method) {
+                        return [
+                            'transaction_id' => $method->transaction_id,
+                            'payment_method_name' => PaymentMethod::find($method->payment_method_id)?->name,
+                            'cash_tendered'       => number_format((float) $method->cash_tendered, 2, '.', ''),
+                            'transaction_fee'     => number_format((float) $method->transaction_fee, 2, '.', ''),
+                            'reference_number'    => $method->reference_number ?? '',
+                        ];
+                    });
+
+
                     $basketItems = $_transaction->basket->items
                         // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
                         ->map(function ($basketItem) {
@@ -834,6 +845,7 @@ class TransactionController extends Controller
                     $response = [
                         'message' => 'Transaction voided successfully.',
                         'transaction_details' => $transactionDetails,
+                        'payment_methods' => $transactionPaymentMethods,
                         'items' => $basketItems,              // only items WITHOUT discounts
                         'discounted_items' => $discountedBasketItems, // only items WITH discounts
                     ];
@@ -899,6 +911,16 @@ class TransactionController extends Controller
                     'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
                     'total_sales' => number_format($_transaction->total_sales, 2),
                 ];
+
+                $transactionPaymentMethods = $_transaction->paymentMethods->map(function ($method) {
+                        return [
+                            'transaction_id' => $method->transaction_id,
+                            'payment_method_name' => PaymentMethod::find($method->payment_method_id)?->name,
+                            'cash_tendered'       => number_format((float) $method->cash_tendered, 2, '.', ''),
+                            'transaction_fee'     => number_format((float) $method->transaction_fee, 2, '.', ''),
+                            'reference_number'    => $method->reference_number ?? '',
+                        ];
+                    });
 
                 $basketItems = $_transaction->basket->items
                     // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
@@ -1118,6 +1140,7 @@ class TransactionController extends Controller
                 $response = [
                     'message' => 'Transaction voided successfully.',
                     'transaction_details' => $transactionDetails,
+                    'payment_methods' => $transactionPaymentMethods,
                     'items' => $basketItems,              // only items WITHOUT discounts
                     'discounted_items' => $discountedBasketItems, // only items WITH discounts
                 ];
