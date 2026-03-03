@@ -387,8 +387,14 @@ class TransactionController extends Controller
                 ];
             }
 
+            foreach ($_transaction->paymentMethods as $_payment_method) {
+                $_journal_sales_details = array_merge($_journal_sales_details, [
+                    $_payment_method->payment_method_name . ' Payment : ' . str_pad(number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                ]);
+            }
+
             $_journal_sales_details = array_merge($_journal_sales_details, [
-                'Cash Tendered : ' . str_pad(number_format($_transaction->total_cash_tendered ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                'Total Amount Paid : ' . str_pad(number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
                 'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'Change : ' . str_pad(number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
                 'VAT : ' . str_pad(number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
@@ -625,17 +631,6 @@ class TransactionController extends Controller
                         'total_sales' => number_format($_transaction->total_sales, 2),
                     ];
 
-                    $transactionPaymentMethods = $_transaction->paymentMethods->map(function ($method) {
-                        return [
-                            'transaction_id' => $method->transaction_id,
-                            'payment_method_name' => PaymentMethod::find($method->payment_method_id)?->name,
-                            'cash_tendered'       => number_format((float) $method->cash_tendered, 2, '.', ''),
-                            'transaction_fee'     => number_format((float) $method->transaction_fee, 2, '.', ''),
-                            'reference_number'    => $method->reference_number ?? '',
-                        ];
-                    });
-
-
                     $basketItems = $_transaction->basket->items
                         // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
                         ->map(function ($basketItem) {
@@ -813,8 +808,14 @@ class TransactionController extends Controller
                             ];
                         }
 
+                        foreach ($_transaction->paymentMethods as $_payment_method) {
+                            $_journal_sales_details = array_merge($_journal_sales_details, [
+                                $_payment_method->payment_method_name . ' Payment : ' . str_pad("-".number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                            ]);
+                        }
+
                         $_journal_sales_details = array_merge($_journal_sales_details, [
-                            'Cash Tendered : ' . str_pad("-".number_format($_transaction->total_cash_tendered ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                            'Total Amount Paid : ' . str_pad("-".number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
                             'VATable Sales : ' . str_pad("-".number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                             'Change : ' . str_pad("-".number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
                             'VAT : ' . str_pad("-".number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
@@ -845,7 +846,6 @@ class TransactionController extends Controller
                     $response = [
                         'message' => 'Transaction voided successfully.',
                         'transaction_details' => $transactionDetails,
-                        'payment_methods' => $transactionPaymentMethods,
                         'items' => $basketItems,              // only items WITHOUT discounts
                         'discounted_items' => $discountedBasketItems, // only items WITH discounts
                     ];
@@ -911,16 +911,6 @@ class TransactionController extends Controller
                     'zero_rated_sales' => number_format($_transaction->zero_rated_sales, 2),
                     'total_sales' => number_format($_transaction->total_sales, 2),
                 ];
-
-                $transactionPaymentMethods = $_transaction->paymentMethods->map(function ($method) {
-                        return [
-                            'transaction_id' => $method->transaction_id,
-                            'payment_method_name' => PaymentMethod::find($method->payment_method_id)?->name,
-                            'cash_tendered'       => number_format((float) $method->cash_tendered, 2, '.', ''),
-                            'transaction_fee'     => number_format((float) $method->transaction_fee, 2, '.', ''),
-                            'reference_number'    => $method->reference_number ?? '',
-                        ];
-                    });
 
                 $basketItems = $_transaction->basket->items
                     // ->filter(fn($basketItem) => $basketItem->discount_value <= 0)
@@ -1108,8 +1098,14 @@ class TransactionController extends Controller
                         ];
                     }
 
+                    foreach ($_transaction->paymentMethods as $_payment_method) {
+                        $_journal_sales_details = array_merge($_journal_sales_details, [
+                            $_payment_method->payment_method_name . ' Payment : ' . str_pad("-".number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                        ]);
+                    }
+
                     $_journal_sales_details = array_merge($_journal_sales_details, [
-                        'Cash Tendered : ' . str_pad("-".number_format($_transaction->total_cash_tendered ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                        'Total Amount Paid : ' . str_pad("-".number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
                         'VATable Sales : ' . str_pad("-".number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                         'Change : ' . str_pad("-".number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
                         'VAT : ' . str_pad("-".number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
@@ -1140,7 +1136,6 @@ class TransactionController extends Controller
                 $response = [
                     'message' => 'Transaction voided successfully.',
                     'transaction_details' => $transactionDetails,
-                    'payment_methods' => $transactionPaymentMethods,
                     'items' => $basketItems,              // only items WITHOUT discounts
                     'discounted_items' => $discountedBasketItems, // only items WITH discounts
                 ];
@@ -1639,8 +1634,14 @@ class TransactionController extends Controller
                 ];
             }
 
+            foreach ($_transaction->paymentMethods as $_payment_method) {
+                $_journal_sales_details = array_merge($_journal_sales_details, [
+                    $_payment_method->payment_method_name . ' Payment : ' . str_pad(number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                ]);
+            }
+
             $_journal_sales_details = array_merge($_journal_sales_details, [
-                'Cash Tendered : ' . str_pad(number_format($_transaction->total_cash_tendered ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                'Total Amount Paid : ' . str_pad(number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
                 'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'Change : ' . str_pad(number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
                 'VAT : ' . str_pad(number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
