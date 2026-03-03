@@ -389,7 +389,7 @@ class TransactionController extends Controller
 
             foreach ($_transaction->paymentMethods as $_payment_method) {
                 $_journal_sales_details = array_merge($_journal_sales_details, [
-                    $_payment_method->payment_method_name . ' Payment : ' . str_pad(number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                    $_payment_method->paymentMethod->name . ' Payment : ' . str_pad(number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
                 ]);
             }
 
@@ -810,7 +810,7 @@ class TransactionController extends Controller
 
                         foreach ($_transaction->paymentMethods as $_payment_method) {
                             $_journal_sales_details = array_merge($_journal_sales_details, [
-                                $_payment_method->payment_method_name . ' Payment : ' . str_pad("-".number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                                $_payment_method->paymentMethod->name . ' Payment : ' . str_pad("-".number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
                             ]);
                         }
 
@@ -1100,7 +1100,7 @@ class TransactionController extends Controller
 
                     foreach ($_transaction->paymentMethods as $_payment_method) {
                         $_journal_sales_details = array_merge($_journal_sales_details, [
-                            $_payment_method->payment_method_name . ' Payment : ' . str_pad("-".number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                            $_payment_method->paymentMethod->name . ' Payment : ' . str_pad("-".number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
                         ]);
                     }
 
@@ -1636,7 +1636,7 @@ class TransactionController extends Controller
 
             foreach ($_transaction->paymentMethods as $_payment_method) {
                 $_journal_sales_details = array_merge($_journal_sales_details, [
-                    $_payment_method->payment_method_name . ' Payment : ' . str_pad(number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                    $_payment_method->paymentMethod->name . ' Payment : ' . str_pad(number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
                 ]);
             }
 
