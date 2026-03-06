@@ -338,8 +338,8 @@ class ZReadingController extends Controller
         //Create Journal List
         $_journal_z_reading = [
             '   THERMOZONE PHILIPPINES CORP.   ',
-            ' 2286 Marconi St., Brgy. San Isid ',
-            '        ro City of Makati,        ',
+            '      2286 Marconi St., Brgy.     ',
+            '     San Isidro City of Makati,   ',
             '  VAT REG TIN: 223-661-818-00000  ',
             '         MIN: '.'XXXXXXXXXX       ',
             '         S/N: '.'XXXXXXXXXX       ',
@@ -487,8 +487,8 @@ class ZReadingController extends Controller
             'Date :' . str_pad(now()->format('F d, Y'), 28, ' ', STR_PAD_LEFT),
             'Time :' . str_pad(now()->format('h:i A'), 28, ' ', STR_PAD_LEFT) . PHP_EOL,
             '   THERMOZONE PHILIPPINES CORP.   ',
-            ' 2286 Marconi St., Brgy. San Isid ',
-            '        ro City of Makati,        ',
+            '      2286 Marconi St., Brgy.     ',
+            '     San Isidro City of Makati,   ',
             '  VAT REG TIN: 223-661-818-00000  ',
             '         MIN: '.'XXXXXXXXXX       ',
             '         S/N: '.'XXXXXXXXXX       ',
