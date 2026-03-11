@@ -23,14 +23,8 @@ use App\Models\TransactionHasPaymentMethod;
 use App\Models\VoidTransaction;
 use Exception;
 use Illuminate\Http\Request;
-use PhpParser\Node\Expr\Cast\Array_;
-use function PHPUnit\Framework\isEmpty;
-use function PHPUnit\Framework\isNull;
 use App\Traits\TransactionSummary;
-use BezhanSalleh\FilamentShield\Support\Utils;
 use Carbon\Carbon;
-use Illuminate\Container\Attributes\Auth;
-use PHPUnit\Event\Runtime\PHP;
 
 class TransactionController extends Controller
 {
@@ -120,7 +114,7 @@ class TransactionController extends Controller
             $_gov_discount_list = $_basket_item_data[1];
 
             // Per Basket Discount
-            if(!empty($item['item_discounts'])) {
+            if (!empty($item['item_discounts'])) {
                 if (!(count($request->transaction_discounts) === 0)) {
                     $_discount = Discount::find($request->transaction_discounts['id']);
 
@@ -141,24 +135,23 @@ class TransactionController extends Controller
             $_transaction->barcode = $_transaction->id;
 
             //Gov discount processing
-            if(!empty($_gov_discount_list)){
-                if(isset($request->gov_discount_details)){
+            if (!empty($_gov_discount_list)) {
+                if (isset($request->gov_discount_details)) {
                     foreach ($request->gov_discount_details as $key => $details) {
                         match ($key) {
-                                'sc' => $this->createScInfo($details, $_transaction->id),
-                                'pwd' => $this->createPwdInfo($details, $_transaction->id),
-                                'nac' => $this->createNacInfo($details, $_transaction->id),
-                                'sp' => $this->createSpInfo($details, $_transaction->id),
+                            'sc' => $this->createScInfo($details, $_transaction->id),
+                            'pwd' => $this->createPwdInfo($details, $_transaction->id),
+                            'nac' => $this->createNacInfo($details, $_transaction->id),
+                            'sp' => $this->createSpInfo($details, $_transaction->id),
                         };
                         match ($key) {
-                                'sc' => $_transaction->is_sc = true,
-                                'pwd' => $_transaction->is_pwd = true,
-                                'nac' => $_transaction->is_nac = true,
-                                'sp' => $_transaction->is_soloparent = true,
+                            'sc' => $_transaction->is_sc = true,
+                            'pwd' => $_transaction->is_pwd = true,
+                            'nac' => $_transaction->is_nac = true,
+                            'sp' => $_transaction->is_soloparent = true,
                         };
                     }
-                }
-                else{
+                } else {
                     $_err = ['error' => 'Missing Discount Details',];
                     return response()->json($_err, 400);
                 }
@@ -167,7 +160,7 @@ class TransactionController extends Controller
             $_transaction_methods = [];
             $_transaction_payment_methods = [];
             $_method_list = [];
-            foreach ($request->transaction_methods as $method){
+            foreach ($request->transaction_methods as $method) {
                 array_push($_transaction_methods, TransactionHasPaymentMethod::create(
                     [
                         'transaction_id' => $_transaction->id,
@@ -178,7 +171,7 @@ class TransactionController extends Controller
                     ]
                 ));
 
-                array_push ($_transaction_payment_methods, [
+                array_push($_transaction_payment_methods, [
                     'transaction_id' => $_transaction->id,
                     'payment_method_name' => PaymentMethod::find($method['transaction_method_id'])->name,
                     'cash_tendered' => round($method['cash_tendered'], 2),
@@ -196,7 +189,7 @@ class TransactionController extends Controller
                 'si_no' => str_pad($_transaction->si_no, 12, '0', STR_PAD_LEFT),
                 'date' => $_transaction->created_at->format('F j, Y'),
                 'time' => $_transaction->created_at->format('h:i A'),
-                'payment_method' => implode(', ' , $_method_list),
+                'payment_method' => implode(', ', $_method_list),
 
                 'is_sc' => $_transaction->is_sc,
                 'is_pwd' => $_transaction->is_pwd,
@@ -254,19 +247,20 @@ class TransactionController extends Controller
                 '  -----       INVOICE       ----  ',
                 ' ',
                 '   Thermozone Philippines Corp.   ',
-                ' 2286 Marconi St., Brgy. San Isid ',
-                '        ro City of Makati,        ',
+                '      2286 Marconi St., Brgy.     ',
+                '     San Isidro City of Makati,   ',
                 '  VAT REG TIN: 223-661-818-00000  ',
+                '       MIN: ' . 'XXXXXXXXXX   ',
+                '       S/N: ' . 'XXXXXXXXXX  ',
                 ' ',
                 ' -------------------------------- ',
                 ' ',
-                ' MIN: '.'XXXXXXXXXX   ',
-                ' Serial No : ' . 'XXXXXXXXXX   ',
                 ' ',
                 'Issued By : ' . auth()->user()->name,
                 'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
                 'Date : ' . $_transaction->created_at->format('F d, Y'),
-                'Payment Method : ' . implode(', ' , $_method_list),
+                'Time : ' . $_transaction->created_at->format('h:i A'),
+                'Payment Method : ' . implode(', ', $_method_list),
                 ' ',
                 '----------------------------------',
             ];
@@ -279,43 +273,44 @@ class TransactionController extends Controller
 
             if ($_transaction->is_sc) {
                 $_sc_info = ScInfo::where('transaction_id', $_transaction->id)->first();
-                array_push($_journal_customer_details,
+                array_push(
+                    $_journal_customer_details,
                     ' Name: ' . $_sc_info->name,
                     ' ID Number  : ' . $_sc_info->sc_id,
                     ' Signature : ______________________ '
                 );
-            }
-            else if ($_transaction->is_pwd) {
+            } else if ($_transaction->is_pwd) {
                 $_pwd_info = PwdInfo::where('transaction_id', $_transaction->id)->first();
-                array_push($_journal_customer_details,
+                array_push(
+                    $_journal_customer_details,
                     ' Name:      ' . $_pwd_info->name,
                     ' ID Number: ' . $_pwd_info->pwd_id,
                     ' Signature: ______________________ '
                 );
-            }
-            else if ($_transaction->is_nac) {
+            } else if ($_transaction->is_nac) {
                 $_nac_info = NacInfo::where('transaction_id', $_transaction->id)->first();
-                array_push($_journal_customer_details,
+                array_push(
+                    $_journal_customer_details,
                     ' Name:      ' . $_nac_info->name,
                     ' ID Number: ' . $_nac_info->pnstm_id,
                     ' Signature: ______________________ '
                 );
-            }
-            else if ($_transaction->is_soloparent) {
+            } else if ($_transaction->is_soloparent) {
                 $_sp_info = SoloparentInfo::where('transaction_id', $_transaction->id)->first();
-                array_push($_journal_customer_details,
+                array_push(
+                    $_journal_customer_details,
                     ' Name:      ' . $_sp_info->name,
                     ' ID Number: ' . $_sp_info->spic_id,
                     ' Signature: ______________________ '
                 );
-            }
-            else {
-                array_push($_journal_customer_details,
+            } else {
+                array_push(
+                    $_journal_customer_details,
                     ' Name:      ______________________ ',
                     ' Address:   ______________________ ',
                     ' TIN:       ______________________ ',
                     ' Signature: ______________________ '
-            );
+                );
             }
 
             $_journal_item_details = [
@@ -331,25 +326,27 @@ class TransactionController extends Controller
 
             foreach ($_basket_items as $_basket_item) {
                 $_item = Item::find($_basket_item->item_id);
-                if($_item->package){
+                if ($_item->package) {
                     $_item_data = Package::find($_item->package_id);
                 }
-                if($_item->product){
+                if ($_item->product) {
                     $_item_data = Product::find($_item->product_id);
                 }
-                array_push($_journal_item_details,
+                array_push(
+                    $_journal_item_details,
                     ' ' . $_basket_item->quantity .
-                    '     ' . $_item_data->name .
-                    '    @' . number_format($_item_data->price, 2) .
-                    '     ' . number_format($_basket_item->total_value, 2));
+                        '     ' . $_item_data->name .
+                        '    @' . number_format($_item_data->price, 2) .
+                        '     ' . number_format($_item_data->price * $_basket_item['quantity'], 2)
+                );
                 $_discount_value += $_basket_item->discount_value;
                 $_item_count += $_basket_item->quantity;
             }
 
             $_journal_discount_details = [''];
 
-            if($_discount_value > 0){
-                $_journal_discount_details = array_merge($_journal_discount_details,[
+            if ($_discount_value > 0) {
+                $_journal_discount_details = array_merge($_journal_discount_details, [
                     '----------------------------------',
                     '',
                     $_item_count . ' Item(s)',
@@ -361,25 +358,24 @@ class TransactionController extends Controller
                     ' Gross Total:   ' . str_pad(number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
                     '',
                 ]);
-                $_discount_string = match(true) {
+                $_discount_string = match (true) {
                     $_transaction->is_sc == true =>
-                        'Less SC @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less SC @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     $_transaction->is_pwd == true =>
-                        'Less PWD @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less PWD @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     $_transaction->is_nac == true =>
-                        'Less NAC @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less NAC @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     $_transaction->is_soloparent == true =>
-                        'Less SP @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less SP @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     $_transaction->is_soloparent == true =>
-                        'Less Promo:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less Promo:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                 };
                 $_journal_sales_details = [
                     '----------------------------------',
                     ' ',
                     $_discount_string
                 ];
-            }
-            else{
+            } else {
                 $_journal_sales_details = [
                     '----------------------------------',
                     ' ',
@@ -395,8 +391,8 @@ class TransactionController extends Controller
 
             $_journal_sales_details = array_merge($_journal_sales_details, [
                 'Total Amount Paid : ' . str_pad(number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
-                'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'Change : ' . str_pad(number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
+                'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'VAT : ' . str_pad(number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
                 'VAT Exempt Sales : ' . str_pad(number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
                 'Zero Rated Sales : ' . str_pad(number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
@@ -408,7 +404,10 @@ class TransactionController extends Controller
                 '   2286 Marconi St. Makati City   ',
                 '  VAT REG TIN: 223-661-818-00000  ',
                 ' Accreditation Number: XXXXXXXXXX ',
-                '      ATG Number: XXXXXXXXXX      ' . PHP_EOL,
+                '      Date Issued: MM/DD/YYYY     ',
+                '     Valid Issued: MM/DD/YYYY     ',
+                '        PTU No: XXXXXXXXXX        ',
+                '      Date Issued: MM/DD/YYYY     ' . PHP_EOL,
                 '---------------------------------------------------------------------------' . PHP_EOL,
             ]);
 
@@ -433,7 +432,6 @@ class TransactionController extends Controller
             ];
 
             return response()->json($_return_data, 201);
-
         } catch (Exception $err) {
             return response()->json($err->getMessage());
         }
@@ -467,7 +465,8 @@ class TransactionController extends Controller
         return response()->json(null, 204);
     }
 
-    private function createPwdInfo($details, $transaction_id){
+    private function createPwdInfo($details, $transaction_id)
+    {
         $_data = [
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
@@ -478,7 +477,8 @@ class TransactionController extends Controller
         PwdInfo::create($_data);
     }
 
-    private function createScInfo($details, $transaction_id){
+    private function createScInfo($details, $transaction_id)
+    {
         $_data = [
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
@@ -489,7 +489,8 @@ class TransactionController extends Controller
         ScInfo::create($_data);
     }
 
-    private function createNacInfo($details, $transaction_id){
+    private function createNacInfo($details, $transaction_id)
+    {
         $_data = [
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
@@ -499,7 +500,8 @@ class TransactionController extends Controller
         NacInfo::create($_data);
     }
 
-    private function createSpInfo($details, $transaction_id){
+    private function createSpInfo($details, $transaction_id)
+    {
         $_data = [
             'transaction_id' => $transaction_id,
             'name' => $details['name'],
@@ -520,10 +522,9 @@ class TransactionController extends Controller
             3 => 'nac',
             4 => 'sp',
             default => null,
-
         };
 
-        if (!is_null($_gov_discount) || !in_array($_gov_discount, $gov_discount_list)){
+        if (!is_null($_gov_discount) || !in_array($_gov_discount, $gov_discount_list)) {
             array_push($gov_discount_list, $_gov_discount);
         }
         return $gov_discount_list;
@@ -532,7 +533,7 @@ class TransactionController extends Controller
     private function processItems(TransactionBasket $basket, array $items, array $gov_discount_list)
     {
         $_basket_items = [];
-        foreach($items as $item){
+        foreach ($items as $item) {
             $_item_data = [
                 'transaction_basket_id' => $basket['id'],
                 'item_id' => $item['item_id'],
@@ -544,7 +545,7 @@ class TransactionController extends Controller
 
             $test = Item::find($item['item_id']);
             $test = $test?->package;
-            if($test){
+            if ($test) {
                 $_item_data['package_base_price'] = $test->base_price;
             }
 
@@ -552,7 +553,7 @@ class TransactionController extends Controller
 
             // Discount Check
             // Per Item Discounts
-            if(!empty($item['item_discounts'])) {
+            if (!empty($item['item_discounts'])) {
                 if (!(count($item['item_discounts']) === 0)) {
                     $data = $item['item_discounts']['id'];
 
@@ -571,7 +572,6 @@ class TransactionController extends Controller
 
             $_basket_item->update($_item_data);
             array_push($_basket_items, $_basket_item);
-
         }
         return [$_basket_items, $gov_discount_list];
     }
@@ -601,7 +601,7 @@ class TransactionController extends Controller
                     }
 
                     $_method_list = [];
-                    foreach($_transaction->paymentMethods as $method){
+                    foreach ($_transaction->paymentMethods as $method) {
                         array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
                     }
 
@@ -614,7 +614,7 @@ class TransactionController extends Controller
                         'si_no' => str_pad($_transaction->si_no, 12, '0', STR_PAD_LEFT),
                         'date' => $_transaction->created_at->format('F j, Y'),
                         'time' => $_transaction->created_at->format('h:i A'),
-                        'payment_method' => implode(', ' , $_method_list),
+                        'payment_method' => implode(', ', $_method_list),
 
                         'is_sc' => $_transaction->is_sc,
                         'is_pwd' => $_transaction->is_pwd,
@@ -655,7 +655,7 @@ class TransactionController extends Controller
                                 'price' => $basketItem->item->type === 'product'
                                     ? $basketItem->item->product?->price
                                     : $basketItem->item->package?->price,
-                                'discount_value' => number_format($basketItem->discount_value, 2) ,
+                                'discount_value' => number_format($basketItem->discount_value, 2),
                             ];
                         })->values();
 
@@ -677,180 +677,186 @@ class TransactionController extends Controller
                         })->values();
 
 
-                        //Create Journal List
-                        $_journal_transaction_details = [
-                            '  -----    VOID INVOICE     ----  ',
-                            ' ',
-                            '   Thermozone Philippines Corp.   ',
-                            ' 2286 Marconi St., Brgy. San Isid ',
-                            '        ro City of Makati,        ',
-                            '  VAT REG TIN: 223-661-818-00000  ',
-                            ' ',
-                            ' -------------------------------- ',
-                            ' ',
-                            ' MIN: '.'XXXXXXXXXX   ',
-                            ' Serial No : ' . 'XXXXXXXXXX   ',
-                            ' ',
-                            'Void No: ' . str_pad($void->id, 12, '0', STR_PAD_LEFT) . '   ',
-                            'Void Date: ' . $void->created_at->format('F j, Y') . '   ',
-                            'Void Time: ' . $void->created_at->format('h:i A') . '   ',
-                            ' ',
-                            'Issued By : ' . auth()->user()->name,
-                            'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
-                            'Date : ' . $_transaction->created_at->format('F d, Y'),
-                            'Payment Method : ' . implode(', ' , $_method_list),
-                            ' ',
-                            '----------------------------------',
-                        ];
+                    //Create Journal List
+                    $_journal_transaction_details = [
+                        '  -----    VOID INVOICE     ----  ',
+                        ' ',
+                        '   Thermozone Philippines Corp.   ',
+                        '      2286 Marconi St., Brgy.     ',
+                        '     San Isidro City of Makati,   ',
+                        '  VAT REG TIN: 223-661-818-00000  ',
+                        '       MIN: ' . 'XXXXXXXXXX   ',
+                        '       S/N: ' . 'XXXXXXXXXX  ',
+                        ' ',
+                        ' -------------------------------- ',
+                        ' ',
+                        ' ',
+                        'Void No: ' . str_pad($void->id, 12, '0', STR_PAD_LEFT) . '   ',
+                        'Void Date: ' . $void->created_at->format('F j, Y') . '   ',
+                        'Void Time: ' . $void->created_at->format('h:i A') . '   ',
+                        ' ',
+                        'Issued By : ' . auth()->user()->name,
+                        'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                        'Date : ' . $_transaction->created_at->format('F d, Y'),
+                        'Time : ' . $_transaction->created_at->format('h:i A'),
+                        'Payment Method : ' . implode(', ', $_method_list),
+                        ' ',
+                        '----------------------------------',
+                    ];
 
-                        $_journal_customer_details = [
-                            ' ',
-                            ' -----   CUSTOMER DETAILS  ----- ',
-                            ' ',
-                        ];
+                    $_journal_customer_details = [
+                        ' ',
+                        ' -----   CUSTOMER DETAILS  ----- ',
+                        ' ',
+                    ];
 
-                        if ($_transaction->is_sc) {
-                            $_sc_info = ScInfo::where('transaction_id', $_transaction->id)->first();
-                            array_push($_journal_customer_details,
-                                ' Name: ' . $_sc_info->name,
-                                ' ID Number  : ' . $_sc_info->sc_id,
-                                ' Signature : ______________________ '
-                            );
-                        }
-                        else if ($_transaction->is_pwd) {
-                            $_pwd_info = PwdInfo::where('transaction_id', $_transaction->id)->first();
-                            array_push($_journal_customer_details,
-                                ' Name:      ' . $_pwd_info->name,
-                                ' ID Number: ' . $_pwd_info->pwd_id,
-                                ' Signature: ______________________ '
-                            );
-                        }
-                        else if ($_transaction->is_nac) {
-                            $_nac_info = NacInfo::where('transaction_id', $_transaction->id)->first();
-                            array_push($_journal_customer_details,
-                                ' Name:      ' . $_nac_info->name,
-                                ' ID Number: ' . $_nac_info->pnstm_id,
-                                ' Signature: ______________________ '
-                            );
-                        }
-                        else if ($_transaction->is_soloparent) {
-                            $_sp_info = SoloparentInfo::where('transaction_id', $_transaction->id)->first();
-                            array_push($_journal_customer_details,
-                                ' Name:      ' . $_sp_info->name,
-                                ' ID Number: ' . $_sp_info->spic_id,
-                                ' Signature: ______________________ '
-                            );
-                        }
-                        else {
-                            array_push($_journal_customer_details,
-                                ' Name:      ______________________ ',
-                                ' Address:   ______________________ ',
-                                ' TIN:       ______________________ ',
-                                ' Signature: ______________________ '
+                    if ($_transaction->is_sc) {
+                        $_sc_info = ScInfo::where('transaction_id', $_transaction->id)->first();
+                        array_push(
+                            $_journal_customer_details,
+                            ' Name: ' . $_sc_info->name,
+                            ' ID Number  : ' . $_sc_info->sc_id,
+                            ' Signature : ______________________ '
                         );
+                    } else if ($_transaction->is_pwd) {
+                        $_pwd_info = PwdInfo::where('transaction_id', $_transaction->id)->first();
+                        array_push(
+                            $_journal_customer_details,
+                            ' Name:      ' . $_pwd_info->name,
+                            ' ID Number: ' . $_pwd_info->pwd_id,
+                            ' Signature: ______________________ '
+                        );
+                    } else if ($_transaction->is_nac) {
+                        $_nac_info = NacInfo::where('transaction_id', $_transaction->id)->first();
+                        array_push(
+                            $_journal_customer_details,
+                            ' Name:      ' . $_nac_info->name,
+                            ' ID Number: ' . $_nac_info->pnstm_id,
+                            ' Signature: ______________________ '
+                        );
+                    } else if ($_transaction->is_soloparent) {
+                        $_sp_info = SoloparentInfo::where('transaction_id', $_transaction->id)->first();
+                        array_push(
+                            $_journal_customer_details,
+                            ' Name:      ' . $_sp_info->name,
+                            ' ID Number: ' . $_sp_info->spic_id,
+                            ' Signature: ______________________ '
+                        );
+                    } else {
+                        array_push(
+                            $_journal_customer_details,
+                            ' Name:      ______________________ ',
+                            ' Address:   ______________________ ',
+                            ' TIN:       ______________________ ',
+                            ' Signature: ______________________ '
+                        );
+                    }
+
+                    $_journal_item_details = [
+                        ' ',
+                        '----------------------------------',
+                        ' ',
+                        ' -----    ITEM BREAKDOWN    ----- ',
+                        ' ',
+                        ' Qty     Item     Price     Total ',
+                    ];
+                    $_discount_value = 0.0;
+                    $_item_count = 0;
+
+                    foreach ($basketItems as $_basket_item) {
+                        $_item = Item::find($_basket_item['id']);
+                        if ($_item->package) {
+                            $_item_data = Package::find($_item->package_id);
                         }
-
-                        $_journal_item_details = [
-                            ' ',
-                            '----------------------------------',
-                            ' ',
-                            ' -----    ITEM BREAKDOWN    ----- ',
-                            ' ',
-                            ' Qty     Item     Price     Total ',
-                        ];
-                        $_discount_value = 0.0;
-                        $_item_count = 0;
-
-                        foreach ($basketItems as $_basket_item) {
-                            $_item = Item::find($_basket_item['id']);
-                            if($_item->package){
-                                $_item_data = Package::find($_item->package_id);
-                            }
-                            if($_item->product){
-                                $_item_data = Product::find($_item->product_id);
-                            }
-                            array_push($_journal_item_details,
-                                ' ' . $_basket_item['quantity'] .
+                        if ($_item->product) {
+                            $_item_data = Product::find($_item->product_id);
+                        }
+                        array_push(
+                            $_journal_item_details,
+                            ' ' . $_basket_item['quantity'] .
                                 '    ' . $_item_data->name .
                                 '    -' . number_format($_item_data->price, 2) .
-                                '    -' . number_format($_item_data->total_value, 2));
-                            $_discount_value += $_basket_item['discount_value'];
-                            $_item_count += $_basket_item['quantity'];
-                        }
-
-                        $_journal_discount_details = [''];
-
-                        if($_discount_value > 0){
-                            $_journal_discount_details = array_merge($_journal_discount_details,[
-                                '----------------------------------',
-                                '',
-                                $_item_count . ' Item(s)',
-                                ' Subtotal:      ' . str_pad("-".number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
-                                '',
-                                '----------------------------------',
-                                '',
-                                ' Less Disc Vat: ' . str_pad("-".number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
-                                ' Gross Total:   ' . str_pad("-".number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
-                                '',
-                            ]);
-                            $_discount_string = match(true) {
-                                $_transaction->is_sc == true =>
-                                    'Less SC @ 20%:  ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                                $_transaction->is_pwd == true =>
-                                    'Less PWD @ 20%: ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                                $_transaction->is_nac == true =>
-                                    'Less NAC @ 20%: ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                                $_transaction->is_soloparent == true =>
-                                    'Less SP @ 20%:  ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                                $_transaction->is_soloparent == true =>
-                                    'Less Promo:  ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                            };
-                            $_journal_sales_details = [
-                                '----------------------------------',
-                                ' ',
-                                $_discount_string
-                            ];
-                        }
-                        else{
-                            $_journal_sales_details = [
-                                '----------------------------------',
-                                ' ',
-                                'Gross Sales   : ' . str_pad("-".number_format($_transaction->gross_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
-                            ];
-                        }
-
-                        foreach ($_transaction->paymentMethods as $_payment_method) {
-                            $_journal_sales_details = array_merge($_journal_sales_details, [
-                                $_payment_method->paymentMethod->name . ' Payment : ' . str_pad("-".number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
-                            ]);
-                        }
-
-                        $_journal_sales_details = array_merge($_journal_sales_details, [
-                            'Total Amount Paid : ' . str_pad("-".number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
-                            'VATable Sales : ' . str_pad("-".number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
-                            'Change : ' . str_pad("-".number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
-                            'VAT : ' . str_pad("-".number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
-                            'VAT Exempt Sales : ' . str_pad("-".number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
-                            'Zero Rated Sales : ' . str_pad("-".number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
-                            'Total Sales : ' . str_pad("-".number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
-                            ' ',
-                            '           ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT) . '     ',
-                            ' ',
-                            '   THERMOZONE PHILIPPINES CORP.   ',
-                            '   2286 Marconi St. Makati City   ',
-                            '  VAT REG TIN: 223-661-818-00000  ',
-                            ' Accreditation Number: XXXXXXXXXX ',
-                            '      ATG Number: XXXXXXXXXX      ' . PHP_EOL,
-                            '---------------------------------------------------------------------------' . PHP_EOL,
-                        ]);
-
-                        $_journal_list = array_merge(
-                            $_journal_transaction_details,
-                            $_journal_customer_details,
-                            $_journal_item_details,
-                            $_journal_discount_details,
-                            $_journal_sales_details
+                                '    -' . number_format($_item_data->price * $_basket_item['quantity'], 2)
                         );
+                        $_discount_value += $_basket_item['discount_value'];
+                        $_item_count += $_basket_item['quantity'];
+                    }
+
+                    $_journal_discount_details = [''];
+
+                    if ($_discount_value > 0) {
+                        $_journal_discount_details = array_merge($_journal_discount_details, [
+                            '----------------------------------',
+                            '',
+                            $_item_count . ' Item(s)',
+                            ' Subtotal:      ' . str_pad("-" . number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                            '',
+                            '----------------------------------',
+                            '',
+                            ' Less Disc Vat: ' . str_pad("-" . number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                            ' Gross Total:   ' . str_pad("-" . number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
+                            '',
+                        ]);
+                        $_discount_string = match (true) {
+                            $_transaction->is_sc == true =>
+                            'Less SC @ 20%:  ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                            $_transaction->is_pwd == true =>
+                            'Less PWD @ 20%: ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                            $_transaction->is_nac == true =>
+                            'Less NAC @ 20%: ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                            $_transaction->is_soloparent == true =>
+                            'Less SP @ 20%:  ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                            $_transaction->is_soloparent == true =>
+                            'Less Promo:  ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                        };
+                        $_journal_sales_details = [
+                            '----------------------------------',
+                            ' ',
+                            $_discount_string
+                        ];
+                    } else {
+                        $_journal_sales_details = [
+                            '----------------------------------',
+                            ' ',
+                            'Gross Sales   : ' . str_pad("-" . number_format($_transaction->gross_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                        ];
+                    }
+
+                    foreach ($_transaction->paymentMethods as $_payment_method) {
+                        $_journal_sales_details = array_merge($_journal_sales_details, [
+                            $_payment_method->paymentMethod->name . ' Payment : ' . str_pad("-" . number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                        ]);
+                    }
+
+                    $_journal_sales_details = array_merge($_journal_sales_details, [
+                        'Total Amount Paid : ' . str_pad("-" . number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                        'Change : ' . str_pad("-" . number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
+                        'VATable Sales : ' . str_pad("-" . number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                        'VAT : ' . str_pad("-" . number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
+                        'VAT Exempt Sales : ' . str_pad("-" . number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
+                        'Zero Rated Sales : ' . str_pad("-" . number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
+                        'Amount Due : ' . str_pad("-" . number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
+                        ' ',
+                        '           ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT) . '     ',
+                        ' ',
+                        '   THERMOZONE PHILIPPINES CORP.   ',
+                        '   2286 Marconi St. Makati City   ',
+                        '  VAT REG TIN: 223-661-818-00000  ',
+                        ' Accreditation Number: XXXXXXXXXX ',
+                        '      Date Issued: MM/DD/YYYY     ',
+                        '     Valid Issued: MM/DD/YYYY     ',
+                        '        PTU No: XXXXXXXXXX        ',
+                        '      Date Issued: MM/DD/YYYY     ' . PHP_EOL,
+                        '---------------------------------------------------------------------------' . PHP_EOL,
+                    ]);
+
+                    $_journal_list = array_merge(
+                        $_journal_transaction_details,
+                        $_journal_customer_details,
+                        $_journal_item_details,
+                        $_journal_discount_details,
+                        $_journal_sales_details
+                    );
 
                     Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'void_invoice',  $_journal_list);
 
@@ -864,7 +870,6 @@ class TransactionController extends Controller
 
                     return response()->json($response, 200);
                 }
-
             } else {
                 return response()->json(['error' => 'Transaction not found.'], 404);
             }
@@ -894,7 +899,7 @@ class TransactionController extends Controller
                 }
 
                 $_method_list = [];
-                foreach($_transaction->paymentMethods as $method){
+                foreach ($_transaction->paymentMethods as $method) {
                     array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
                 }
 
@@ -907,7 +912,7 @@ class TransactionController extends Controller
                     'si_no' => str_pad($_transaction->si_no, 12, '0', STR_PAD_LEFT),
                     'date' => $_transaction->created_at->format('F j, Y'),
                     'time' => $_transaction->created_at->format('h:i A'),
-                    'payment_method' => implode(', ' , $_method_list),
+                    'payment_method' => implode(', ', $_method_list),
 
                     'is_sc' => $_transaction->is_sc,
                     'is_pwd' => $_transaction->is_pwd,
@@ -969,192 +974,198 @@ class TransactionController extends Controller
                         ];
                     })->values();
 
-                    $_method_list = [];
-                    foreach($_transaction->paymentMethods as $method){
-                        array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
-                    }
+                $_method_list = [];
+                foreach ($_transaction->paymentMethods as $method) {
+                    array_push($_method_list, PaymentMethod::find($method->payment_method_id)->name);
+                }
 
-                    //Create Journal List
-                    $_journal_transaction_details = [
-                        '  -----       REPRINT       ----  ',
-                        ' ',
-                        'Date :' . str_pad(now()->format('F d, Y'), 28, ' ', STR_PAD_LEFT),
-                        'Time :' . str_pad(now()->format('h:i A'), 28, ' ', STR_PAD_LEFT) . PHP_EOL,
-                        ' ',
-                        '  -----    VOID INVOICE     ----  ',
-                        ' ',
-                        '   Thermozone Philippines Corp.   ',
-                        ' 2286 Marconi St., Brgy. San Isid ',
-                        '        ro City of Makati,        ',
-                        '  VAT REG TIN: 223-661-818-00000  ',
-                        ' ',
-                        ' -------------------------------- ',
-                        ' ',
-                        ' MIN: '.'XXXXXXXXXX   ',
-                        ' Serial No : ' . 'XXXXXXXXXX   ',
-                        ' ',
-                        'Void No: ' . str_pad($_void->id, 12, '0', STR_PAD_LEFT) . '   ',
-                        'Void Date: ' . $_void->created_at->format('F j, Y') . '   ',
-                        'Void Time: ' . $_void->created_at->format('h:i A') . '   ',
-                        ' ',
-                        'Issued By : ' . auth()->user()->name,
-                        'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
-                        'Date : ' . $_transaction->created_at->format('F d, Y'),
-                        'Payment Method : ' . implode(', ' , $_method_list),
-                        ' ',
-                        '----------------------------------',
-                    ];
+                //Create Journal List
+                $_journal_transaction_details = [
+                    '  -----       REPRINT       ----  ',
+                    ' ',
+                    'Date :' . str_pad(now()->format('F d, Y'), 28, ' ', STR_PAD_LEFT),
+                    'Time :' . str_pad(now()->format('h:i A'), 28, ' ', STR_PAD_LEFT) . PHP_EOL,
+                    ' ',
+                    '  -----    VOID INVOICE     ----  ',
+                    ' ',
+                    '   Thermozone Philippines Corp.   ',
+                    '      2286 Marconi St., Brgy.     ',
+                    '     San Isidro City of Makati,   ',
+                    '  VAT REG TIN: 223-661-818-00000  ',
+                    '       MIN: ' . 'XXXXXXXXXX   ',
+                    '       S/N: ' . 'XXXXXXXXXX  ',
+                    ' ',
+                    ' -------------------------------- ',
+                    ' ',
+                    ' ',
+                    'Void No: ' . str_pad($_void->id, 12, '0', STR_PAD_LEFT) . '   ',
+                    'Void Date: ' . $_void->created_at->format('F j, Y') . '   ',
+                    'Void Time: ' . $_void->created_at->format('h:i A') . '   ',
+                    ' ',
+                    'Issued By : ' . auth()->user()->name,
+                    'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
+                    'Trans Date : ' . $_transaction->created_at->format('F d, Y'),
+                    'Trans Time : ' . $_transaction->created_at->format('h:i A'),
+                    'Payment Method : ' . implode(', ', $_method_list),
+                    ' ',
+                    '----------------------------------',
+                ];
 
-                    $_journal_customer_details = [
-                        ' ',
-                        ' -----   CUSTOMER DETAILS  ----- ',
-                        ' ',
-                    ];
+                $_journal_customer_details = [
+                    ' ',
+                    ' -----   CUSTOMER DETAILS  ----- ',
+                    ' ',
+                ];
 
-                    if ($_transaction->is_sc) {
-                        $_sc_info = ScInfo::where('transaction_id', $_transaction->id)->first();
-                        array_push($_journal_customer_details,
-                            ' Name: ' . $_sc_info->name,
-                            ' ID Number  : ' . $_sc_info->sc_id,
-                            ' Signature : ______________________ '
-                        );
-                    }
-                    else if ($_transaction->is_pwd) {
-                        $_pwd_info = PwdInfo::where('transaction_id', $_transaction->id)->first();
-                        array_push($_journal_customer_details,
-                            ' Name:      ' . $_pwd_info->name,
-                            ' ID Number: ' . $_pwd_info->pwd_id,
-                            ' Signature: ______________________ '
-                        );
-                    }
-                    else if ($_transaction->is_nac) {
-                        $_nac_info = NacInfo::where('transaction_id', $_transaction->id)->first();
-                        array_push($_journal_customer_details,
-                            ' Name:      ' . $_nac_info->name,
-                            ' ID Number: ' . $_nac_info->pnstm_id,
-                            ' Signature: ______________________ '
-                        );
-                    }
-                    else if ($_transaction->is_soloparent) {
-                        $_sp_info = SoloparentInfo::where('transaction_id', $_transaction->id)->first();
-                        array_push($_journal_customer_details,
-                            ' Name:      ' . $_sp_info->name,
-                            ' ID Number: ' . $_sp_info->spic_id,
-                            ' Signature: ______________________ '
-                        );
-                    }
-                    else {
-                        array_push($_journal_customer_details,
-                            ' Name:      ______________________ ',
-                            ' Address:   ______________________ ',
-                            ' TIN:       ______________________ ',
-                            ' Signature: ______________________ '
+                if ($_transaction->is_sc) {
+                    $_sc_info = ScInfo::where('transaction_id', $_transaction->id)->first();
+                    array_push(
+                        $_journal_customer_details,
+                        ' Name: ' . $_sc_info->name,
+                        ' ID Number  : ' . $_sc_info->sc_id,
+                        ' Signature : ______________________ '
                     );
+                } else if ($_transaction->is_pwd) {
+                    $_pwd_info = PwdInfo::where('transaction_id', $_transaction->id)->first();
+                    array_push(
+                        $_journal_customer_details,
+                        ' Name:      ' . $_pwd_info->name,
+                        ' ID Number: ' . $_pwd_info->pwd_id,
+                        ' Signature: ______________________ '
+                    );
+                } else if ($_transaction->is_nac) {
+                    $_nac_info = NacInfo::where('transaction_id', $_transaction->id)->first();
+                    array_push(
+                        $_journal_customer_details,
+                        ' Name:      ' . $_nac_info->name,
+                        ' ID Number: ' . $_nac_info->pnstm_id,
+                        ' Signature: ______________________ '
+                    );
+                } else if ($_transaction->is_soloparent) {
+                    $_sp_info = SoloparentInfo::where('transaction_id', $_transaction->id)->first();
+                    array_push(
+                        $_journal_customer_details,
+                        ' Name:      ' . $_sp_info->name,
+                        ' ID Number: ' . $_sp_info->spic_id,
+                        ' Signature: ______________________ '
+                    );
+                } else {
+                    array_push(
+                        $_journal_customer_details,
+                        ' Name:      ______________________ ',
+                        ' Address:   ______________________ ',
+                        ' TIN:       ______________________ ',
+                        ' Signature: ______________________ '
+                    );
+                }
+
+                $_journal_item_details = [
+                    ' ',
+                    '----------------------------------',
+                    ' ',
+                    ' -----    ITEM BREAKDOWN    ----- ',
+                    ' ',
+                    ' Qty     Item     Price     Total ',
+                ];
+                $_discount_value = 0.0;
+                $_item_count = 0;
+
+                foreach ($basketItems as $_basket_item) {
+                    $_item = Item::find($_basket_item['id']);
+                    if ($_item->package) {
+                        $_item_data = Package::find($_item->package_id);
                     }
-
-                    $_journal_item_details = [
-                        ' ',
-                        '----------------------------------',
-                        ' ',
-                        ' -----    ITEM BREAKDOWN    ----- ',
-                        ' ',
-                        ' Qty     Item     Price     Total ',
-                    ];
-                    $_discount_value = 0.0;
-                    $_item_count = 0;
-
-                    foreach ($basketItems as $_basket_item) {
-                        $_item = Item::find($_basket_item['id']);
-                        if($_item->package){
-                            $_item_data = Package::find($_item->package_id);
-                        }
-                        if($_item->product){
-                            $_item_data = Product::find($_item->product_id);
-                        }
-                        array_push($_journal_item_details,
-                            ' ' . $_basket_item['quantity'] .
+                    if ($_item->product) {
+                        $_item_data = Product::find($_item->product_id);
+                    }
+                    array_push(
+                        $_journal_item_details,
+                        ' ' . $_basket_item['quantity'] .
                             '    ' . $_item_data->name .
                             '    -' . number_format($_item_data->price, 2) .
-                            '    -' . number_format($_item_data->total_value, 2));
-                        $_discount_value += $_basket_item['discount_value'];
-                        $_item_count += $_basket_item['quantity'];
-                    }
-
-                    $_journal_discount_details = [''];
-
-                    if($_discount_value > 0){
-                        $_journal_discount_details = array_merge($_journal_discount_details,[
-                            '----------------------------------',
-                            '',
-                            $_item_count . ' Item(s)',
-                            ' Subtotal:      ' . str_pad("-".number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
-                            '',
-                            '----------------------------------',
-                            '',
-                            ' Less Disc Vat: ' . str_pad("-".number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
-                            ' Gross Total:   ' . str_pad("-".number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
-                            '',
-                        ]);
-                        $_discount_string = match(true) {
-                            $_transaction->is_sc == true =>
-                                'Less SC @ 20%:  ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                            $_transaction->is_pwd == true =>
-                                'Less PWD @ 20%: ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                            $_transaction->is_nac == true =>
-                                'Less NAC @ 20%: ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                            $_transaction->is_soloparent == true =>
-                                'Less SP @ 20%:  ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                            $_transaction->is_soloparent == true =>
-                                'Less Promo:  ' . str_pad("-".number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
-                        };
-                        $_journal_sales_details = [
-                            '----------------------------------',
-                            ' ',
-                            $_discount_string
-                        ];
-                    }
-                    else{
-                        $_journal_sales_details = [
-                            '----------------------------------',
-                            ' ',
-                            'Gross Sales   : ' . str_pad("-".number_format($_transaction->gross_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
-                        ];
-                    }
-
-                    foreach ($_transaction->paymentMethods as $_payment_method) {
-                        $_journal_sales_details = array_merge($_journal_sales_details, [
-                            $_payment_method->paymentMethod->name . ' Payment : ' . str_pad("-".number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
-                        ]);
-                    }
-
-                    $_journal_sales_details = array_merge($_journal_sales_details, [
-                        'Total Amount Paid : ' . str_pad("-".number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
-                        'VATable Sales : ' . str_pad("-".number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
-                        'Change : ' . str_pad("-".number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
-                        'VAT : ' . str_pad("-".number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
-                        'VAT Exempt Sales : ' . str_pad("-".number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
-                        'Zero Rated Sales : ' . str_pad("-".number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
-                        'Total Sales : ' . str_pad("-".number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
-                        ' ',
-                        '           ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT) . '     ',
-                        ' ',
-                        '   THERMOZONE PHILIPPINES CORP.   ',
-                        '   2286 Marconi St. Makati City   ',
-                        '  VAT REG TIN: 223-661-818-00000  ',
-                        ' Accreditation Number: XXXXXXXXXX ',
-                        '      ATG Number: XXXXXXXXXX      ' . PHP_EOL,
-                        '---------------------------------------------------------------------------' . PHP_EOL,
-                    ]);
-
-                    $_journal_list = array_merge(
-                        $_journal_transaction_details,
-                        $_journal_customer_details,
-                        $_journal_item_details,
-                        $_journal_discount_details,
-                        $_journal_sales_details
+                            '    -' . number_format($_item_data->price * $_basket_item['quantity'], 2)
                     );
+                    $_discount_value += $_basket_item['discount_value'];
+                    $_item_count += $_basket_item['quantity'];
+                }
 
-                    Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'void_invoice_reprint',  $_journal_list);
+                $_journal_discount_details = [''];
+
+                if ($_discount_value > 0) {
+                    $_journal_discount_details = array_merge($_journal_discount_details, [
+                        '----------------------------------',
+                        '',
+                        $_item_count . ' Item(s)',
+                        ' Subtotal:      ' . str_pad("-" . number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                        '',
+                        '----------------------------------',
+                        '',
+                        ' Less Disc Vat: ' . str_pad("-" . number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                        ' Gross Total:   ' . str_pad("-" . number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
+                        '',
+                    ]);
+                    $_discount_string = match (true) {
+                        $_transaction->is_sc == true =>
+                        'Less SC @ 20%:  ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                        $_transaction->is_pwd == true =>
+                        'Less PWD @ 20%: ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                        $_transaction->is_nac == true =>
+                        'Less NAC @ 20%: ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                        $_transaction->is_soloparent == true =>
+                        'Less SP @ 20%:  ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                        $_transaction->is_soloparent == true =>
+                        'Less Promo:  ' . str_pad("-" . number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    };
+                    $_journal_sales_details = [
+                        '----------------------------------',
+                        ' ',
+                        $_discount_string
+                    ];
+                } else {
+                    $_journal_sales_details = [
+                        '----------------------------------',
+                        ' ',
+                        'Gross Sales   : ' . str_pad("-" . number_format($_transaction->gross_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                    ];
+                }
+
+                foreach ($_transaction->paymentMethods as $_payment_method) {
+                    $_journal_sales_details = array_merge($_journal_sales_details, [
+                        $_payment_method->paymentMethod->name . ' Payment : ' . str_pad("-" . number_format($_payment_method->cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                    ]);
+                }
+
+                $_journal_sales_details = array_merge($_journal_sales_details, [
+                    'Total Amount Paid : ' . str_pad("-" . number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
+                    'Change : ' . str_pad("-" . number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
+                    'VATable Sales : ' . str_pad("-" . number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
+                    'VAT : ' . str_pad("-" . number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
+                    'VAT Exempt Sales : ' . str_pad("-" . number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
+                    'Zero Rated Sales : ' . str_pad("-" . number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
+                    'Amount Due : ' . str_pad("-" . number_format($_transaction->total_sales ?? 0, 2), 20, ' ', STR_PAD_LEFT),
+                    ' ',
+                    '           ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT) . '     ',
+                    ' ',
+                    '   THERMOZONE PHILIPPINES CORP.   ',
+                    '   2286 Marconi St. Makati City   ',
+                    '  VAT REG TIN: 223-661-818-00000  ',
+                    ' Accreditation Number: XXXXXXXXXX ',
+                    '      Date Issued: MM/DD/YYYY     ',
+                    '     Valid Issued: MM/DD/YYYY     ',
+                    '        PTU No: XXXXXXXXXX        ',
+                    '      Date Issued: MM/DD/YYYY     ' . PHP_EOL,
+                    '---------------------------------------------------------------------------' . PHP_EOL,
+                ]);
+
+                $_journal_list = array_merge(
+                    $_journal_transaction_details,
+                    $_journal_customer_details,
+                    $_journal_item_details,
+                    $_journal_discount_details,
+                    $_journal_sales_details
+                );
+
+                Journal::createJournalEntry(Carbon::now()->format('Ymd'), 'void_invoice_reprint',  $_journal_list);
 
                 $response = [
                     'message' => 'Transaction voided successfully.',
@@ -1165,8 +1176,6 @@ class TransactionController extends Controller
                 ];
 
                 return response()->json($response, 200);
-
-
             } else {
                 return response()->json(['error' => 'Transaction not found.'], 404);
             }
@@ -1197,32 +1206,33 @@ class TransactionController extends Controller
         }
     }
 
-    public function dailySummary(){
+    public function dailySummary()
+    {
 
-         try {
-            if(!auth()->check()){
+        try {
+            if (!auth()->check()) {
                 return response()->json(['error' => 'Unauthrorized.'], 401);
             }
             $response = response()->json([], 200);
 
             $data = $this->transactionSummary('today');
 
-            if(!empty($data)){
+            if (!empty($data)) {
                 $result = collect();
-                if(!empty($data['products_excluded_in_package']) || !empty($data['packages']) ){
-                    $data['packages']->map(function ($item) use ($result){
+                if (!empty($data['products_excluded_in_package']) || !empty($data['packages'])) {
+                    $data['packages']->map(function ($item) use ($result) {
                         $result->push([
                             'name' => $item['name'],
-                            'price' =>$item['price'],
+                            'price' => $item['price'],
                             'qty' => $item['quantity'],
                             'total' => $item['gross_income'],
                         ]);
                         return;
                     });
-                    $data['products_excluded_in_package']->map(function ($item) use ($result){
+                    $data['products_excluded_in_package']->map(function ($item) use ($result) {
                         $result->push([
                             'name' => $item['name'],
-                            'price' =>$item['price'],
+                            'price' => $item['price'],
                             'qty' => $item['quantity'],
                             'total' => $item['gross_income'],
                         ]);
@@ -1233,24 +1243,23 @@ class TransactionController extends Controller
             }
 
             return $response;
-
         } catch (Exception $err) {
             return response()->json(['error' => $err->getMessage()], 500);
         }
-
     }
 
 
-    public function rolebaseDailysummary(){
+    public function rolebaseDailysummary()
+    {
         try {
-            if(!auth()->check()){
+            if (!auth()->check()) {
                 return response()->json(['error' => 'Unauthrorized.'], 401);
             }
 
             $response = $this->dailySummary();
             $_user = auth()->user();
 
-            if($_user->hasRole('Cashier')){
+            if ($_user->hasRole('Cashier')) {
 
                 $transaction = Transaction::withoutGlobalScopes()
                     ->where('is_valid', true)
@@ -1258,22 +1267,22 @@ class TransactionController extends Controller
                     ->where('processed_by', $_user->id);
 
                 $data = $this->getData($transaction);
-                if(!empty($data)){
+                if (!empty($data)) {
                     $result = collect();
-                    if(!empty($data['products_excluded_in_package']) || !empty($data['packages']) ){
-                        $data['packages']->map(function ($item) use ($result){
+                    if (!empty($data['products_excluded_in_package']) || !empty($data['packages'])) {
+                        $data['packages']->map(function ($item) use ($result) {
                             $result->push([
                                 'name' => $item['name'],
-                                'price' =>$item['price'],
+                                'price' => $item['price'],
                                 'qty' => $item['quantity'],
                                 'total' => $item['gross_income'],
                             ]);
                             return;
                         });
-                        $data['products_excluded_in_package']->map(function ($item) use ($result){
+                        $data['products_excluded_in_package']->map(function ($item) use ($result) {
                             $result->push([
                                 'name' => $item['name'],
-                                'price' =>$item['price'],
+                                'price' => $item['price'],
                                 'qty' => $item['quantity'],
                                 'total' => $item['gross_income'],
                             ]);
@@ -1285,13 +1294,13 @@ class TransactionController extends Controller
             }
 
             return $response;
-
         } catch (Exception $err) {
             return response()->json(['error' => $err->getMessage()], 500);
         }
     }
 
-    public function claim_stub(Request $request){
+    public function claim_stub(Request $request)
+    {
         try {
             $request->validate([
                 'stub_no' => 'required',
@@ -1330,7 +1339,8 @@ class TransactionController extends Controller
         }
     }
 
-    public function generate_stub($transaction_id){
+    public function generate_stub($transaction_id)
+    {
         try {
             $_transaction = Transaction::find($transaction_id);
             //add has inclusion if has Item
@@ -1343,8 +1353,8 @@ class TransactionController extends Controller
 
                 foreach ($items as $item) {
                     $qty = $_basket_item_quantity[$item->id];
-                    if(!empty($item->package->packageHasPackageInclusive)){
-                        $inclusions = $item->package->packageHasPackageInclusive->map(function ($packageInclusion) use ($qty){
+                    if (!empty($item->package->packageHasPackageInclusive)) {
+                        $inclusions = $item->package->packageHasPackageInclusive->map(function ($packageInclusion) use ($qty) {
                             return [
                                 'id' => $packageInclusion->id,
                                 'name' => $packageInclusion->packageInclusive->name,
@@ -1360,7 +1370,7 @@ class TransactionController extends Controller
                         });
                     }
                 }
-                foreach ($inclusions as $inclusion){
+                foreach ($inclusions as $inclusion) {
                     $stub_no = $this->generateDailyCounter();
 
                     $stub_details = [
@@ -1375,20 +1385,20 @@ class TransactionController extends Controller
                 $_stubs = Stub::where('transaction_id', $_transaction->id)
                     ->where('status', 0)
                     ->get();
-                $_stubs = $_stubs->map(function ($stub){
-                        return [
-                            'stub_no'=> $stub->stub_no,
-                            'name' => $stub->packageInclusive->name,
-                            'quantity' => $stub->quantity,
-                            'price' => $stub->packageInclusive->price,
-                            'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
-                                return [
-                                    'name' => $product->product->name,
-                                    'qty' => $product->qty,
-                                ];
-                            }),
-                        ];
-                    });
+                $_stubs = $_stubs->map(function ($stub) {
+                    return [
+                        'stub_no' => $stub->stub_no,
+                        'name' => $stub->packageInclusive->name,
+                        'quantity' => $stub->quantity,
+                        'price' => $stub->packageInclusive->price,
+                        'items' => $stub->packageInclusive->packageInclusiveProducts->map(function ($product) {
+                            return [
+                                'name' => $product->product->name,
+                                'qty' => $product->qty,
+                            ];
+                        }),
+                    ];
+                });
 
                 return [
                     'has_inclusive' => true,
@@ -1422,12 +1432,12 @@ class TransactionController extends Controller
             $exists = Stub::whereDate('created_at', Carbon::today())
                 ->where('stub_no', $stubNo)
                 ->exists();
-
         } while ($exists);
 
         return $stubNo;
     }
-    public function print($id) {
+    public function print($id)
+    {
         try {
             $_transaction = Transaction::with([
                 'basket.items.item.product',
@@ -1441,10 +1451,11 @@ class TransactionController extends Controller
             $_method_list = [];
             $transactionPaymentMethods = [];
 
-            foreach ($_transaction->paymentMethods as $method){
+            foreach ($_transaction->paymentMethods as $method) {
                 $paymentMethod = PaymentMethod::find($method->payment_method_id);
                 array_push($_method_list, $paymentMethod->name);
-                array_push($transactionPaymentMethods,
+                array_push(
+                    $transactionPaymentMethods,
                     collect([
                         'transaction_id' => $_transaction->id,
                         'payment_method_name' => $paymentMethod->name,
@@ -1461,7 +1472,7 @@ class TransactionController extends Controller
                 'si_no' => str_pad($_transaction->si_no, 12, '0', STR_PAD_LEFT),
                 'date' => $_transaction->created_at->format('F j, Y'),
                 'time' => $_transaction->created_at->format('h:i A'),
-                'payment_method' => implode(', ' , $_method_list),
+                'payment_method' => implode(', ', $_method_list),
 
                 'is_sc' => $_transaction->is_sc,
                 'is_pwd' => $_transaction->is_pwd,
@@ -1525,19 +1536,20 @@ class TransactionController extends Controller
                 '  -----       INVOICE       ----  ',
                 ' ',
                 '   Thermozone Philippines Corp.   ',
-                ' 2286 Marconi St., Brgy. San Isid ',
-                '        ro City of Makati,        ',
+                '      2286 Marconi St., Brgy.     ',
+                '     San Isidro City of Makati,   ',
                 '  VAT REG TIN: 223-661-818-00000  ',
+                '       MIN: ' . 'XXXXXXXXXX   ',
+                '       S/N: ' . 'XXXXXXXXXX  ',
                 ' ',
                 ' -------------------------------- ',
                 ' ',
-                ' MIN: '.'XXXXXXXXXX   ',
-                ' Serial No : ' . 'XXXXXXXXXX   ',
                 ' ',
                 'Issued By : ' . auth()->user()->name,
                 'Invoice NO : ' . str_pad($_transaction->id, 12, '0', STR_PAD_LEFT),
-                'Date : ' . $_transaction->created_at->format('F d, Y'),
-                'Payment Method : ' . implode(', ' , $_method_list),
+                'Trans Date : ' . $_transaction->created_at->format('F d, Y'),
+                'Trans Time : ' . $_transaction->created_at->format('h:i A'),
+                'Payment Method : ' . implode(', ', $_method_list),
                 ' ',
                 '----------------------------------',
             ];
@@ -1550,43 +1562,44 @@ class TransactionController extends Controller
 
             if ($_transaction->is_sc) {
                 $_sc_info = ScInfo::where('transaction_id', $_transaction->id)->first();
-                array_push($_journal_customer_details,
+                array_push(
+                    $_journal_customer_details,
                     ' Name: ' . $_sc_info->name,
                     ' ID Number  : ' . $_sc_info->sc_id,
                     ' Signature : ______________________ '
                 );
-            }
-            else if ($_transaction->is_pwd) {
+            } else if ($_transaction->is_pwd) {
                 $_pwd_info = PwdInfo::where('transaction_id', $_transaction->id)->first();
-                array_push($_journal_customer_details,
+                array_push(
+                    $_journal_customer_details,
                     ' Name:      ' . $_pwd_info->name,
                     ' ID Number: ' . $_pwd_info->pwd_id,
                     ' Signature: ______________________ '
                 );
-            }
-            else if ($_transaction->is_nac) {
+            } else if ($_transaction->is_nac) {
                 $_nac_info = NacInfo::where('transaction_id', $_transaction->id)->first();
-                array_push($_journal_customer_details,
+                array_push(
+                    $_journal_customer_details,
                     ' Name:      ' . $_nac_info->name,
                     ' ID Number: ' . $_nac_info->pnstm_id,
                     ' Signature: ______________________ '
                 );
-            }
-            else if ($_transaction->is_soloparent) {
+            } else if ($_transaction->is_soloparent) {
                 $_sp_info = SoloparentInfo::where('transaction_id', $_transaction->id)->first();
-                array_push($_journal_customer_details,
+                array_push(
+                    $_journal_customer_details,
                     ' Name:      ' . $_sp_info->name,
                     ' ID Number: ' . $_sp_info->spic_id,
                     ' Signature: ______________________ '
                 );
-            }
-            else {
-                array_push($_journal_customer_details,
+            } else {
+                array_push(
+                    $_journal_customer_details,
                     ' Name:      ______________________ ',
                     ' Address:   ______________________ ',
                     ' TIN:       ______________________ ',
                     ' Signature: ______________________ '
-            );
+                );
             }
 
             $_journal_item_details = [
@@ -1602,25 +1615,27 @@ class TransactionController extends Controller
 
             foreach ($basketItems as $_basket_item) {
                 $_item = Item::find($_basket_item['id']);
-                if($_item->package){
+                if ($_item->package) {
                     $_item_data = Package::find($_item->package_id);
                 }
-                if($_item->product){
+                if ($_item->product) {
                     $_item_data = Product::find($_item->product_id);
                 }
-                array_push($_journal_item_details,
+                array_push(
+                    $_journal_item_details,
                     ' ' . $_basket_item['quantity'] .
-                    '    ' . $_item_data->name .
-                    '   @' . number_format($_item_data->price, 2) .
-                    '    ' . number_format($_item_data->total_value, 2));
+                        '    ' . $_item_data->name .
+                        '   @' . number_format($_item_data->price, 2) .
+                        '    ' . number_format($_item_data->price * $_basket_item['quantity'], 2)
+                );
                 $_discount_value += $_basket_item['discount_value'];
                 $_item_count += $_basket_item['quantity'];
             }
 
             $_journal_discount_details = [''];
 
-            if($_discount_value > 0){
-                $_journal_discount_details = array_merge($_journal_discount_details,[
+            if ($_discount_value > 0) {
+                $_journal_discount_details = array_merge($_journal_discount_details, [
                     '----------------------------------',
                     '',
                     $_item_count . ' Item(s)',
@@ -1632,25 +1647,24 @@ class TransactionController extends Controller
                     ' Gross Total:   ' . str_pad(number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
                     '',
                 ]);
-                $_discount_string = match(true) {
+                $_discount_string = match (true) {
                     $_transaction->is_sc == true =>
-                        'Less SC @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less SC @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     $_transaction->is_pwd == true =>
-                        'Less PWD @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less PWD @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     $_transaction->is_nac == true =>
-                        'Less NAC @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less NAC @ 20%: ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     $_transaction->is_soloparent == true =>
-                        'Less SP @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less SP @ 20%:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                     $_transaction->is_soloparent == true =>
-                        'Less Promo:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
+                    'Less Promo:  ' . str_pad(number_format($_discount_value, 2), 15, ' ', STR_PAD_LEFT),
                 };
                 $_journal_sales_details = [
                     '----------------------------------',
                     ' ',
                     $_discount_string
                 ];
-            }
-            else{
+            } else {
                 $_journal_sales_details = [
                     '----------------------------------',
                     ' ',
@@ -1666,8 +1680,8 @@ class TransactionController extends Controller
 
             $_journal_sales_details = array_merge($_journal_sales_details, [
                 'Total Amount Paid : ' . str_pad(number_format($_transaction->total_cash_tendered ?? 0, 2), 14, ' ', STR_PAD_LEFT),
-                'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'Change : ' . str_pad(number_format($_transaction->change ?? 0, 2), 25, ' ', STR_PAD_LEFT),
+                'VATable Sales : ' . str_pad(number_format($_transaction->vatable_sales ?? 0, 2), 18, ' ', STR_PAD_LEFT),
                 'VAT : ' . str_pad(number_format($_transaction->vat ?? 0, 2), 28, ' ', STR_PAD_LEFT),
                 'VAT Exempt Sales : ' . str_pad(number_format($_transaction->vat_exempt_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
                 'Zero Rated Sales : ' . str_pad(number_format($_transaction->zero_rated_sales ?? 0, 2), 15, ' ', STR_PAD_LEFT),
@@ -1679,7 +1693,10 @@ class TransactionController extends Controller
                 '   2286 Marconi St. Makati City   ',
                 '  VAT REG TIN: 223-661-818-00000  ',
                 ' Accreditation Number: XXXXXXXXXX ',
-                '      ATG Number: XXXXXXXXXX      ' . PHP_EOL,
+                '      Date Issued: MM/DD/YYYY     ',
+                '     Valid Issued: MM/DD/YYYY     ',
+                '        PTU No: XXXXXXXXXX        ',
+                '      Date Issued: MM/DD/YYYY     ' . PHP_EOL,
                 '---------------------------------------------------------------------------' . PHP_EOL,
             ]);
 
@@ -1708,4 +1725,3 @@ class TransactionController extends Controller
         }
     }
 }
-
