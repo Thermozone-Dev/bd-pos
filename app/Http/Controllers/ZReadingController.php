@@ -212,7 +212,7 @@ class ZReadingController extends Controller
         $lessReturns = $lessDiscounts - $totalReturns;
         $lessVoids = $lessDiscounts - $totalVoids;
         $lessVATAdjustments = $lessVoids - $totalVATAdjusts;
-        $netAmount = $grossAmount - ($totalDiscounts + $totalVoids + $totalVATAdjusts + $totalReturns + $vatAmount);
+        $netAmount = ($grossAmount - $totalDiscounts - $totalVoids) - ($vatAmount + $scTransactionsVATAdjust + $pwdTransactionsVATAdjust + $regDiscountsVATAdjust);
 
         // TRANSACTION SUMMARY
 
@@ -432,7 +432,7 @@ class ZReadingController extends Controller
             'previousAccumulated' => number_format($previousAccumulated, 2, '.', ''),
             'salesForTheDay' => number_format($salesForTheDay, 2, '.', ''),
             'vatableSales' => number_format($vatableSales, 2, '.', ''),
-            'vatAmount' => number_format($vatAmount, 2, '.', ''),
+            'vatAmount' => number_format($vatAmount + $scTransactionsVATAdjust + $pwdTransactionsVATAdjust + $regDiscountsVATAdjust, 2, '.', ''),
             'vatExemptSales' => number_format($vatExemptSales, 2, '.', ''),
             'zeroRatedSales' => number_format($zeroRatedSales, 2, '.', ''),
             'grossAmount' => number_format($grossAmount, 2, '.', ''),
