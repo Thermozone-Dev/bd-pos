@@ -173,19 +173,19 @@ class ZReadingController extends Controller
         $scTransactionsVATAdjust = Transaction::where('is_sc', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->where('is_valid', false)
+            ->where('is_valid', true)
             ->sum('vat_adjustment');
 
         $pwdTransactionsVATAdjust = Transaction::where('is_pwd', true)
             ->where('created_at', '>=', Carbon::now()->startOfDay())
             ->where('created_at', '<=', Carbon::now()->endOfDay())
-            ->where('is_valid', false)
+            ->where('is_valid', true)
             ->sum('vat_adjustment');
 
         $todayStart = Carbon::now()->startOfDay();
         $todayEnd   = Carbon::now()->endOfDay();
 
-        $regDiscountsVATAdjust = Transaction::where('is_valid', false)
+        $regDiscountsVATAdjust = Transaction::where('is_valid', true)
             ->whereBetween('created_at', [$todayStart, $todayEnd])
             ->where(function ($q) {
                 $q->where('is_nac', true)
@@ -299,7 +299,7 @@ class ZReadingController extends Controller
             'previous_accumulated_sales' => $previousAccumulated,
             'sales_for_the_day' => $salesForTheDay,
             'vatable_sales' => $vatableSales,
-            'vat' => $vatAmount,
+            'vat' => $vatAmount + $scTransactionsVATAdjust + $pwdTransactionsVATAdjust + $regDiscountsVATAdjust,
             'vat_exempt_sales' => $vatExemptSales,
             'zero_rated_sales' => $zeroRatedSales,
             'gross_amount' => $grossAmount,
