@@ -350,12 +350,12 @@ class TransactionController extends Controller
                     '----------------------------------',
                     '',
                     $_item_count . ' Item(s)',
-                    ' Subtotal:      ' . str_pad(number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                    ' Subtotal:      ' . str_pad(number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
                     '',
                     '----------------------------------',
                     '',
                     ' Less Disc Vat: ' . str_pad(number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
-                    ' Gross Total:   ' . str_pad(number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
+                    ' Gross Total:   ' . str_pad(number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
                     '',
                 ]);
                 $_discount_string = match (true) {
@@ -789,12 +789,12 @@ class TransactionController extends Controller
                             '----------------------------------',
                             '',
                             $_item_count . ' Item(s)',
-                            ' Subtotal:      ' . str_pad("-" . number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                            ' Subtotal:      ' . str_pad("-" . number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
                             '',
                             '----------------------------------',
                             '',
                             ' Less Disc Vat: ' . str_pad("-" . number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
-                            ' Gross Total:   ' . str_pad("-" . number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
+                            ' Gross Total:   ' . str_pad("-" . number_format($_transaction->gross_sales - $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
                             '',
                         ]);
                         $_discount_string = match (true) {
@@ -1096,12 +1096,12 @@ class TransactionController extends Controller
                         '----------------------------------',
                         '',
                         $_item_count . ' Item(s)',
-                        ' Subtotal:      ' . str_pad("-" . number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                        ' Subtotal:      ' . str_pad("-" . number_format($_transaction->gross_sales , 2), 15, ' ', STR_PAD_LEFT),
                         '',
                         '----------------------------------',
                         '',
                         ' Less Disc Vat: ' . str_pad("-" . number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
-                        ' Gross Total:   ' . str_pad("-" . number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
+                        ' Gross Total:   ' . str_pad("-" . number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
                         '',
                     ]);
                     $_discount_string = match (true) {
@@ -1639,12 +1639,12 @@ class TransactionController extends Controller
                     '----------------------------------',
                     '',
                     $_item_count . ' Item(s)',
-                    ' Subtotal:      ' . str_pad(number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
+                    ' Subtotal:      ' . str_pad(number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
                     '',
                     '----------------------------------',
                     '',
                     ' Less Disc Vat: ' . str_pad(number_format($_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
-                    ' Gross Total:   ' . str_pad(number_format($_transaction->gross_sales, 2), 15, ' ', STR_PAD_LEFT),
+                    ' Gross Total:   ' . str_pad(number_format($_transaction->gross_sales + $_transaction->vat_adjustment, 2), 15, ' ', STR_PAD_LEFT),
                     '',
                 ]);
                 $_discount_string = match (true) {
