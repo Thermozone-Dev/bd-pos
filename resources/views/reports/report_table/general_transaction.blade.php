@@ -10,7 +10,6 @@
             <th rowspan="2" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Date</th>
             <th colspan="6" style="background-color: #ffc000; border: 1px solid black; padding: 8px; text-align: center;">Financials</th>
             <th rowspan="2" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Zero Rated Sales</th>
-            <th colspan="4" style="background-color: #92d050; border: 1px solid black; padding: 8px; text-align: center;">Discounts</th>
             <th rowspan="2" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Total Sales</th>
             <th rowspan="2" style="background-color: #a6a6a6; border: 1px solid black; padding: 8px; text-align: center;">Gross Sales</th>
         </tr>
@@ -22,10 +21,6 @@
             <th style="background-color: #ffc000; border: 1px solid black; padding: 8px; text-align: center;">VAT</th>
             <th style="background-color: #ffc000; border: 1px solid black; padding: 8px; text-align: center;">VAT Exempt Sales</th>
             <th style="background-color: #ffc000; border: 1px solid black; padding: 8px; text-align: center;">Change</th>
-            <th style="background-color: #92d050; border: 1px solid black; padding: 8px; text-align: center;">PWD</th>
-            <th style="background-color: #92d050; border: 1px solid black; padding: 8px; text-align: center;">Senior Citizen</th>
-            <th style="background-color: #92d050; border: 1px solid black; padding: 8px; text-align: center;">National Athletes and Coaches</th>
-            <th style="background-color: #92d050; border: 1px solid black; padding: 8px; text-align: center;">Solo Parent</th>
         </tr>
     </thead>
     <tbody>
@@ -41,10 +36,6 @@
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->vat_exempt_sales, 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->change, 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->zero_rated_sales, 2) }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ number_format($discountSummary[$transaction->id]['pwd'], 2) }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ number_format($discountSummary[$transaction->id]['sc'], 2) }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ number_format($discountSummary[$transaction->id]['nac'], 2) }}</td>
-                <td style="border: 1px solid black; padding: 8px;">{{ number_format($discountSummary[$transaction->id]['solo_parent'], 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->total_sales, 2) }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ number_format($transaction->gross_sales, 2) }}</td>
             </tr>
