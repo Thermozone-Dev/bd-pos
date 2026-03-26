@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/admin');
 });
 
 Route::any('/logout', function () {
@@ -15,7 +15,6 @@ Route::any('/logout', function () {
     Auth::logout();
     return redirect()->route('filament.admin.pages.dashboard');
 })->name('logged-sign-out');
-
 
 // Route::get('/test-controller/transaction',[TransactionController::class,'dailySummary']);
 
