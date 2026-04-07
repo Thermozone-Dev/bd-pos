@@ -90,36 +90,36 @@ class ListTransactions extends ListRecords
             ->color('primary')
             ->button(),
 
-            Action::make('reset_si')
-                ->label('Reset Sales Invoice')
-                ->requiresConfirmation()
-                ->color('danger')
-                ->visible( fn () =>  auth()->user()->hasRole('super_admin'))
-                ->action( function (){
+            // Action::make('reset_si')
+            //     ->label('Reset Sales Invoice')
+            //     ->requiresConfirmation()
+            //     ->color('danger')
+            //     ->visible( fn () =>  auth()->user()->hasRole('super_admin'))
+            //     ->action( function (){
 
-                    $test = Artisan::call('app:reset-sales-invoice');
+            //         $test = Artisan::call('app:reset-sales-invoice');
 
-                    if($test == 0){
-                        Notification::make()
-                            ->title(Artisan::output())
-                            ->icon('heroicon-o-check')
-                            ->iconColor('success')
-                            ->send();
-                        return;
-                    }
+            //         if($test == 0){
+            //             Notification::make()
+            //                 ->title(Artisan::output())
+            //                 ->icon('heroicon-o-check')
+            //                 ->iconColor('success')
+            //                 ->send();
+            //             return;
+            //         }
 
-                    if($test == 1){
-                        Notification::make()
-                            ->title('Error resetting sales invoice: ' . Artisan::output())
-                            ->icon('heroicon-o-exclamation-triangle')
-                            ->iconColor('danger')
-                            ->send();
-                        return;
-                    }
+            //         if($test == 1){
+            //             Notification::make()
+            //                 ->title('Error resetting sales invoice: ' . Artisan::output())
+            //                 ->icon('heroicon-o-exclamation-triangle')
+            //                 ->iconColor('danger')
+            //                 ->send();
+            //             return;
+            //         }
 
 
-                })
-                ->icon('heroicon-o-exclamation-triangle')
+            //     })
+            //     ->icon('heroicon-o-exclamation-triangle')
         ];
     }
 
